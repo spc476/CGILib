@@ -253,33 +253,34 @@ void (CgiOutHtml)(const Cgi cgi)
   
   ddt(cgi != NULL);
 
-#if 1
   size = strlen(msg);
-  BufferWrite(cgi->output,"Content-type: text/html\n\n",&size);
-#else
-  size = sizeof("Content-type: text/html\n\n");
-  BufferWrite(cgi->output,"Content-type: text/html\n\n",&size);
-#endif
+  BufferWrite(cgi->output,msg,&size);
 }
 
 /***********************************************************************/
 
 void (CgiOutText)(const Cgi cgi)
 {
+  static const char msg[] = "Content-type: text/plain\n\n";
+  size_t            size;
+
   ddt(cgi != NULL);
-  CgiOutHtml(cgi);
+
+  size = strlen(msg);
+  BufferWrite(cgi->output,msg,&size);
 }
 
 /************************************************************************/
 
 void (CgiOutShtml)(const Cgi cgi)
 {
-  size_t size;
+  static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
+  size_t            size;
   
   ddt(cgi != NULL);
   
-  size = sizeof("Content-type: text/x-server-parsed-html\n\n");
-  BufferWrite(cgi->output,"Content-type: text/x-server-parsed-html\n\n",&size);
+  size = strlen(msg);
+  BufferWrite(cgi->output,msg,&size);
 }
 
 /**************************************************************************/
