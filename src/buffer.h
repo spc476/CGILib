@@ -127,6 +127,7 @@
 #  define FILERENAME		(ERR_BUFFER + 90)
 #  define FILERENAMEDEL		(ERR_BUFFER + 91)
 #  define PIPEBUFFER		(ERR_BUFFER + 92)
+#  define ENTITYOUTBUFFER	(ERR_BUFFER + 93)
 
 #endif
 
@@ -165,6 +166,7 @@
   int            StdinBuffer		(Buffer *);
   int            StdoutBuffer		(Buffer *);
   int            StderrBuffer		(Buffer *);
+  int		 EntityOutBuffer	(Buffer *,Buffer);
   
 #  if 0
     int		 PipeBuffer		(Buffer *,char *,Flags);

@@ -46,6 +46,7 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/buf.ufile.o		\
 		$(HOSTDIR)/buf.line.o		\
 		$(HOSTDIR)/buf.memory.o		\
+		$(HOSTDIR)/buf.entityout.o	\
 	$(HOSTDIR)/stream.o			\
 		$(HOSTDIR)/stream.file.o 	\
 		$(HOSTDIR)/stream.memory.o 	\
@@ -116,6 +117,9 @@ $(HOSTDIR)/buf.ufile.o : src/Buffer/ufile.c src/buffer.h
 
 $(HOSTDIR)/buf.line.o : src/Buffer/line.c src/buffer.h
 	$(CC) $(CFLAGS) -c -o $@ src/Buffer/line.c
+
+$(HOSTDIR)/buf.entityout.o : src/Buffer/entityout.c src/buffer.h
+	$(CC) $(CFLAGS) -c -o $@ src/Buffer/entityout.c
 
 $(HOSTDIR)/stream.o : src/Stream/stream.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/stream.c
