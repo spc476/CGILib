@@ -139,6 +139,7 @@ static int line_ioreq(struct buffer *buf,int cmd,va_list list)
          return(line_writechar(pbuf,c));
     case C_FLUSH:
          return(line_flush(pbuf));
+    case CD_READEOF:
     case CL_EOF:
          return (pbuf->eof);
     default:
