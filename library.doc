@@ -1,0 +1,1137 @@
+
+**************************************************************
+*
+* $Log: library.doc,v $
+* Revision 1.1  2004/12/03 06:36:32  spc
+* Initial revision
+*
+* Revision 1.1.1.1  2004/09/30 22:27:10  spc
+* CGI Library 1.0
+*
+* Revision 1.3  2003/01/04 22:19:36  spc
+* Various small configuration changes and documentation stating that the
+* documentation that does exist is rather poor and quite out of date.
+*
+* Revision 1.2  2001/02/18 15:29:21  spc
+* Upated for inclusion in the CVS repository
+*
+*
+**************************************************************
+
+NOTE:	This documentation is sorely out of date.  Big time.  The best way
+	to figure out what is what is to either read the code (sorry) or
+	look at code that calls the routines in this library to figure out
+	how this stuff is used.  I will note, however, that before using
+	most of the routines in this library, you need to call the following
+	routines *in this order* for the library to be properly initialized:
+
+		MemInit();
+		BufferInit();
+		DdtInit();
+		CleanInit();
+
+	Failure to call these routines *in this order* will cause the
+	library to fail in strange and mysterious ways.
+
+NOTE:	This code was primarily developed under Unix with Posix semantics
+	(or can at least tolerate Posix-like code).  While it *has* been
+	ported to Windows by at least one other programmer, that code has
+	*not* been merged into this code base (but from what I understand,
+	the porting wasn't all that difficult).  Most of the sticking points
+	for porting will be buffer.h (and the associated Buffer/ directory),
+	ddt.c and ddt.h (which define a replacement for ANSI C's assert()
+	macro---the one defined has worked fine under the systems it's been
+	tested under so far, which include Irix 5x and Linux 2x (Intel and
+	DEC Alpha ports)), sio.c and sio.h (which implements a low level
+	interface to creating TCP connections), errors.c and errors.h.
+
+	The CGI specific code (cgi.h and Cgi/cgi.c) assume a web server
+	capable of executing CGIs and has been extensively tested under
+	Apache.  Other webservers or operating systems may need this code to
+	be modified.
+
+NOTE: 	All functions in this library expect to be given valid data.  No error
+	checking is done in the non-debug version, for performance reasons. 
+	It is expected that if all error checking is passed in the debug
+	version, then it isn't required for the release version.
+
+	Also, all functions that return pointers will return a valid pointer
+	UNLESS OTHERWISE NOTED!
+
+	All the header files can be included more than once safely.  The
+	only exception to prove the rule is ddt.h, which depends upon the
+	value of DDT being or not deing defined.
+
+=============================================================================
+
+Buffer Code	#include <cgi/buffer.h>
+
+	THIS CODE IS SLATED TO BE REMOVED SOME DAY.  USE AT YOUR OWN
+	RISK.  THE BUFFER ROUTINES ARE VERY BUGGY, POORLY DESIGNED
+	AND HARD TO USE CORRECTLY.  I AM SORRY.
+
+	YOU HAVE BEEN WARNED.
+
+	These routines do low level buffering of data and allow the
+	implementor to specify new sources for data input/output.  For
+	instance, the current code allows buffering of data to/from
+	files, as well as to/from memory.
+
+	These functions work on the Buffer data type.  All functions
+	return an error code of ERR_OKAY if successful, else an error
+	code (which will also be pushed onto the error stack, see the
+	Error Functions)
+
+	int NullBuffer(Buffer *);
+		Creates a source that always returns EOF, or a sink
+		for data.
+
+	int DynamicBuffer(Buffer *);
+		Creates an output sink that can asborb as much data as
+		there is memory for it.  At least, in theory.
+
+	int FileBuffer(Buffer *,char *,Flags);
+		This function creates an input/output buffer using the
+		given filename and options.
+
+	char *FileTmpName(void);
+		Simlar to the ANSI C call tmpnam().
+
+	int FileDelete(char *);
+		Similar to the ANSI C call remove().
+
+	int FileRename(char *,char *);
+		Similar to the ANSI C call rename().
+
+	int FileRenameDel(Char *,char *);
+		Um ... I don't really know what I was thinking when I made
+		this function---all it does is call FileRename().  Go
+		figure.
+
+	int FHBuffer(Buffer *,int);
+		Create a buffer out of a Unix file handle.
+
+	int TCPBuffer(Buffer *,char *,int);
+		Create a connection to the given host and port number
+		and return a Buffer that can read/write.  It's the whole
+		read/write botch that gives rise to many of the bugs in
+		this module.
+
+	int LineBuffer(Buffer *,Buffer);
+		Allow line-by-line reading, abosorbing the end of line
+		markers.  I'm not sure how this interacts with BufferRead()
+		or BufferWrite() to tell you the truth.
+
+	int MemoryBuffer(Buffer *,void *,size_t);
+		This function uses the given memory as the source or
+		sink for data.
+
+		It is *this* routine alone that has the majority of 
+		problems in this module, and is responsible for my
+		wanting to toss this code into the garbage.
+
+	int StdinBuffer(Buffer *);
+		Return a buffer for stdin.
+
+	int StdoutBuffer(Buffer *);
+		Return a buffer for stdout.
+
+	int StderrBuffer(Buffer *);
+		Return a buffer for stderr.
+
+	void BufferInit(void);
+		Initialize the Buffer module.
+
+	int BufferIOCtl(Buffer,int, ... );
+		Used to call a particular buffer routine that normally
+		doesn't have an external call pointed to it.
+
+	int BufferRead(Buffer,void *,size_t *);
+		Read size_t data from the buffer into the data area, and
+		update the size with the number of characters read.
+
+	int BufferFormatRead(Buffer,char *,char *, ... );
+		Not implemented.  Probably won't be either.
+
+	int BufferWrite(Buffer,void *,size_t *);
+		Write size_t characters to the buffer.  Update the size
+		with the number of characters actually written.
+
+	int BufferFormatWrite(Buffer,char *,char *, ... );
+		I'm beginning to realize that there is *way* too much
+		to actually document at this point.  Sigh.
+
+	int BufferFormatWritev(Buffer,char *,char *,va_list);
+
+	int BufferSeek(Buffer,long *,int);
+
+	int BufferFlush(Buffer);
+	
+	int BufferEOF(Buffer);
+		Check to see if we're at the end of file for this buffer.
+
+	unsigned long BufferSize(Buffer);
+		The size of the current buffer.
+
+	unsigned long BufferBlockSize(Buffer);
+		The size of blocks for this particular buffer.
+
+	int BufferFree(Buffer *);
+		Close the buffer and free any associated memory.
+
+===============================================================================
+
+CGI Code	#include <cgin3/cgi.h>
+	These routines allow the manipulation of name/value pairs, as well
+	as data (as name/value pairs) from a form.  It now supports cookies
+	as well.
+
+	The routines here use the following structure:
+
+		struct pair
+		{
+		  struct Node node;
+		  char        *name;
+		  char        *value;
+		};
+
+	You should use the declaration of this structure from cgi.h and NOT
+	define your own structure as an implementation may have more fields
+	than the ones given here.  The fields given here are the minimum.
+	You have been warned.
+
+	There is one function that uses the following structure:
+
+		struct dstring
+		{
+		  char *s1;
+		  char *s2;
+		};
+
+	You can safely declare your own version of this as this structure
+	will not change in definition.
+
+	You must call CgiStart() or CgiInit() before using any of the Cgi*()
+	routines.  You may safely call the Pair*() routines at any time.
+
+	struct pair *PairNew(char **psrc,char sep,char end);
+		This function creates a name/value pair from the ASCIIZ
+		string given it.  'sep' is the character that separates
+		the name from the value portion, and 'end' marks the end
+		of the name/value pair in the string.
+
+	struct pair *PairCreate(char *name,char *value);
+		This function creates a pair structure with the given
+		name and value.
+
+	void PairFree(struct pair *);
+		This function destoryes the given pair and frees any
+		resources allocated.
+
+	void PairListAdd(struct List *,char **psrc,char sep,char end);
+		This function is similar to PairNew() except the newly
+		created name/value pair is added to the end of the given
+		list.
+
+	struct pair *PairListFirst(struct List *);
+		This returns the first pair from the given list.  It returns
+		an invalid node if there are no name/value pairs in the 
+		list.  Use NodeValid() to check.
+
+	struct pair *PairListGetPair(struct List *,char *name);
+		This returns the pair with the given name from the given
+		list, or NULL if not found.
+
+	char *PairListGetValue(struct List *,char *name);
+		This returns the value of the pair named in the given list,
+		or NULL if the named pair could not be found.
+
+	void PairListFree(struct List *);
+		This function frees all the pairs in the given list, as well
+		as any resources.
+
+	int CgiStart(int *type);
+		Initializes the CGI code.  This function will also determine
+		the request method and set 'type' to GET, POST or HEAD.  If
+		the request method isn't one of those, this will return 
+		CGIERR_REQUEST, ERR_OKAY otherwise.
+
+		For the given request method, the data will be read in
+		accordingly (although a request method of HEAD is still
+		not fully supported) but no name/value pairs will be
+		created.  See CgiNextValue() or CgiListMake().
+
+		This is the preferred function to initialize the CGI code.
+
+	int CgiInit(void);
+		This is the old initialization routine for the CGI code. 
+		Use of this function is discouraged, but it is still 
+		supported for now.
+
+	void CgiGetRawData(char **,size_t *);
+		This returns the raw data submitted and the amount of data
+		submitted.
+
+	void CgiOutText(void);
+	void CgiOutHtml(void);
+		These two routines currently output
+			Content-type: text/html\n\n
+
+		Which is the standard output type for CGI scripts.
+
+	void CgiOutShtml(void);
+		Outputs
+
+			Content-type: text/x-server-parsed-html\n\n
+
+		Which may or may not work with a given web server.
+
+		Why this was included is beyond me.  You should probably not
+		use this function unless you know what you are doing.
+
+	void CgiOutLocation(char *location);
+		Outputs
+
+			Location: (location)\n\n
+
+		for CGI redirects.  You should probably not use this
+		function unless you know what you are doing.
+
+	struct pair *CgiNextValue(void);
+		This function reads the next name/value pair from the
+		web server and returns it.  If there are no more name/value
+		pairs to read in, this will return NULL.
+
+	void CgiListMake(void);
+		This function will repeatedly call CgiNextValue(), putting
+		the resulting name/value pairs into an internal list.
+		Duplicate name/value pairs are not removed.
+
+	struct pair *CgiListFirst(void);
+		Return the first name/value pair from the internal list. See
+		PairListFirst().
+		
+	struct pair *CgiListGetPair(char *name);
+		Returns the first pair (there may be duplicates) with the
+		given name, else NULL if not found.  See PairListGetPair().
+
+	char *CgiListGetValue(char *name);
+		Returns the value of the pair with the given name, else NULL
+		if not found.  See PairListGetValue().
+
+	int CgiListRequired(struct dstring *,size_t);
+		This function goes through the given array, looking for the
+		given name/value pairs.  If this returns 0, then all the
+		name/value pairs were found and the s2 field have been
+		filled in the the value.  Any other value is an error and
+		indicates which name/value pair (1 based, not 0 based) was
+		not found.
+
+	struct pair *CookieNextValue(void)
+		This function returns the next name/value pair from the
+		package of cookies sent from the client.  If there are no
+		name/value pairs, this returns NULL.
+
+	void CookieListMake(void)
+		This function will repeatedly call CookieNextValue(),
+		putting the resulting cookies into an internal list.
+		Duplicate cookies are not removed.
+
+	struct pair CookieListFirst(void)
+		Return the first cookie from the internal list.  See
+		PairListFirst().
+
+	struct pair CookieListGetPair(char *name)
+		Returns the first cookie (there may be duplicates) with 
+		the given name, else NULL if not found.  See
+		PairListGetPair().
+
+	char *CookieListGetValue(char *name)
+		Returns the value of the given cookie, else NULL if not
+		found.  See PairListGetValue().
+
+===============================================================================
+
+DDT Code	#include <cgin3/ddt.h>
+	The following routines are for debugging and logging.  Three
+	functions are defined, and two macros, which change their
+	behavior depending if DDT is defined or not.
+	
+	int DdtOpen(int *stream,char *file,char *tag);
+		This function opens the given file.  Each time something is
+		logged to this stream, the tag will be the first thing 
+		printed on the line.
+
+		There currently is a bug whereby the tag last specified
+		is output, reguardless of which stream is used.
+
+	void ddtlog(int stream,char *msg, ... );
+		This writes 'msg' to 'stream'.  'msg' has the same format
+		used by the printf() family (ANSI C functions).  
+
+	int DdtClose(int *stream);
+		This closes the given stream.
+
+	ddt(expr)	MACRO
+		If DDT is defined, this is used to test the given
+		expression, and if false, a diagnostic message is written to
+		the default stream giving the filename and line of the
+		expression.
+
+		If DDT is not defined, no code is generated at all.
+		
+	D(statement)	MACRO
+		If DDT is defined, the statement is included in compilation.
+
+		If DDT is not defined, no code is generated at all.
+	
+	The following external declaration is defined.  This will always be
+	a valid stream and need not be opened or closed, although it can be
+	passed to DdtOpen() to redirect all internal logging messages.
+
+		int ddtstream;
+
+===============================================================================
+
+Error Code	#include <cgin3/errors.h>
+	These routines allow tracking and logging of errors back up a call
+	chain.  They also allow quite a bit of contextual data to be saved
+	with an error for further analysis.
+
+	Error ErrorNew(char *tag,int point,int error,char *format, ... );
+		This function creates a new error and returns it.  This
+		function will always return an error, uh, I mean, it will
+		always return the error given it.
+
+		'tag' is a tag message that will be part of the error (see
+		ErrorInterpret()), and 'point' is a logging or error 'point'
+		in the code to allow you to pin point the particular call.
+		All of the functions in this library will use a function
+		number (arbitrarily assigned) as this value, but any value
+		that can be used to track the caller can be used.  'error
+		is the error value.
+
+		'format' is a format string for contextual data to be
+		included in the error, with the contextual data following
+		this parameter (if any).  A valid string must be given, even
+		if it's an empty string.  The format is a series of
+		characters describing the data type of the contextual data
+		(currently, only the first 16 parameters are saved).
+
+		The characters are defined as:
+
+			c	- character
+			C	- character
+			s	- short integer
+			S	- unsigned short integer
+			i	- integer
+			I	- (uppercase i) unsigned integer
+			l	- (lowercase L) long integer
+			L	- unsigned long integer
+			f	- float
+			d	- double
+			$	- string
+			p	- generic pointer (pointer must be cast to NULL)
+
+		Any characters not listed here will cause undefined behavior
+		if used.
+
+		Some examples:
+
+		e = ErrorNew("ERR",__LINE__,ERRVAL,"");
+		e = ErrorNew("ERR",__LINE__,ERRVAL,"$","this is an error");
+		e = ErrorNew("ERR",__LINE__,ERRVAL,"$i",filename,linenum);
+
+		Applications will rarely, if ever, call this function
+		directly and instead will use ErrorPush().
+
+	int ErrorPush(char *tag,int point,int error,char *format, ... );
+		This is the main Error reporting function.  The semantics
+		are the same as ErrorNew(), but the return code is 'error'.
+
+		This function will push the error onto an internal error
+		stack, which is used to propogate errors back up the call
+		chain to allow later analysis to trace the error back to
+		the original point of failure.
+
+		Most code will use this function.
+		
+		Examples:
+
+		return(ErrorPush(KernErr,KERNOPEN,errno,"$",filename));
+		return(ErrorPush("ERR",__LINE__,ERRVAL,""));
+
+		See ErrorNew() for more information.
+
+	Error ErrorTop(void);
+		This function returns the error at the top of the error
+		stack.  This does not remove the error from the top of the
+		stack.  Also see ErrorPop().
+	
+	Error ErrorPop(void);
+		This function returns the error at the top of the error
+		stack, and removes it from the stack as well.
+
+	char *ErrorInterpret(Error,char *,size_t);
+		This function will interpret an error, giving back a text
+		representation.  This is intended to later give back
+		meaningful error messages, but is now limited to the
+		following format:
+
+			TIMESTAMP PID TAGppppeeeee CONTEXTDATA ...
+
+		TIMESTAMP is the number of seconds since Jan. 1, 1970.
+		PID is the process id of the process logging the error.
+		TAG is the TAG portion of the error code
+		pppp is the point portion, 4 characters long.
+		eeeee is the error value, 5 characters long.
+		CONTEXTDATA is the contextual data associated with the
+		error.
+
+		This format is subject to change in the future, when I get
+		around to it.
+
+	void ErrorLog(void);
+		This function logs the error stack to the default debugging
+		stream (see ddtlog()) using the format described in 
+		ErrorInterpret(), with one exception:  If more than one
+		error is on the error stack, the TIMESTAMP and PID is listed
+		only once.
+
+	void ErrorFree(Error);
+		This function will release any resources consumed by the
+		error message (mostly memory).  The error must NOT be part
+		of the error stack, or undefined results will occure.
+
+	void ErrorClear(void);
+		This will clear the error stack of all entires.
+
+	The following external declaration is also defined.  This refers to
+	a value useful for logging of system calls under the Unix system:
+
+		char	*KernErr;
+
+	Some (but not all) UNIX system calls also have a defined point
+	value.  Check "errors.h" for more information.
+
+==============================================================================
+
+HTML Code	#include <cgin3/htmltok.h>
+	A low level HTML parsing library, so no syntactical or semantical
+	analysis is done on the text.  It's up to a higher level code
+	to provide any syntatical or semantical analysis.
+
+	int HtmlParseNew(HtmlToken *,Buffer);
+		This function creates a new token stream from the given
+		buffer (see Buffer Code).  You must call this routine
+		before calling any of the following routines.
+
+	int HtmlParseNext(HtmlToken);
+		Returns the next token in the input stream.  This can be
+		one of four types:
+
+			T_EOF		End of input stream
+			T_STRING	text between HTML tags
+			T_TAG		an HTML tag
+			T_COMMENT	an HTML comment
+
+		The return integer is an error code, and if not equal to
+		ERR_OKAY, then an error occured during processing.
+
+		If this function returned ERR_OKAY, use HtmlParseToken() to
+		return the token found by this call.
+
+		T_EOF - no further processing can be done.  Any futher calls
+		to HtmlParseNext() will keep returning T_EOF.
+
+		T_STRING - use HtmlParseValue() to retrieve the text between
+		HTML tags.  While this always returns a valid string
+		pointer, the string itself may be empty.
+
+		T_TAG - use HtmlParseValue() to retrieve the tag name, and
+		HtmlParseFirstOption(), HtmlParseGetPair() or
+		HtmlParseNextValue() to get parameters (if any) to this tag.
+
+		T_COMMENT - you will never (should never) get this at this
+		time.
+
+		HTML comments are not handled properly at this time.  Any
+		tag in the the form of <!...> will be treated as an HTML
+		comment, which is incorrect.  This will be addressed in a 
+		future revision of this code.
+
+	char *HtmlParseValue(HtmlToken);
+		Returns the actual value (string) of the token.  For a token
+		of type T_STRING, it's the data between HTML tags (and may
+		be an empty string).  For a token of type T_TAG, it's the
+		name of the tag (for example, "A" or "/CENTER").
+
+	int HmltParseToken(HtmlToken);
+		This function returns the result of the last parse in the
+		input stream.  See HtmlParseNext() for more information.
+
+	struct pair *HtmlParseFirstOption(HtmlToken);
+		This function returns the first option of the tag in a 
+		name/value pair.  See CGI Code and PairListFirst() for
+		more information.
+
+		Undefined behavior results if called when the token doesn't
+		equal T_TAG.
+
+	struct pair *HtmlParseGetPair(HtmlToken,char *);
+		This function returns the name/value pair of the named
+		option to the T_TAG token.  Undefined behavior results if
+		called when the token doesn't equal T_TAG.
+
+		See CGI Code and ParseGetPair().
+
+	struct pair *HtmlParseNextValue(HtmlToken);
+		This function doesn't exist yet.
+
+	char *HtmlParseGetValue(HtmlToken,char *);
+		This function returns the value of the named option to the
+		T_TAG token.  Undefined behavior results if called when the
+		token doesn't equal T_TAG.
+
+		See CGI Code and ParseGetValue().
+
+	int HtmlParseFree(HtmlToken *);
+		This function frees any resources associated with the input
+		stream, but does not close it.
+
+=============================================================================
+	
+WEB Code	#include <cgin3/http.h>
+	These functions deal with obtaining a document via HTTP (Hyper
+	Text Transfer Protocol).
+
+	int HttpConnect(HTTP *,int method,URLHTTP,char *headers[]);
+		This function will open an input stream to the given URL
+		(see URL Code), using the requested method (GET, POST or
+		HEAD) using the given headers for the client side of
+		the protocol.  The return code represents a successful
+		communication with the remote server and is NOT an
+		indication that the communicated resulted in a document
+		being transfered (see HttpStatus()).
+
+		This function will NOT follow redirects, and as such, is the
+		only reliable way to determine if a document has been 
+		redirected.
+
+		This function will work with servers up to HTTP 1.1.
+
+	int HttpOpen(HTTP *,int method,URLHTTP,char *headers[]);
+		This function is equivilent to HttpConnect() except that
+		this will follow any redirects from the server.
+
+		If this function does follow a redirect, the status (see
+		HttpStatus()) will not reflect that redirection, and the URL
+		of the actual document (see HttpUrl()) needs to be checked
+		to see if the connection has been redirected, although no
+		indication can be asertains if the redirect is a temporary
+		or permanent redirection. This may be addressed in a later
+		version of this library.
+
+	struct pair *HttpServerHeaders(HTTP);
+		This function will return the first name/value pair of the
+		headers the server sent us, stripped of leading and trailing
+		white space (for both the name and value).  See CGI Code
+		and the Pair* functions for more information.
+
+	char *HttpGetServerHeader(HTTP,char *name);
+		This function will return the value of the given server
+		header, or NULL if that header wasn't sent.
+
+	Buffer HttpBuffer(HTTP);
+		This function returns the buffer associated with this input
+		stream. See Buffer code.
+
+	URLHTTP HttpUrl(HTTP);
+		This function returns the URL of the document being
+		referenced.  Note that this may not be the one used to
+		originally reference the document, as the server may have
+		redirected us to another document.  See HttpOpen() for
+		more information.
+
+	int HttpStatus(HTTP);
+		This function returns the connection status (200, 404, etc)
+		of the document requested.
+
+	int HttpRedirected(HTTP);
+		This function returns if the given document has been
+		redirected or not.  It returns a status between 300 and
+		399 (see HTTP spec for meaning of return value).
+
+k	int HttpClose(HTTP *);
+		This function releases all resources used to make the 
+		connection, including any input/output streams.
+
+	int HttpVersion(char *);
+		This returns at what revision (0.9, 1.0 or 1.1) that the
+		HTTP server is using to communicate with us. 
+
+		This function should probably be internal (to this
+		library) use only and not user visible.
+
+		The semantics of this function may change in later specs.
+
+	int HttpRetStatus(int status,int version);
+		This function returns a modifed status depending upon the
+		version given.  Some HTTP status are defined in some
+		versions, and not in others.  What this function does is
+		map the status code to the version number.  For example,
+		a status of 403 is not defined for HTTP/1.0, but it is
+		for HTTP/1.1.  So, a call like
+
+			s = HttpRetStatus(403,HTTP10);
+
+		will return 400, the closest match.
+
+		If you don't know what you are doing, you should probably
+		not use this function.
+
+===========================================================================
+
+Regular (wildcard) expression matching code (pulled off the net)
+		#include <cgin3/match.h>
+
+	This code was pulled off the net and comes with its own
+	documentation.
+
+==============================================================================
+
+Memory Code	#include <cgin3/memory.h>
+	This code handles all memory management for the library, and
+	provides tools to track down memory mismanagement.
+
+	void MemInit(void);
+		This function initalizes all the memory functions.  You
+		must call this function (or CgiStart()/CgiInit()) before
+		using any of these routines.
+
+		You can safely call this function more than once (later
+		invocations will do nothing).
+
+	void MemDeInit(void);
+		This function will free ALL memory in use by this code, as
+		well as any memory allocated through these functions.  You
+		do not have to call this function, but if you do, you then
+		need to call MemInit() to reinitialize the memory routines.
+
+	void MemHeapInit(size_t);
+		This function adds additional memory to the heap.  This 
+		function is called automatically and should not be called
+		by user code.
+
+	void MemHeapFree(void);
+		This function frees the heap.  This function should not be
+		called by user code.
+
+	void *MemAlloc(size_t);
+		This function allocates the requested amount of memory. 
+		This function will always return a valid pointer to a 
+		block of memory of the requested size.  If there is not
+		enough memory to allocate, the program will abort.
+
+		The memory is not set to a particular value, and in debug
+		mode, the memory is set with values that will cause
+		problems if the memory isn't properly initialized or
+		cleared.
+
+		Obviously there has to be a better way to handle out of 
+		memory errors, but so far, that hasn't been that much of
+		an issue.
+
+	void *MemDDTAlloc(size_t,char *file,int line);
+		This has the same semantics as MemAlloc(), except for the
+		extra two parameters.  The request is logged using
+		ddtlog().  This is usually used like:
+
+		#ifdef DDT
+		#  define MemAlloc(s)	MemDDTAlloc((s),__FILE__,__LINE__)
+		#endif
+
+	void *MemGrow(void *,size_t osize,size_t nsize);
+		This function will increase the memory block from the old
+		size 'osize' to the new size 'nsize'.  There is no guarentee
+		that the newly resized block of memory is in the same 
+		location.  The new size must be larger than the old size, or
+		undefined results occure.
+
+	void *MemShrink(void *,size_t osize,size_t nsize);
+		This function shrinks the memory block from the old size 
+		'osize' to the new size 'nsize'.  There is no guarentee that
+		the newly resized block of memory is in the same 
+		location.  The new size must be smaller than the old size,
+		or undefined results occure.
+
+	void *MemResize(void *p,size_t osize,size_t nsize);
+		This is a catch all function.  This is for those that like
+		doing all things with a single function and were all
+		possible inputs do something, including the opposite things
+		at extream ends.  
+
+		if p is NULL
+			return MemAlloc(nsize)
+		else if nsize is 0
+			MemFree(p,osize)
+			return NULL
+		else if nsize > osize
+			return MemGrow(p,osize,nsize)
+		else if nsize < osize
+			return MemShrink(p,osize,nsize)
+		else
+			if debug, crash else return p
+
+	void MemFree(void *,size_t);
+		Free the memory block back to the system (and yes, the size
+		of the block is required - it helps with debugging).  In 
+		debug mode, this function will determine if any memory past
+		what was allocated was overwritten, and if so, will log the
+		corruption using ddtlog() and abort the program.
+
+	void MemDDTFree(void *,size_t,char *,int);
+		This function is similar to MemFree() in that it will log
+		the call.  It is mostly used like:
+
+		#ifdef DDT
+		#  define MemFree(p,s) MemDDTFree((p),(s),__FILE__,__LINE__)
+		#endif
+
+	void MemStatus(unsigned long stat[8]);
+		This function is now obsolete and MemStatistics() should
+		be used instead.
+
+		This function will return the following information, in this
+		order:
+	
+			number of bytes allocated since program start
+			number of calls to MemAlloc() since program start
+			smallest block allocated since program start
+			largest block allocated since program start
+			number of bytes freed since program start
+			number of calls to MemFree() since program start
+			smallest block freed since program start
+			largest block freed since program start
+
+		Passing in an array smaller than 8 entries will result in
+		undefined behavior.
+
+	int MemStatistics(struct memstats *data,size_t size,int calls);
+		This function now replaces MemStatus() as it allows for both
+		future expansion and only returns the information called
+		for.
+
+		The declaration of struct memstats is:
+
+		struct memstats
+		{
+		  unsigned long bytes;
+		  unsigned long calls;
+		  unsigned long min;
+		  unsigned long max;
+		};
+
+		'size' is the number of elements in the 'data' array. 
+		'calls' is a bit-flag field that is used to determine which
+		function to return stats on.  The valid values (to be ORed
+		together) are:
+
+			C_MEMALLOC	MemAlloc()
+			C_MEMFREE	MemFree()
+			C_MEMGROW	MemGrow()
+			C_MEMSHRINK	MemShrink()
+			C_MEMRESIZE	MemResize()
+
+		Note that not all fields in struct memstats makes sense for
+		all functions.
+
+		If you request more data in 'calls' than 'data' can hold,
+		the data will be returned in order of the above list for
+		as many as can be held.
+
+============================================================================
+
+ListNode Code	#include <cgin3/nodelist.h>
+	These routines are used to manipulate doubly linked lists.  Two
+	structures you need to use are 'struct Node' and 'struct List'
+	(although you don't need to know the internals of each to use
+	these routines).  The best way to document these routines is by
+	a simple example:
+
+	#include <stdio.h>
+	#include <string.h>
+	#include <cgin3/nodelist.h>
+	#include <cgin3/spc.h>
+	#include <cgin3/memory.h>
+
+	struct word
+	{
+	  struct Node  node;
+	  char        *text;
+	};
+
+	int main(void)
+	{
+	  struct List  lines;
+	  char         buffer[BUFSIZ];
+	  struct word *pword;
+	  struct word *pwtmp;
+
+	  ListInit(&lines);
+
+	  /*---------------------------------------------------
+	  ; read in lines of text, storing them in a list
+	  ;--------------------------------------------------*/
+
+	  while(fgets(buffer,BUFSIZ,fpin))
+	  {
+	    pword = MemAlloc(sizeof(struct word));
+	    pword->text = dup_string(buffer);
+	    ListAddTail(&lines,&pword->node);
+	  }
+
+	  /*-----------------------------------------------------
+	  ; now print out the lines in reverse order, and free
+	  ; the memory as we go along
+	  ;----------------------------------------------------*/
+
+	  pword = (struct word *)ListGetTail(&lines);
+	  while(NodeValid(&pword->node)
+          {
+	    printf("%s",pword->text);
+	    pwtmp = (struct word *)NodePrev(&pword->node);
+	    NodeRemove(&pnode->node);
+	    MemFree(pword->text,strlen(pword->text)+1);
+	    MemFree(pword);
+	    pword = pwtmp;
+	  }
+	  return(0);
+	}
+
+	Note that some of these routines may be macros.
+
+	All functions that return a struct Node will return a value
+	that needs to be checked by NodeValid(), unless otherwise noted.
+	If NodeValid() returns false (0), then the node returned is NOT
+	a valid node, and memory past the node structure can not be
+	assumed to exist.
+  
+	void (ListInit)(struct List *);
+		This function initializes the struct List.
+
+	void (ListAddHead)(struct List *,struct Node *);
+	void (ListAddTail)(struct List *,struct Node *);
+		These functions add the given node to the start or end
+		of the list respectively.
+
+	struct Node *(ListGetHead)(struct List *);
+	struct Node *(ListGetTail)(struct List *);
+		These functions return the first or last node of the list
+		respectively.  The node is still part of the list.
+
+	struct Node *(ListRemHead)(struct List *);
+	struct Node *(ListRemTail)(struct List *);
+		These functions return the first or last node of the list
+		respectively, and at the same time, remove the node from
+		the list.
+
+	void (NodeInsert)(struct Node *node,struct Node *ntoa);
+		This function adds node 'ntoa' after node 'node'.  'node'
+		must be in a list or undefined results may happen.
+
+	void (NodeRemove)(struct Node *);
+		This function will remove the node from its list.
+
+	struct Node *(NodeNext)(struct Node *);
+	struct Node *(NodePrev)(struct Node *);
+		These functions will return the next or previous node in the
+		list respectively.
+
+	struct Node *(NodeNextW)(struct Node *);
+	struct Node *(NodePrevW)(struct Node *);
+		These functions will return the next or previous node in the
+		list, wrapping around if the end (or beginning) of the node
+		is reached.  The only time this will return an invalid node
+		is if the list is empty.
+
+	int (NodeValid)(struct Node *);
+		This function returns true (1) if the node is a valid node,
+		otherwise it returns false (0).
+
+===========================================================================
+
+Network Code	#include <cgin3/sio.h>
+	This function is used to connect to a remote host, or accept
+	a connection from a remote host.
+
+	int netopen(int type,int port, ... );
+		This function connects to a remote host or accepts a 
+		connection from a remote host.  'type' is either
+
+			LISTENTO - listen for incoming connections on 'port'
+
+			TOHOST - connect to host on port 'port'.
+
+	If the type is TOHOST, then the last parameter is a string giving the 
+	name of the host to connect to.
+
+	This returns the connection between both hosts.
+
+	Currently, this function cannot accept IP addresses.
+
+=============================================================================
+
+Misc. Code	#include <cgin3/spc.h>
+	This is a collection of routines that don't quite fit anywhere else.
+	They have proven to be useful though.
+
+	char *spc_getenv(char *);
+		This function is similar to the ANSI C getenv() function,
+		only it does not return a NULL pointer.  This will always
+		return a valid, although empty, string.
+
+		The value returned can be passed MemFree().
+
+	char *up_string(char *);
+		This function will convert the string, in place, to all
+		upper case.
+
+	char *down_string(char *);
+		This function will convert the string, in place, to all
+		lower case.
+
+	char *dup_string(char *);
+		This function will return a duplicate copy of the given
+		string.
+
+		The value returned can be passed to MemFree().  Don't forget
+		to add one to the size for the null byte at the end.
+
+	int  empty_string(char *);
+		This function can be used to determine if the string
+		contains only white space.  
+
+	char *remove_ctrl(char *);
+		This function will remove all control characters from the
+		given string in place.
+
+	char *remove_char(char *,int (*f)(int));
+		This function will remove characters from the string.  The
+		function 'f' is used to determine of the character is to be
+		removed or not.  For instance, to remove all digits, use
+
+			p = remove_char(p,(isdigit));
+
+	char *trim_lspace(char *);
+	char *trim_tspace(char *);
+	char *trim_space(char *);
+		These functions will trim white space from a string in 
+		place.  trim_lspace() will trim white space from the leading
+		edge of the string (and the pointer returned may not be
+		what was passed in).  trim_tspace() wil trim whitespace from
+		the tailing edge and trim_space() will do both edges.
+
+		The value returned from this function cannnot be reliably
+		passed to MemFree().
+
+	int ctohex(char);
+		This function converts the characters 0-9,A-F to
+		the values 0-15.  Note that the the letters have to
+		be upper case.
+
+	char hextoc(int);
+		This function converts the values 0-15 to the characters
+		0-9,A-F.
+
+	char *cat_string(char *,char *);
+		This function has the same semantics of the ANSI C
+		strcpy(), but returns a pointer to the null byte of the
+		destination.
+
+=============================================================================
+
+URL Code	#include <cgin3/url.h>
+	These functions are used to manipulate URLs.  There are currently
+	three types defined, URL, which is the generic URL type, URLHTTP,
+	which is the URL for web servers, and URLFILE, which is for
+	referencing local files.  URL is the base type and itself in
+	inscificient for general use (most code will use the more specific
+	URL types).
+
+	You will most likely need to cast the specific URL types to the base
+	URL type to use these funtions:
+
+	You will most likely need to cast URLHTTTP to URL to use these
+	functions.
+
+	size_t UrlGetProto		(char *d,size_t sd,char **s);
+	size_t UrlGetHost		(char *d,size_t sd,char **s);
+	size_t UrlGetPort		(char *d,size_t sd,char **s);
+	size_t UrlGetFile		(char *d,size_t sd,char **s);
+		These functions are intended to be used by code that handles
+		specific URL types and are used to parse the URL into its
+		compents, specific to each type of URL.
+
+		As more URL types are supported, these functions will expand
+		to handle more components.  Most user level code will never
+		need to use these routines.
+
+		In general, these routines store the component type at 'd'
+		(and will use 'sd' to ensure it won't overwrite memory)
+		pointed to by 's'.  The function returns the number of
+		characters stored and update 's' to point to the first
+		character not of that component, so it can be passed onto
+		the next component parsing function.
+
+			UrlGetProto()	- Get protocol	('http:')
+			UrlGetHost()	- get host	('//www.foobar.com')
+			UrlGetPort()	- get port	(':1234')
+			UrlGetFile()	- get filename	('/one/two.html')
+
+	int UrlNew(URL *,char *);
+		Creates a new URL from the given string.  Currently, only
+		HTTP is supported.
+
+	int UrlType(URL);
+		This returns the type of URL, currently URL_HTTP or
+		URL_FILE.
+
+	int UrlNormal(URL *,URL);
+		Normalizes a URL to its cononical form.  Rarely needed.
+
+	int UrlCompare(URL,URL);
+		Compares two URLs and returns true of they are equal.
+
+	int UrlMakeString(URL,char *,size_t);
+		Converts a URL to the canonical text format.
+
+	int UrlDup(URL *,URL);
+		Duplicates a URL.
+
+	int UrlFree(URL *);
+		Frees any resources used to create the URL.
+
+	char *UrlEncodeChar(char *d,char c);
+		Encodes character 'c' to destination 'd' (which needs to 
+		point to at least three characters worth of storage).
+
+		The function returns the new destination pointer.
+
+	char UrlDecodeChar(char **pd);
+		Decodes the character pointed to by 'pd'.  'pd' will be
+		updated to point to the next character to be decoded.
+
+		This returns the character decoded.
+
+	char *UrlEncodeString(char *);
+		URL encodes a string to be used in a URL or a GET/POST
+		operation.
+
+		The return value can be passed to MemFree().
+
+	char *UrlDecodeString(char *);
+		This function will decode a URL encoded string.
+
+		The return value can be passed to MemFree().		
+
