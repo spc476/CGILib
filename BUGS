@@ -1,0 +1,9 @@
+
+
+src/Buffer/*.c
+
+	LineBuffer is broken for output
+	MemoryBuffer is broken for output
+
+	In general, avoid using buffers unless you really need to.
+
