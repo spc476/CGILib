@@ -176,6 +176,28 @@ unsigned long (BufferSize)(const Buffer buf)
 
 /*******************************************************************/
 
+int (BufferCopy)(const Buffer dest,const Buffer src)
+{
+  char   buffer[BUFSIZ];
+  size_t size;
+  int    rc;
+
+  ddt(dest != NULL);
+  ddt(src  != NULL);
+
+  while(!BufferIOCtl(src,CD_READEOF))
+  {
+    size = BUFSIZ;
+    rc   = BufferRead(src,buffer,&size);
+    if (rc != ERR_OKAY) return(ErrorPush(CgiErr,BUFFERCOPY,rc,"$","input"));
+    rc   = BufferWrite(dest,buffer,&size);
+    if (rc != ERR_OKAY) return(ErrorPush(CgiErr,BUFFERCOPY,rc,"$","output"));
+  }
+  return(ERR_OKAY);
+}
+
+/******************************************************************/
+
 int (BufferFree)(Buffer *pbuf)
 {
   int rc;

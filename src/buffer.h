@@ -104,6 +104,7 @@
 #  define BUFFERFORMATREAD	(ERR_BUFFER + 9)
 #  define BUFFERFORMATWRITE	(ERR_BUFFER + 10)
 #  define BUFFERIOCTL		(ERR_BUFFER + 11)
+#  define BUFFERCOPY		(ERR_BUFFER + 12)
 
 #  define LINEREAD		BUFREAD
 #  define LINEWRITE		BUFWRITE
@@ -187,6 +188,7 @@
   int            (BufferEOF)		(const Buffer);
   unsigned long  (BufferSize)		(const Buffer);			
   unsigned long	 (BufferBlockSize)	(const Buffer);
+  int		 (BufferCopy)		(const Buffer,const Buffer);
   int		 (BufferFree)		(Buffer *);			/* */
 
 	/* Line specific calls ... */
