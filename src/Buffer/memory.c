@@ -125,6 +125,7 @@ static int mem_ioreq(struct buffer *pbuf,int cmd,va_list alist)
          MemFree(pmb,sizeof(struct mem_buffer));
          rc = ERR_OKAY;
          break;
+    case CD_READEOF:
     case CL_EOF:
          rc = (pmb->seek == pmb->usize)
                 ? BUFERR_EOF
