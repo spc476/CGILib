@@ -40,6 +40,7 @@ struct entityout_buffer
 {
   struct buffer buf;
   Buffer        orig;
+  int           do_amp;
   unsigned long idx;
   char          entity[MAX_ENTITY];
 };
@@ -64,6 +65,7 @@ int EntityOutBuffer(Buffer *pbuf,Buffer orig)
   buf->buf.tag   = ENTITYOUTBUFFER;
   buf->buf.ioreq = entityout_ioreq;
   buf->orig      = orig;
+  buf->do_amp    = TRUE;
   buf->idx       = 0;
   *pbuf          = (Buffer)buf;
   return(ERR_OKAY);
@@ -84,6 +86,9 @@ static int entityout_ioreq(struct buffer *buf,int cmd,va_list list)
   
   switch(cmd)
   {
+    case CE_NOAMP:
+         pbuf->do_amp = FALSE;
+	 return(ERR_OKAY);
     case C_FREE:
          MemFree(pbuf,sizeof(struct entityout_buffer));
          return(ERR_OKAY);
@@ -120,8 +125,17 @@ static int entityout_writechar(struct entityout_buffer *pbuf,int c)
          BufferWrite(pbuf->orig,"&gt;",&size);
          break;
     case '&':
-         size = 5;
-         BufferWrite(pbuf->orig,"&amp;",&size);
+         if (pbuf->do_amp)
+	 {
+           size = 5;
+           BufferWrite(pbuf->orig,"&amp;",&size);
+	 }
+	 else
+	 {
+	   size = 1;
+	   cc   = c;
+	   BufferWrite(pbuf->orig,&cc,&size);
+	 }
          break;
     case '"':
          size = 6;
@@ -136,9 +150,13 @@ static int entityout_writechar(struct entityout_buffer *pbuf,int c)
   return(ERR_OKAY);
 }
 
-/**************************************************************************************/
+/*********************************************************************/
 
-static int entityout_writestring(struct entityout_buffer *pbuf,char *s,size_t *ps)
+static int entityout_writestring(
+		struct entityout_buffer *pbuf,
+		char                    *s,
+		size_t                  *ps
+	)
 {
   ddt(pbuf != NULL);
   ddt(s    != NULL);
@@ -155,5 +173,5 @@ static int entityout_writestring(struct entityout_buffer *pbuf,char *s,size_t *p
   return(ERR_OKAY);
 }
 
-/**************************************************************************************/
+/********************************************************************/
 
