@@ -76,6 +76,7 @@
 
 #  define CM_SETSIZE	101	/* hack for mod_blog */
 #  define CD_READEOF	102	/* hack for mod_blog */
+#  define CE_NOAMP	103	/* hack for mod_blog */	/* do not convert & */
 
 #  define BUFERR_EOF		(ERR_BUFFER + 1)
 #  define BUFERR_NOPUSH		(ERR_BUFFER + 2)
