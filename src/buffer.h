@@ -75,6 +75,7 @@
 #  define CF_HANDLE	100	/* hack for GeoFind */
 
 #  define CM_SETSIZE	101	/* hack for mod_blog */
+#  define CD_READEOF	102	/* hack for mod_blog */
 
 #  define BUFERR_EOF		(ERR_BUFFER + 1)
 #  define BUFERR_NOPUSH		(ERR_BUFFER + 2)
