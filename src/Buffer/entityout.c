@@ -86,7 +86,7 @@ static int entityout_ioreq(struct buffer *buf,int cmd,va_list list)
   
   switch(cmd)
   {
-    case CE_NOAMP:
+    case CE_NOAMP:	/* do not convert & */
          pbuf->do_amp = FALSE;
 	 return(ERR_OKAY);
     case C_FREE:
