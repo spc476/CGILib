@@ -168,6 +168,11 @@ static int dyn_ioreq(struct buffer *const pbuf,int cmd,va_list alist)
     case C_FLUSH:
          rc = ERR_OKAY;
          break;
+    case CD_READEOF:
+         rc = (pdb->seek == pdb->size)
+         	? BUFERR_EOF
+         	: ERR_OKAY;
+         break;
     case CL_EOF:
          rc = 0;
          break;
