@@ -354,6 +354,7 @@ static int ufh_ioreq(struct buffer *const pb,int cmd,va_list alist)
          MemFree(pbuf,sizeof(struct ufh_buffer));
          break;
     case CL_EOF:
+    case CD_READEOF:
          rc = (pbuf->eof) ? BUFERR_EOF : ERR_OKAY;
          break;
     case C_FLUSH:
