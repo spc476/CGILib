@@ -26,7 +26,9 @@
 #  include "types.h"
 #  include "nodelist.h"
 #  include "errors.h"
-#  include "stream.h"
+#  if 0
+#    include "stream.h"
+#  endif
 #endif
 
 /**********************************************************************/

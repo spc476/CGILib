@@ -47,13 +47,8 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/buf.line.o		\
 		$(HOSTDIR)/buf.memory.o		\
 		$(HOSTDIR)/buf.entityout.o	\
-	$(HOSTDIR)/stream.o			\
-		$(HOSTDIR)/stream.file.o 	\
-		$(HOSTDIR)/stream.memory.o 	\
-		$(HOSTDIR)/stream.line.o	\
 	$(HOSTDIR)/errors.o			\
 	$(HOSTDIR)/clean.o			\
-	$(HOSTDIR)/rfc822.o			\
 	$(HOSTDIR)/rawfmt.o
 
 $(TARGET) : $(OFILES)

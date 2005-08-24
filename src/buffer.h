@@ -22,7 +22,7 @@
 
 #ifndef BUFFER_H_INCLUDE
 #define BUFFER_H_INCLUDE
-#  ifdef __unix__
+#  if defined(__unix__) || defined(__MACH__)
 #    include <sys/types.h>
 #    include <unistd.h>
 #    include <fcntl.h>
@@ -40,7 +40,7 @@
 
 #  include "errors.h"
 
-#  ifdef __unix__
+#  if defined(__unix__) || defined(__MACH__)
 #    define MODE_READ		O_RDONLY
 #    define MODE_WRITE		O_WRONLY
 #    define MODE_RW 		O_RDWR

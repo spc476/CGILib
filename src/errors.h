@@ -22,7 +22,7 @@
 
 #ifndef ERRORS_H_INCLUDE
 #define ERRORS_H_INCLUDE
-#  ifdef __unix__
+#  if defined(__unix__) || defined(__MACH__)
 #    include <sys/types.h>
 #    include <unistd.h>
 #  endif
