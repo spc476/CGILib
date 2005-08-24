@@ -22,8 +22,8 @@
 
 #ifndef DDT_H
 #  define DDT_H
-#  ifdef __unix__
-#    define DDTLOGFILE	"/dev/null"
+#  if defined(__unix__) || defined(__MACH__)
+#    define DDTLOGFILE	"/tmp/null"
 #    define DDTNULFILE	"/dev/null"
 #  else
 #    error Please define your system

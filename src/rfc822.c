@@ -26,7 +26,9 @@
 
 #include "nodelist.h"
 #include "memory.h"
-#include "stream.h"
+#if 0
+#  include "stream.h"
+#endif
 #include "util.h"
 #include "rfc822.h"
 #include "pair.h"

@@ -27,7 +27,9 @@
 #include "nodelist.h"
 #include "memory.h"
 #include "pair.h"
-#include "stream.h"
+#if 0
+#  include "stream.h"
+#endif
 #include "util.h"
 #include "ddt.h"
 
