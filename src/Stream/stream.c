@@ -1,4 +1,3 @@
-
 /**************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -24,7 +23,7 @@
 #include "../memory.h"
 #include "../ddt.h"
 #include "../errors.h"
-
+#include "../types.h"
 #include "../stream.h"
 
 /************************************************************************/
@@ -36,6 +35,21 @@ static int	null_write	(struct stream *,struct streamvector *,int);
 static int	null_unwrite	(struct stream *,struct streamvector *);
 static int	null_flush	(struct stream *,struct streamvector *);
 static int	null_close	(struct stream *,struct streamvector *);
+
+/************************************************************************/
+
+int (StreamInit)(void)
+{
+  StdinStream  = FHStreamRead(0);
+  StdoutStream = FHStreamWrite(1);
+  StderrStream = FHStreamWrite(2);
+
+  return( 
+  	  (StdinStream != NULL) 
+  	  && (StdoutStream != NULL) 
+  	  && (StderrStream != NULL)
+  	);
+}
 
 /*************************************************************************/
 
@@ -144,7 +158,23 @@ int (StreamEOF)(Stream s)
 
 /*************************************************************************/
 
-int (StreamClose)(Stream s)
+size_t (StreamCopy)(Stream dest,Stream src)
+{
+  size_t amount = 0;
+  int    c;
+  
+  while(!StreamEOF(src))
+  {
+    c = StreamRead(src);
+    StreamWrite(dest,c);
+    amount++;
+  }
+  return(amount);
+}
+
+/**************************************************************************/
+  
+int (StreamFree)(Stream s)
 {
   struct streamvector *pv;
   
@@ -162,9 +192,9 @@ int (StreamClose)(Stream s)
   {
     (*pv->close)(s,pv);
     if (pv != &s->calls)
-      MemFree(pv,sizeof(struct streamvector));
+      MemFree(pv);
   }
-  MemFree(s,sizeof(struct stream));
+  MemFree(s);
   return(ERR_OKAY);
 }
 

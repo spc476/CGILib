@@ -1,4 +1,3 @@
-
 /**************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -24,7 +23,7 @@
 #include "../ddt.h"
 #include "../memory.h"
 #include "../errors.h"
-
+#include "../types.h"
 #include "../stream.h"
 
 static int	memory_read	(struct stream *s,struct streamvector *v);
@@ -131,10 +130,23 @@ static int memory_write(struct stream *s,struct streamvector *v,int c)
         return(EOF);
       }
     }
+
     if (c == EOF)
-      s->eof = TRUE;
+    {
+      /*---------------------------------------------
+      ; a couple of options here ... one is to ignore
+      ; any IEOF that is sent here (which is what I'm
+      ; leaning towards) but really, I need to figure
+      ; out why StreamEOF() usually fails.  It might
+      ; have something to do with Unix semantics or
+      ; something silly like that.
+      ;---------------------------------------------*/
+      
+      /*ddt(0);*/
+      /*s->eof = TRUE;*/
+    }
     else
-      s->data[s->off++] = c;
+      s->data[s->off++] = c; 
     return(c);
   }
 }

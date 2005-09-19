@@ -1,4 +1,3 @@
-
 /**************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -46,6 +45,7 @@ size_t (LineS)(const Stream out,const char *msg)
   
   for (amt = 0 ; *msg ; msg++ , amt++)
     StreamWrite(out,*msg);
+
   return(amt);
 }
 
@@ -74,7 +74,7 @@ size_t (LineSFormatv)(const Stream out,const char *format,const char *msg,va_lis
   ddt(format != NULL);
   ddt(msg    != NULL);
   
-  return(RawDoFmt(format,msg,line_fwvcb,out,args));
+  return(RawDoFmtv(format,msg,line_fwvcb,out,args));
 }
 
 /************************************************************************/
@@ -101,16 +101,20 @@ char *(LineSRead)(const Stream in)
     if (size == tbuffsize)
     {
       tbuffsize += STRING_DELTA;
-      tbuff      = MemResize(tbuff,size,tbuffsize);
+      tbuff      = MemResize(tbuff,tbuffsize);
     }
     
     c = Line_ReadChar(in);
     if (c == '\n') break;
     tbuff[size++] = c;    
   }
+
+  if (tbuff == NULL)
+    return(dup_string(""));
+
   tbuff[size] = '\0';
   ret         = dup_string(tbuff);
-  MemFree(tbuff,tbuffsize);
+  MemFree(tbuff);
   return(ret);
 }
 
@@ -126,10 +130,9 @@ int (Line_ReadChar)(const Stream in)
   {
     c2 = StreamRead(in);
     if (c2 != '\n')
-    {
       StreamUnRead(in,c2);
-      c1 = '\n';
-    }
+    else
+      c1 = c2;
   }
   else if (c1 == '\n')
   {
