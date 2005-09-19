@@ -30,7 +30,6 @@
 #define URL_C
 #include "../url.h"
 #include "../memory.h"
-#include "../buffer.h"
 #include "../errors.h"
 #include "../util.h"
 #include "../ddt.h"
@@ -218,15 +217,14 @@ int UrlNew(URL *ppurl,const char *url)
 	*ppurl	     = purl;
       else
       {
-	MemFree(purl->protocol,strlen(purl->protocol)+1);
-	MemFree(purl,protos[i].size);
+	MemFree(purl->protocol);
+	MemFree(purl);
 	*ppurl	     = NULL;
       }
       return(rc);
     }
   }
-  ErrorPush(CgiErr,URLNEW,URLERR_PROTOCOL,"$",url);
-  return(URLERR_PROTOCOL);
+  return(ERR_ERR);
 }
 
 /*******************************************************************/
@@ -251,7 +249,7 @@ int UrlNormal(URL *nurl,URL url)
   rc	= (*url->vector->normal)(*nurl,url);
   if (rc != ERR_OKAY)
   {
-    MemFree(*nurl,url->size);
+    MemFree(*nurl);
     *nurl = NULL;
   }
   return(rc);
@@ -287,10 +285,10 @@ int UrlDup(URL *purl,URL url)
 
   rc = UrlMakeString(url,tmpbuf,BUFSIZ);
   if (rc != ERR_OKAY)
-    return(ErrorPush(CgiErr,URLDUP,rc,""));
+    return(rc);
   rc = UrlNew(purl,tmpbuf);
   if (rc != ERR_OKAY)
-    return(ErrorPush(CgiErr,URLDUP,rc,""));
+    return(rc);
   return(ERR_OKAY);
 }
 
@@ -308,7 +306,7 @@ int UrlFree(URL *purl)
   rc = (*url->vector->free)(url);
   if (rc == ERR_OKAY)
   {
-    MemFree(url,url->size);
+    MemFree(url);
     *purl = NULL;
   }
   return(rc);
@@ -334,7 +332,7 @@ char *UrlEncodeString(const char *src)
 
   *p = 0;
   p  = dup_string(dest);
-  MemFree(dest,nsize);
+  MemFree(dest);
   return(p);
 }
 

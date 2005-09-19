@@ -30,7 +30,6 @@
 #include "../conf.h"
 #include "../memory.h"
 #include "../errors.h"
-#include "../buffer.h"
 #include "../util.h"
 #include "../url.h"
 #include "../ddt.h"
@@ -42,7 +41,6 @@ static int		 file_normal	(URL,URL);
 static int		 file_compare	(URL,URL);
 static int		 file_makestring(URL,char *,size_t);
 static int		 file_free	(URL);
-static int		 file_nourl	(URLFILE,int);
 #ifdef DDT
   static int		 FILE_check	(struct urlfile *);
 #endif
@@ -80,7 +78,7 @@ static int file_new(URL url,const char *surl)
   {
     /*if ((strcmp(tmpbuf,"localhost") != 0) && (strcmp(tmpbuf,CGIHOST) != 0))*/
     if (strcmp(tmpbuf,"localhost") != 0)
-      return(file_nourl(furl,ErrorPush(CgiErr,URLNEW,URLERR_HOST,"$",tmpbuf)));
+      return(ERR_ERR);
   }
   
   /*------------------------------------------------------------
@@ -91,7 +89,7 @@ static int file_new(URL url,const char *surl)
   if (tmpsz)
     furl->file = dup_string(tmpbuf);
   else
-    return(file_nourl(furl,ErrorPush(CgiErr,URLNEW,URLERR_FILE,"$","/")));
+    return(ERR_ERR);
     
   return(ERR_OKAY);
 }
@@ -100,7 +98,7 @@ static int file_new(URL url,const char *surl)
     
 static int file_normal(URL durl,URL surl)
 {
-  return(ErrorPush(CgiErr,URLNORMAL,URLERR_NOTIMP,""));
+  return(ERR_NOTIMP);
 }
 
 /**********************************************************************/
@@ -142,8 +140,8 @@ static int file_free(URL url)
   ddt(FILE_check(purl));
 
   purl->vector = NULL;  
-  MemFree(purl->protocol,strlen(purl->protocol) + 1);
-  MemFree(purl->file,    strlen(purl->file)     + 1);
+  MemFree(purl->protocol);
+  MemFree(purl->file);
   return(ERR_OKAY);
 }
 
@@ -161,18 +159,4 @@ static int file_free(URL url)
 #endif
 
 /************************************************************************/
-
-static int file_nourl(URLFILE url,int error)
-{
-  URLFILE purl = (URLFILE)url;
-
-  ddt(FILE_check(purl));
-
-  purl->vector = NULL;  
-  if (purl->protocol)	MemFree(purl->protocol,strlen(purl->protocol)+1);
-  if (purl->file)	MemFree(purl->file,    strlen(purl->file)+1);
-  return(error);
-}
-
-/**************************************************************************/
 

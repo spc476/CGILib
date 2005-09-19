@@ -40,7 +40,6 @@ static int		 http_normal	(URL,URL);
 static int		 http_compare	(URL,URL);
 static int		 http_makestring(URL,char *,size_t);
 static int		 http_free	(URL);
-static int		 http_nourl	(URLHTTP,int);
 #ifdef DDT
   static int		 HTTP_check	(struct urlhttp *);
 #endif
@@ -139,9 +138,9 @@ static int http_new(URL url,const char *surl)
     errno = 0;
     lport = strtol(tmpbuf,NULL,10);
     if ((errno == ERANGE) && ((lport == LONG_MAX) || (lport == LONG_MIN)))
-      return(http_nourl(hurl,ErrorPush(CgiErr,URLNEW,URLERR_PORTNUM,"$",tmpbuf)));
+      return(ERR_ERR);
     if ((lport < 0) || (lport > PORTMAX))
-      return(http_nourl(hurl,ErrorPush(CgiErr,URLNEW,URLERR_PORTNUM,"$",tmpbuf)));
+      return(ERR_ERR);
     hurl->port = lport;
   }
   else
@@ -238,7 +237,7 @@ static int http_normal(URL durl,URL surl)
   ;
   ;--------------------------------------------------------------------*/
   
-  return(ErrorPush(CgiErr,URLNORMAL,URLERR_NOTIMP,""));
+  return(ERR_NOTIMP);
 }
 
 /**********************************************************************/
@@ -357,7 +356,7 @@ static int http_makestring(URL urlb,char *d,size_t sd)
   if (sd < (sproto + shost + sport + sfile + sparams + squery + sfragment + 1))
   {
     ddt(0);
-    return(ErrorPush(CgiErr,URLMAKESTRING,URLERR_BUFFER,""));
+    return(ERR_ERR);
   }
   
   formatstr(d,sd,"$ $ $ $ $ $ $","%a://%b%c%d%e%f%g",turl.protocol,turl.host,bport,turl.file,bparams,bquery,bfragment);
@@ -374,12 +373,12 @@ static int http_free(URL url)
   /*ddt(url != (URL)&httpself);*/
 
   purl->vector = NULL;  
-  MemFree(purl->protocol,strlen(purl->protocol) + 1);
-  MemFree(purl->host,    strlen(purl->host)     + 1);
-  MemFree(purl->file,    strlen(purl->file)     + 1);
-  MemFree(purl->params,  strlen(purl->params)   + 1);
-  MemFree(purl->query,   strlen(purl->query)    + 1);
-  MemFree(purl->fragment,strlen(purl->fragment) + 1);
+  MemFree(purl->protocol);
+  MemFree(purl->host);
+  MemFree(purl->file);
+  MemFree(purl->params);
+  MemFree(purl->query);
+  MemFree(purl->fragment);
   purl->port = 0;
   return(ERR_OKAY);
 }
@@ -404,24 +403,4 @@ static int http_free(URL url)
 #endif
 
 /************************************************************************/
-
-static int http_nourl(URLHTTP url,int error)
-{
-  URLHTTP purl = (URLHTTP)url;
-
-  ddt(HTTP_check(purl));
-  /*ddt(url != (URLHTTP)&httpself);*/
-
-  purl->vector = NULL;  
-  if (purl->protocol)	MemFree(purl->protocol,strlen(purl->protocol)+1);
-  if (purl->host)	MemFree(purl->host,    strlen(purl->host)+1);
-  if (purl->file)	MemFree(purl->file,    strlen(purl->file)+1);
-  if (purl->params)     MemFree(purl->params,  strlen(purl->params)+1);
-  if (purl->query)      MemFree(purl->query,   strlen(purl->query)+1);
-  if (purl->fragment)	MemFree(purl->fragment,strlen(purl->fragment)+1);
-  purl->port = 0;
-  return(error);
-}
-
-/**************************************************************************/
 
