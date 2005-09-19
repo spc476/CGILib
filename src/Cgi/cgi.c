@@ -31,6 +31,7 @@
 #include "../util.h"
 #include "../pair.h"
 #include "../cgi.h"
+#include "../stream.h"
 #include "../nodelist.h"
 #include "../errors.h"
 #include "../types.h"
@@ -57,7 +58,7 @@ int (CgiNew)(Cgi *pcgi,void *data)
   ddt(pcgi != NULL);
   
   if ((rc = cgi_create(pcgi,data)) != ERR_OKAY)
-    return(ErrorPush(CgiErr,CGINEW,rc,""));
+    return(rc);
   
   request_method = CgiEnvGet(*pcgi,"REQUEST_METHOD");
    
@@ -71,9 +72,9 @@ int (CgiNew)(Cgi *pcgi,void *data)
     rc = cgi_new_put(*pcgi);
   else
   {
-    MemFree(*pcgi,sizeof(struct cgi));
+    MemFree(*pcgi);
     *pcgi = NULL;
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_REQUEST,"$",request_method));
+    return(ERR_ERR);
   }
 
   return(rc);
@@ -86,7 +87,6 @@ int (CgiNew)(Cgi *pcgi,void *data)
      static int cgi_create(Cgi *pcgi,void *data)
      {
        struct cgi *cgi;
-       int         rc;
        
        ddt(pcgi != NULL);
        
@@ -94,14 +94,6 @@ int (CgiNew)(Cgi *pcgi,void *data)
        cgi->data = data;
        *pcgi     = cgi;
        
-       rc = FHBuffer(&cgi->input,0);
-       if (rc != ERR_OKAY)
-         return(ErrorPush(CgiErr,CGINEW,rc,""));
-       
-       rc = FHBuffer(&cgi->output,1);
-       if (rc != ERR_OKAY)
-         return(ErrorPush(CgiErr,CGINEW,rc,""));
-
        ListInit(&cgi->vars);
        return(ERR_OKAY);
      }
@@ -130,7 +122,6 @@ static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
 {
   ddt(cgi  != NULL);
   ddt(data != NULL);
-  /*ddt(size >  0);*/
   
   if (size)
   {
@@ -157,32 +148,31 @@ static int cgi_new_post(const Cgi cgi)
   size_t  length;
   char   *content_type;
   char   *content_length;
-  int     rc;
-
+  size_t  i;
+  
   ddt(cgi != NULL);
   
   content_type   = CgiEnvGet(cgi,"CONTENT_TYPE");
   content_length = CgiEnvGet(cgi,"CONTENT_LENGTH");
   
   if (strcmp(content_type,"application/x-www-form-urlencoded") != 0)
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_CONTENT,"$",content_type));
+    return(ERR_ERR);
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_LENGTH,"$",content_length));
+    return(ERR_ERR);
     
   cgi->buffer = MemAlloc(length+2);
   memset(cgi->buffer,'\0',length+2);
   cgi->bufsize          = length+1;
   cgi->buffer[length+1] = '&';
-  
-  rc = BufferRead(cgi->input,cgi->buffer,&length);
-  if (rc != ERR_OKAY)
-    return(ErrorPush(CgiErr,CGINEW,rc,""));
-  if (length != cgi->bufsize - 1)
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_READ,"L L",cgi->bufsize,length));
-  
+
+  /* XXX --- need a better way of doing this */
+
+  for ( i = 0 ; i < length ; i++)
+    cgi->buffer[i] = StreamRead(StdinStream);
+    
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
   cgi->method  = POST;
@@ -205,7 +195,7 @@ static int cgi_new_put(const Cgi cgi)
 {
   size_t  length;
   char   *content_length;
-  int     rc;
+  size_t  i;
   
   ddt(cgi != NULL);
 
@@ -214,18 +204,15 @@ static int cgi_new_put(const Cgi cgi)
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_LENGTH,"$",content_length));
+    return(ERR_ERR);
   
   cgi->buffer = MemAlloc(length);
   memset(cgi->buffer,'\0',length);
   cgi->bufsize = length;
-  
-  rc = BufferRead(cgi->input,cgi->buffer,&length);
-  if (rc != ERR_OKAY)
-    return(ErrorPush(CgiErr,CGINEW,rc,""));
-  if (length != cgi->bufsize)
-    return(ErrorPush(CgiErr,CGINEW,CGIERR_READ,"L L",cgi->bufsize,length));
-  
+
+  for (i = 0 ; i < length ; i++)
+    cgi->buffer[i] = StreamRead(StdinStream);
+    
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize];
   cgi->method  = PUT;
@@ -249,12 +236,10 @@ void (CgiGetRawData)(const Cgi cgi,char **pdest,size_t *psize)
 void (CgiOutHtml)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/html\n\n";
-  size_t            size;
   
   ddt(cgi != NULL);
 
-  size = strlen(msg);
-  BufferWrite(cgi->output,msg,&size);
+  LineS(StdoutStream,msg);
 }
 
 /***********************************************************************/
@@ -262,12 +247,10 @@ void (CgiOutHtml)(const Cgi cgi)
 void (CgiOutText)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/plain\n\n";
-  size_t            size;
 
   ddt(cgi != NULL);
 
-  size = strlen(msg);
-  BufferWrite(cgi->output,msg,&size);
+  LineS(StdoutStream,msg);
 }
 
 /************************************************************************/
@@ -275,12 +258,10 @@ void (CgiOutText)(const Cgi cgi)
 void (CgiOutShtml)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
-  size_t            size;
   
   ddt(cgi != NULL);
-  
-  size = strlen(msg);
-  BufferWrite(cgi->output,msg,&size);
+
+  LineS(StdoutStream,msg);  
 }
 
 /**************************************************************************/
@@ -289,19 +270,11 @@ void (CgiOutLocation)(const Cgi cgi,const char *location)
 {
   ddt(cgi      != NULL);
   ddt(location != NULL);
-  
-  BufferFormatWrite(cgi->output,"$","Location: %a\n\n",location);
+
+  LineSFormat(StdoutStream,"$","Location: %a\n\n",location);  
 }
 
 /*******************************************************************/
-
-Buffer (CgiBufferOut)(const Cgi cgi)
-{
-  ddt(cgi != NULL);
-  return(cgi->output);
-}
-
-/********************************************************************/
 
 int (CgiMethod)(const Cgi cgi)
 {
@@ -413,7 +386,7 @@ size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
     {
       if (idx == size)
       {
-        store = MemResize(store,size,size+256);
+        store = MemResize(store,size+256);
 	size  += 256;
       }
       store[idx++] = pair->value;
@@ -455,11 +428,9 @@ int (CgiFree)(Cgi *pcgi)
   ddt(*pcgi != NULL);
   
   cgi = *pcgi;
-  MemFree(cgi->buffer,cgi->bufsize + 1);
+  MemFree(cgi->buffer);
   PairListFree(&cgi->vars);
-  BufferFree(&cgi->input);
-  BufferFree(&cgi->output);
-  MemFree(cgi,sizeof(struct cgi));
+  MemFree(cgi);
   *pcgi = NULL;
   return(ERR_OKAY);
 }
@@ -537,8 +508,8 @@ int (CookieFree)(Cookie *pmonster)
   
   monster = *pmonster;
   PairListFree(&monster->vars);
-  MemFree(monster->buffer,monster->bufsize + 1);
-  MemFree(monster,sizeof(struct cgi));
+  MemFree(monster->buffer);
+  MemFree(monster);
   *pmonster = NULL;
   return(ERR_OKAY);
 }
