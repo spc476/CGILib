@@ -18,6 +18,7 @@ CC=gcc -DCGILIB -DSTDCGI -Wall -pedantic -ansi
 #CFLAGS=-march=pentium3 -O3 -fomit-frame-pointer 
 #CFLAGS=-pg -g -DSCREAM -O4
 #CFLAGS=-g -DDDT
+
 CFLAGS=-g
 #CFLAGS=-g -pg
 AR=ar cr
