@@ -2,6 +2,7 @@
 #
 # Common Gateway Interface Library Verion 5.0
 # By Sean Conner.
+# All Rights Reserved.
 #
 #-------------------------------------------------------------------
 
