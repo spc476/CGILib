@@ -1,4 +1,3 @@
-
 /************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -23,14 +22,14 @@
 
 #define CGILIB_GLOBALS_H
 
-#include "errors.h"
+#include "stream.h"
+#include "error.h"
 #include "memory.h"
 #include "ddt.h"
 
-const char   CgiErr [] = "CGI";
-const char   KernErr[] = "KER";
-ErrorHandler BufferErr;
-ErrorHandler MemoryErr;
 Heap         HeapMain;
-Debug        ddtstream = NULL;
+Debug        ddtstream;
+Stream	     StdinStream;
+Stream	     StdoutStream;
+Stream	     StderrStream;
 

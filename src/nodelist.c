@@ -21,6 +21,7 @@
 *************************************************************************/
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "nodelist.h"
 #include "ddt.h"
 

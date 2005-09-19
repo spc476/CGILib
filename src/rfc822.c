@@ -1,4 +1,3 @@
-
 /************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -26,9 +25,7 @@
 
 #include "nodelist.h"
 #include "memory.h"
-#if 0
-#  include "stream.h"
-#endif
+#include "stream.h"
 #include "util.h"
 #include "rfc822.h"
 #include "pair.h"
@@ -53,26 +50,52 @@ char *(RFC822LineRead)(const Stream in)
     if (size == tbuffsize)
     {
       tbuffsize += STRING_DELTA;
-      tbuff      = MemResize(tbuff,size,tbuffsize);
+      tbuff      = MemResize(tbuff,tbuffsize);
     }
     
     c = Line_ReadChar(in);
     if (c == '\n')
     {
-      c = StreamRead(in);
+      c = Line_ReadChar(in);
+      
+      /*---------------------------------------
+      ; if it's another line feed or a non-space
+      ; character, we're done reading this line
+      ;----------------------------------------*/
+      
       if ((c == '\n') || !isspace(c))
       {
         StreamUnRead(in,c);
         break;
       }
+
+      /* ----------------------------------
+      ; discard white space
+      ;-----------------------------------*/
+      
+      while(isspace(c))
+        c = Line_ReadChar(in);
+
+      /*-----------------------------------
+      ; save the first-nonspace character,
+      ; but continue with at least one space
+      ; character---in effect, turning the '\n'
+      ; into a space character.
+      ;-------------------------------------*/
+      
+      StreamUnRead(in,c);
+      c = ' ';
     }    
     tbuff[size++] = c;
   }
+
+  if (tbuff == NULL)
+    return(NULL);
   
   tbuff[size] = '\0';
   ret         = (!empty_string(tbuff)) ? dup_string(tbuff) : NULL ;
     
-  MemFree(tbuff,tbuffsize);
+  MemFree(tbuff);
   return(ret);
 }
 
@@ -95,7 +118,7 @@ void (RFC822HeadersRead)(const Stream in,const List *list)
     ppair->value = trim_space(ppair->value);
     up_string(ppair->name);
     ListAddTail((List *)list,&ppair->node);
-    MemFree(line,strlen(line) + 1);
+    MemFree(line);
   }  
 }
 
@@ -107,6 +130,7 @@ size_t (RFC822HeadersWrite)(const Stream out,const List *list)
   int         (*conv)(int);
   size_t        size;
   char         *name;
+  char         *t;
   
   ddt(out  != NULL);
   ddt(list != NULL);
@@ -119,14 +143,14 @@ size_t (RFC822HeadersWrite)(const Stream out,const List *list)
   )
   {
     name = dup_string(ppair->name);
-    for (conv = (toupper) ; *name ; name++)
+    for (conv = (toupper) , t = name ; *t ; t++)
     {
-      *name = (*conv)(*name);
-      conv  = isalpha(*name) ? (tolower) : (toupper) ;
+      *t = (*conv)(*t);
+      conv  = isalpha(*t) ? (tolower) : (toupper) ;
     }
 
     size += LineSFormat(out,"$ $","%a: %b\n",name,ppair->value);
-    MemFree(name,strlen(name) + 1);
+    MemFree(name);
   }
   return(size);
 }

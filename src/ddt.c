@@ -35,14 +35,18 @@
 #include <syslog.h>
 
 #define DDT_C
+
+#include "stream.h"
 #include "errors.h"
 #include "memory.h"
 #include "ddt.h"
 #include "util.h"
 
-#define DDTOPEN		100
-#define DDTLOG		101
-#define DDTCLOSE	102
+#if 0
+#  define DDTOPEN	100
+#  define DDTLOG	101
+#  define DDTCLOSE	102
+#endif
 
 #ifdef DDT
 #  define i_ddt(expr)						\
@@ -81,33 +85,31 @@ void (DdtInit)(void)
 
 int (DdtFileOpen)(Debug *pddt,const char *logfile,const char *errtag)
 {
-  Buffer buffer;
-  int    rc;
+  Stream output;
   
   i_ddt(pddt    != NULL);
   i_ddt(logfile != NULL);
   i_ddt(errtag  != NULL);
-  
-  if ((rc = FileBuffer(&buffer,logfile,MODE_WRITE | MODE_APPEND)) != ERR_OKAY)
-  {
-    return(ErrorPush(CgiErr,DDTFILEOPEN,rc,"$",logfile));
-  }
-  
-  return(DdtBufferOpen(pddt,buffer,errtag));
+
+  output = FileStreamWrite(logfile,FILE_APPEND);
+  if (output == NULL)
+    return(ERR_ERR);
+
+  return(DdtStreamOpen(pddt,output,errtag));
 }
 
 /**************************************************************************/
 
-int (DdtBufferOpen)(Debug *pddt,Buffer buffer,const char *errtag)
+int (DdtStreamOpen)(Debug *pddt,Stream output,const char *errtag)
 {
   Debug sddt;
   
   i_ddt(pddt   != NULL);
-  i_ddt(buffer != NULL);
+  i_ddt(output != NULL);
   i_ddt(errtag != NULL);
   
   sddt         = MemAlloc(sizeof(struct ddtstruct));
-  sddt->buffer = buffer;
+  sddt->output = output;
   sddt->errtag = dup_string(errtag);
   *pddt        = sddt;
   return(ERR_OKAY);
@@ -118,37 +120,44 @@ int (DdtBufferOpen)(Debug *pddt,Buffer buffer,const char *errtag)
 void (ddtlog)(const Debug sddt,const char *format,const char *msg, ... )
 {
   va_list list;
-  size_t  size;
   
   i_ddt(sddt   != NULL);
   i_ddt(format != NULL);
   i_ddt(msg    != NULL);
   
   va_start(list,msg);
-  size = strlen(sddt->errtag);
-  BufferWrite(sddt->buffer,sddt->errtag,&size);
-  size = 1;
-  BufferWrite(sddt->buffer," ",&size);
-  BufferFormatWritev(sddt->buffer,format,msg,list);
-  size = 1;
-  BufferWrite(sddt->buffer,"\n",&size);
-  BufferFlush(sddt->buffer);
+  ddtlogv(sddt,format,msg,list);
   va_end(list);
 }
 
 /*************************************************************************/
 
+void (ddtlogv)(const Debug sddt,const char *format,const char *msg,va_list list)
+{
+  i_ddt(sddt   != NULL);
+  i_ddt(format != NULL);
+  i_ddt(msg    != NULL);
+  
+  LineS(sddt->output,sddt->errtag);
+  StreamWrite(sddt->output,' ');
+  LineSFormatv(sddt->output,format,msg,list);
+  StreamWrite(sddt->output,'\n');
+  StreamFlush(sddt->output);
+}
+
+/************************************************************************/
+
 int (DdtFree)(Debug *pddt)
 {
   Debug sddt;
   
-  i_ddt(pddt != NULL);
+  i_ddt(pddt  != NULL);
   i_ddt(*pddt != NULL);
   
   sddt = *pddt;
-  BufferFree(&sddt->buffer);
-  MemFree(sddt->errtag,strlen(sddt->errtag)+1);
-  MemFree(sddt,sizeof(struct ddtstruct));
+  StreamFree(sddt->output);
+  MemFree(sddt->errtag);
+  MemFree(sddt);
   *pddt = NULL;
   return(ERR_OKAY);
 }

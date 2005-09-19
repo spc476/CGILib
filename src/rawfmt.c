@@ -220,7 +220,7 @@ static int rdf_getconv(
 
   ddt(rules  != NULL);
   ddt(mrules >	0);
-  ddt(fmt    != NULL);
+  ddt(mfmt   != NULL);
 
   fmt = (char *)mfmt;
 
@@ -265,6 +265,8 @@ static int rdf_getconv(
       rules[i].pad = *fmt++;
     else
       rules[i].pad = ' ';
+
+    /* XXX add check for printing sign character */
 
     rules[i].base = 10;
 

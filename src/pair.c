@@ -1,4 +1,3 @@
-
 /************************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -23,13 +22,12 @@
 
 #include <stddef.h>
 #include <string.h>
+
 #include "types.h"
 #include "nodelist.h"
 #include "memory.h"
 #include "pair.h"
-#if 0
-#  include "stream.h"
-#endif
+#include "stream.h"
 #include "util.h"
 #include "ddt.h"
 
@@ -63,10 +61,6 @@ struct pair *(PairNew)(char **psrc,char delim,char eos)
   memcpy(psp->value,pdelim+1,svalue);
   psp->name[sname]   = '\0';
   psp->value[svalue] = '\0';
-  psp->sname         = sname  + 1;
-  psp->svalue        = svalue + 1;
-  psp->oname         = psp->name;
-  psp->ovalue        = psp->value;
   *psrc              = peos   + 1;
   return(psp);
 }
@@ -81,10 +75,8 @@ struct pair *(PairCreate)(const char *name,const char *value)
   ddt(value != NULL);
   
   psp         = MemAlloc(sizeof(struct pair));
-  psp->name   = psp->oname  = dup_string(name);
-  psp->value  = psp->ovalue = dup_string(value);
-  psp->sname  = strlen(name)  + 1;
-  psp->svalue = strlen(value) + 1;
+  psp->name   = dup_string(name);
+  psp->value  = dup_string(value);
   return(psp);
 }
 
@@ -104,9 +96,9 @@ void (PairFree)(struct pair *psp)
   ddt(psp != NULL);
   ddt(NodeValid(&psp->node));
   
-  MemFree(psp->oname,psp->sname);
-  MemFree(psp->ovalue,psp->svalue);
-  MemFree(psp,sizeof(struct pair));
+  MemFree(psp->name);
+  MemFree(psp->value);
+  MemFree(psp);
 }
 
 /*************************************************************************/

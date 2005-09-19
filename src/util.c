@@ -25,7 +25,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "buffer.h"
 #include "types.h"
 #include "util.h"
 #include "memory.h"
@@ -43,9 +42,7 @@ char *spc_getenv(const char *env)
   
   p = getenv(env);
   if (p == NULL)
-  {
     p = "";
-  }
 
   ret = dup_string(p);  
   return(ret);
@@ -81,24 +78,30 @@ char *down_string(char *s)
 
 char *dup_string(const char *s)
 {
-  char *r;
+  char   *r;
+  size_t  sz;
   
   ddt(s != NULL);
 
-  r = MemAlloc(strlen(s) + 1);
-  if (r == NULL) return(NULL);
-  strcpy(r,s);
+  sz = strlen(s) + 1;
+  r  = MemAlloc(sz);
+  memcpy(r,s,sz);
+  return(r);  
+}
+
+/***************************************************************************/
+
+char *dup_stringn(const char *s,size_t n)
+{
+  char *r;
+  
+  r = MemAlloc(n + 1);
+  memcpy(r,s,n);
+  r[n - 1] = '\0';
   return(r);
 }
 
-/***************************************************************************/
-
-void free_string(const char *s)
-{
-  MemFree(s,strlen(s) + 1);
-}
-
-/***************************************************************************/
+/*************************************************************************/
 
 char *concat_strings(const char *str1, ... )
 {
@@ -120,11 +123,11 @@ char *concat_strings(const char *str1, ... )
       )
   {
     nsz  = strlen(s);
-    nstr = MemResize(str,(sz) ? (sz+1) : sz,sz + nsz + 1);
+    nstr = MemResize(str,sz + nsz + 1);
     memcpy(&nstr[sz],s,nsz);
-    sz         += nsz;
+    sz       += nsz;
     nstr[sz]  = '\0';
-    str         = nstr;
+    str       = nstr;
   }
   
   va_end(parms);
@@ -145,6 +148,14 @@ int empty_string(const char *s)
 }
 
 /*************************************************************************/
+
+int emptynull_string(const char *s)
+{
+  if (s == NULL) return(TRUE);
+  return(empty_string(s));
+}
+
+/************************************************************************/
 
 char *remove_ctrl(char *s)
 {
@@ -175,9 +186,13 @@ char *remove_char(char *s,int (*tstchar)(int))
 
 char *trim_lspace(char *s)
 {
+  char *p;
+
   ddt(s != NULL);  
-  for ( ; (*s) && (isspace(*s)) ; s++)
+
+  for ( p = s ; (*p) && (isspace(*p)) ; p++)
     ;
+  memmove(s,p,strlen(p) + 1);
   return(s);
 }
 
@@ -187,8 +202,7 @@ char *trim_tspace(char *s)
 {
   char *p;
   
-  ddt(s         != NULL);
-  ddt(strlen(s) >  0);
+  ddt(s != NULL);
   
   for (p = s + strlen(s) - 1 ; (p > s) && (isspace(*p)) ; p--)
     ;
@@ -289,7 +303,7 @@ size_t formatstr(char *dest,size_t dsize,const char *fmt,const char *msg, ... )
 
 #define LINESIZE	16
 
-void dump_memory(Buffer out,const unsigned char *block,size_t size,size_t offset)
+void dump_memory(Stream out,const unsigned char *block,size_t size,size_t offset)
 {
   char ascii[LINESIZE + 1];
   int  skip;
@@ -298,29 +312,30 @@ void dump_memory(Buffer out,const unsigned char *block,size_t size,size_t offset
   ddt(out   != NULL);
   ddt(block != NULL);
   ddt(size  >  0);
-
+  
   while(size > 0)
   {
-    BufferFormatWrite(out,"x8.8l0","%a: ",(unsigned long)offset);
+    LineSFormat(out,"x8.8l0","%a: ",(unsigned long)offset);
     
-    for ( skip = offset % LINESIZE , j = 0 ; skip ; j++ , skip-- )
+    for (skip = offset % LINESIZE , j = 0 ; skip ; j++ , skip--)
     {
-      BufferFormatWrite(out,"","   ");
+      LineS(out,"   ");
       ascii[j] = ' ';
     }
     
     do
     {
-      BufferFormatWrite(out,"x2.2l0","%a ",(unsigned long)*block);
+      LineSFormat(out,"x2.2l0","%a ",(unsigned long)*block);
       if (isprint(*block))
         ascii[j] = *block;
       else
         ascii[j] = '.';
+      
       block++;
       offset++;
       j++;
       size--;
-    } while ((j < LINESIZE) && (size > 0));
+    } while((j < LINESIZE) && (size > 0));
     
     ascii[j] = '\0';
     if (j < LINESIZE)
@@ -328,13 +343,11 @@ void dump_memory(Buffer out,const unsigned char *block,size_t size,size_t offset
       int i;
       
       for (i = j ; i < LINESIZE ; i++)
-        BufferFormatWrite(out,"","   ");
+        LineS(out,"   ");
     }
-    BufferFormatWrite(out,"$","%a\n",ascii);
+    LineSFormat(out,"$","%a\n",ascii);
   }
 }
 
-/*********************************************************************/
+/**********************************************************************/
 
-
-      

@@ -1,4 +1,3 @@
-
 /***********************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -38,10 +37,10 @@
 #include "memory.h"
 #include "ddt.h"
 #include "util.h"
-#include "clean.h"
 #include "http.h"
-#include "sio.h"
 #include "errors.h"
+#include "stream.h"
+#include "rfc822.h"
 
 /*************************************************************************/
 
@@ -60,8 +59,7 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
   int          rc;
   int          ldup = FALSE;	/* MS WS bug workaround */
   size_t       i;
-  size_t       size;
-  char         buffer[BUFSIZ];
+  char        *buffer;
   char         turl[BUFSIZ];
   char        *pt;
   struct pair *ppair;
@@ -78,12 +76,12 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
   rc            = UrlDup((URL *)&http->url,(URL)url);
   if (rc != ERR_OKAY)
   {
-    MemFree(http,sizeof(struct http));
-    return(ErrorPush(CgiErr,HTTPCONNECT,rc,"$",turl));
+    MemFree(http);
+    return(rc);
   }
   
   *phttp = http;
-  rc     = TCPBuffer(&http->buffer,url->host,url->port);
+  rc     = TCPStream(http->bufio,url->host,url->port);
   if (rc != ERR_OKAY) 
   {
     /*-----------------------------------------
@@ -91,14 +89,10 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
     ; to be trashed!  We're also not cleaning up
     ; after ourselves.
     ;-----------------------------------------*/
-    return(ErrorPush(CgiErr,HTTPCONNECT,rc,"$",turl));
+    return(rc);
   }
 
-  D(ddtlog(ddtstream,"$","CONNECTED TO: %a",turl);)
-  
-  LineBuffer(&http->libuff,http->buffer);
-  LineBuffer(&http->lobuff,http->buffer);
-  LineSetEOL(http->lobuff,"\r\n");
+  D(ddtlog(ddtstream,"$","CONNECTED TO: %a",turl);)  
   ListInit(&http->sheaders);
 
   /*---------------------------------------------
@@ -112,25 +106,23 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
     char *req  = UrlHttpRequest(url);
     char *host = UrlHttpHostPort(url);
     
-    LineWritef(http->lobuff,"$ $","%a %b HTTP/1.0\r\n",modes[mode],req);
-    LineWritef(http->lobuff,"$","Host: %a\r\n",host);
+    LineSFormat(http->bufio[1],"$ $","%a %b HTTP/1.0\r\n",modes[mode],req);
+    LineSFormat(http->bufio[1],"$",  "Host: %a\r\n",host);
     
-    MemFree(host,strlen(host) + 1);
-    MemFree(req, strlen(req)  + 1);
+    MemFree(host);
+    MemFree(req);
   }
   
   for (i = 0 ; pcheaders[i] != NULL ; i++)
-  {
-    size = strlen(pcheaders[i]);
-    LineWrite(http->lobuff,pcheaders[i],&size);
-  }
+    LineSFormat(http->bufio[1],"$","%a\r\n",pcheaders[i]);
+
+  LineS(http->bufio[1],"\r\n");
 
   while(1)
-  {  
-    size = BUFSIZ;
-    BufferFlush(http->lobuff);    
-    LineRead(http->libuff,buffer,&size);
-  
+  {
+    StreamFlush(http->bufio[1]);
+    buffer = LineSRead(http->bufio[0]);
+    
     /*--------------------------------------------------------
     ; HTTP 0.9 does not sent back any header information, nor 
     ; does it send back a status code!
@@ -139,9 +131,10 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
     if (strncmp(buffer,"HTTP",4) != 0)
     {
       for (i = strlen(buffer)+1 ; i ; i--)
-        LineUnReadC(http->libuff,buffer[i]);
+        StreamUnRead(http->bufio[0],buffer[i]);
       http->version = HTTPv09;
       http->status  = HTTP_OKAY;
+      MemFree(buffer);
       return(ERR_OKAY);
     }
     else
@@ -158,11 +151,9 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
       
       for (pv += 4 ; isspace(*pv) ; pv++) /* skip to status value */
         ;
-      rc = http_checkstatus(http,atoi(pv));    
+      rc = http_checkstatus(http,atoi(pv));
       if (rc != ERR_OKAY)
-      {
-        return(ErrorPush(CgiErr,HTTPCONNECT,rc,"$$$",turl,buffer,pv));
-      }
+        return(rc);
     } 
 
     /*------------------------------------------------------------------
@@ -177,10 +168,14 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
 
     while(1)
     {
-      size = BUFSIZ;
-      LineRead822(http->libuff,buffer,&size);
-      if ((size == 0) || (empty_string(buffer))) break;
-      if (strncmp(buffer,"HTTP/",5) == 0)		/* MS WS bug workaround */
+      ddt(buffer != NULL);
+      MemFree(buffer);
+      buffer = RFC822LineRead(http->bufio[0]);
+      if (buffer == NULL) break;
+      if (empty_string(buffer))
+        break;
+      
+      if (strncmp(buffer,"HTTP/",5) == 0)  /* MS WS bug workaround */
         ldup = TRUE;
     
       if (ldup == FALSE)
@@ -194,7 +189,11 @@ int (HttpConnect)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
       }
     }
     
-    if (http->status >= HTTP_OKAY) break;
+    ddt(buffer != NULL);
+    MemFree(buffer);
+    
+    if (http->status >= HTTP_OKAY) 
+      break;
   }
   
   return(ERR_OKAY);
@@ -223,7 +222,7 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
   {
     rc = HttpConnect(phttp,mode,url,pcheaders);
     if (rc != ERR_OKAY)
-      return(ErrorPush(CgiErr,HTTPOPEN,rc,""));
+      return(rc);
     status = HttpStatus(*phttp);
     if (
          (status == HTTP_MOVEPERM) 
@@ -241,7 +240,7 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
       adjust_cookies(http,pcheaders);
       tloc = PairListGetValue(&http->sheaders,"LOCATION");
       if (tloc == NULL) 
-        return(ErrorPush(CgiErr,HTTPOPEN,HTTPERR_NOHEADER,"$","Location:"));
+        return(ERR_ERR);
       D(ddtlog(ddtstream,"$","redirecting to: [%a]",tloc);)
       if (nurl != NULL) UrlFree((URL *)&nurl);
       rc = UrlNew((URL *)&nurl,tloc);
@@ -253,11 +252,10 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
 	; a full path!  @#%@#$@# Microsoft!
 	;------------------------------------------------------------*/
 
-        if (rc == URLERR_PROTOCOL)
+        if (rc != ERR_OKAY)
 	{
 	  char tmpbuf[BUFSIZ * 12];
 
-	  ErrorClear();
 	  url = (*phttp)->url;
 	  if (*tloc == '/')
 	  {
@@ -291,14 +289,13 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
 	  D(ddtlog(ddtstream,"$","new location: [%a]",tmpbuf);)
 	  rc = UrlNew((URL *)&nurl,tmpbuf);
 	  if (rc != ERR_OKAY)
-	    return(ErrorPush(CgiErr,HTTPOPEN,rc,""));
+	    return(rc);
 	}
 	else
-	  return(ErrorPush(CgiErr,HTTPOPEN,rc,""));
+	  return(rc); 
       }
-      /*if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPOPEN,rc,""));*/
       rc = HttpClose(phttp);
-      if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPOPEN,rc,""));
+      if (rc != ERR_OKAY) return(rc);
       url = nurl;
       retry++;
       mstatus = status;
@@ -309,7 +306,7 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
       return(ERR_OKAY);
     }
   }
-  return(ErrorPush(CgiErr,HTTPOPEN,HTTPERR_CONNECT,"$","too many redirects"));    
+  return(ERR_ERR);
 } 
 
 /**********************************************************************/
@@ -387,18 +384,18 @@ char *(HttpGetServerHeader)(const HTTP http,const char *name)
 
 /***********************************************************************/
 
-Buffer (HttpBuffer)(const HTTP http)
+Stream (HttpStreamRead)(const HTTP http)
 {
   ddt(http != NULL);
-  return(http->buffer);
+  return(http->bufio[0]);
 }
 
-/**********************************************************************/
+/***********************************************************************/
 
-Buffer (HttpLineBuffer)(const HTTP http)
+Stream (HttpStreamWrite)(const HTTP http)
 {
   ddt(http != NULL);
-  return(http->libuff);
+  return(http->bufio[1]);
 }
 
 /**********************************************************************/
@@ -436,15 +433,13 @@ int (HttpClose)(HTTP *phttp)
   ddt(*phttp != NULL);
   http = *phttp;
   rc   = UrlFree((URL *)&http->url);
-  if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPCLOSE,rc,""));
-  rc   = BufferFree(&http->libuff);
-  if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPCLOSE,rc,""));
-  rc   = BufferFree(&http->lobuff);
-  if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPCLOSE,rc,""));
-  rc   = BufferFree(&http->buffer);
-  if (rc != ERR_OKAY) return(ErrorPush(CgiErr,HTTPCLOSE,rc,""));
+  if (rc != ERR_OKAY) return(rc);
+  rc   = StreamFree(http->bufio[0]);
+  if (rc != ERR_OKAY) return(rc);
+  rc   = StreamFree(http->bufio[1]);
+  if (rc != ERR_OKAY) return(rc);
   PairListFree(&http->sheaders);
-  MemFree(http,sizeof(struct http));
+  MemFree(http);
   *phttp = NULL;
   return(ERR_OKAY);
 }
