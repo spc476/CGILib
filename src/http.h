@@ -1,4 +1,3 @@
-
 /***********************************************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.
@@ -28,14 +27,14 @@
 #include "types.h"
 #include "url.h"
 #include "cgi.h"
-#include "buffer.h"
+#include "stream.h"
 #include "nodelist.h"
 #include "errors.h"
 
 #if 1
-#  define RETRIES		5		/* as per RFC2068 */
+#  define RETRIES		5	/* as per RFC2068 */
 #else
-#  define RETRIES		15		/* as per Microsoft braindeath? */
+#  define RETRIES		15	/* as per Microsoft braindeath? */
 #endif
 
 #define HTTPv09		0x0090
@@ -47,7 +46,6 @@
 #define POST		1
 #define HEAD		2
 #define PUT		3
-
 #if 0
 #  define DELETE	4
 #  define TRACE		5
@@ -57,9 +55,7 @@ typedef struct http
 {
   URLHTTP        url;
   List           sheaders;
-  Buffer         buffer;
-  Buffer         libuff;
-  Buffer         lobuff;
+  Stream         bufio[2];
   int            version;
   int            status;
   int            mstatus;
@@ -71,8 +67,8 @@ int		 (HttpConnect)		(HTTP *,int,URLHTTP,const char *[]);
 int		 (HttpOpen)		(HTTP *,int,URLHTTP,const char *[]);
 struct pair	*(HttpServerHeaders)	(const HTTP);
 char		*(HttpGetServerHeader)	(const HTTP,const char *);
-Buffer		 (HttpBuffer)		(const HTTP);
-Buffer		 (HttpLineBuffer)	(const HTTP);
+Stream		 (HttpStreamRead)	(const HTTP);
+Stream		 (HttpStreamWrite)	(const HTTP);
 URLHTTP		 (HttpUrl)		(const HTTP);
 int		 (HttpStatus)		(const HTTP);
 int		 (HttpRedirected)	(const HTTP);
@@ -80,20 +76,11 @@ int		 (HttpClose)		(HTTP *);
 int		 (HttpVersion)		(const char *);
 int		 (HttpRetStatus)	(int,int);
 
-#define HTTPCONNECT		(ERR_HTTP + 0)
-#define HTTPOPEN		(ERR_HTTP + 1)
-#define HTTPSERVERHEADERS	(ERR_HTTP + 2)
-#define HTTPBUFFER		(ERR_HTTP + 3)
-#define HTTPSTATUS		(ERR_HTTP + 4)
-#define HTTPCLOSE		(ERR_HTTP + 5)
-#define HTTPVERSION		(ERR_HTTP + 6)
-#define HTTPRETSTATUS		(ERR_HTTP + 7)
-
-#define HTTPERR_CONNECT 	(ERR_HTTP + 1)
-#define HTTPERR_VERSION 	(ERR_HTTP + 2)
-#define HTTPERR_NOSTATUS	(ERR_HTTP + 3)
-#define HTTPERR_STATUS		(ERR_HTTP + 4)
-#define HTTPERR_NOHEADER	(ERR_HTTP + 5)
+#define HTTPERR_CONNECT 	1
+#define HTTPERR_VERSION 	2
+#define HTTPERR_NOSTATUS	3
+#define HTTPERR_STATUS		4
+#define HTTPERR_NOHEADER	5
 
 /*************************************************************************/
 

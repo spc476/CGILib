@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include "nodelist.h"
 #include "pair.h"
-#include "buffer.h"
+#include "stream.h"
 #include "errors.h"
 
 /************************************************************************/
@@ -37,16 +37,6 @@
 #define T_TAG		 1
 #define T_COMMENT	 2
 
-#define HTMLPARSENEW		(ERR_HT + 0)
-#define HTMLPARSENEXT		(ERR_HT + 1)
-#define HTMLPARSESTRING		(ERR_HT + 2)
-#define HTMLPARSEFIRSTVALUE	(ERR_HT + 3)
-#define HTMLPARSEGETPAIR	(ERR_HT + 4)
-#define HTMLPARSENEXTVALUE	(ERR_HT + 5)
-#define HTMLPARSEGETVALUE	(ERR_HT + 6)
-#define HTMLPARSEFREE		(ERR_HT + 7)
-#define HTMLPARSEADDPAIR	(ERR_HT + 8)
-
 /*************************************************************************/
 
 typedef struct htmltoken
@@ -56,24 +46,26 @@ typedef struct htmltoken
   char	 *value;
   List    pairs;
   int	  state;
-  Buffer  buffer;
-  char   *tmp;
+  Stream  input;
+  Stream  acc;
   List    children;
 } *HtmlToken;
 
 /************************************************************************/
 
-int			 (HtmlParseNew)		(HtmlToken *,Buffer);
+int			 (HtmlParseNew)		(HtmlToken *,Stream);
 int			 (HtmlParseClone)	(HtmlToken *,HtmlToken);
 int			 (HtmlParseNext)	(HtmlToken);
 char			*(HtmlParseValue)	(HtmlToken);
 int			 (HtmlParseToken)	(HtmlToken);
-int			 (HtmlParseAddPair)	(HtmlToken,struct pair *);
+void			 (HtmlParseAddPair)	(HtmlToken,struct pair *);
 struct pair		*(HtmlParseFirstOption)	(HtmlToken);
 struct pair		*(HtmlParseGetPair)	(HtmlToken,const char *);
 struct pair		*(HtmlParseNextValue)	(HtmlToken);
 char			*(HtmlParseGetValue)	(HtmlToken,char *);
+void			 (HtmlParsePrintTag)	(HtmlToken,Stream);
 int			 (HtmlParseFree)	(HtmlToken *);
+
 
 #ifdef SCREAM
 #  define HtmlParseValue(t)		(t)->value
@@ -81,6 +73,7 @@ int			 (HtmlParseFree)	(HtmlToken *);
 #  define HtmlParseFirstOption(t)	PairListFirst(&((t)->pairs))
 #  define HtmlParseGetPair(t,n)		PairListGetPair(&((t)->pairs),(n))
 #  define HtmlParseGetValue(t,n)	PairListGetValue(&((t)->pairs),(n))
+#  define HtmlParseAddPair(t,p)		ListAddTail((t)->pairs,&(p)->node)
 #endif
 
 /**********************************************************************/

@@ -29,6 +29,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define IEOF		-1
+#define ENTITY_NOAMP	 0
+#define ENTITY_AMP	 1
+
 #ifdef __unix__
 #  include <sys/types.h>
 #  include <sys/stat.h>
@@ -38,6 +42,13 @@
 #  define FILE_EXCLUSIVE	O_EXCL
 #  define FILE_TRUNCATE		O_TRUNC
 #  define FILE_APPEND		O_APPEND
+#  define FILE_RECREATE		(O_CREAT | O_TRUNC)
+
+#  ifndef BUFFER_H
+#    define MODE_READ		O_RDONLY
+#    define MODE_WRITE		O_WRONLY
+#  endif
+
 #else
 #  error Please define your OS
 #endif
@@ -46,94 +57,48 @@
 
 /************************************************************************/
 
-typedef struct streamin
-{
-  Node     node;
-  int      type;
-  int    (*ioctl)       (struct streamin *,int, ... );
-  int    (*read)        (struct streamin *,void *,size_t *);
-  int    (*unread)      (struct streamin *,void *,size_t *);
-  int    (*seekforward) (struct streamin *,size_t *,int);
-  int    (*seekbackward)(struct streamin *,size_t *,int);
-  int	 (*seekstart)	(struct streamin *);
-  int	 (*seekend)	(struct streamin *);
-  int    (*refill)      (struct streamin *);
-  int    (*close)       (struct streamin *);
-  void    *data;
-  size_t   size;
-  size_t   off;
-} *StreamIn;
+struct stream;
 
-typedef struct streamout
+struct streamvector
 {
-  Node     node;
-  int      type;
-  int    (*ioctl)       (struct streamout *,int, ... );
-  int    (*write)       (struct streamout *,void *,size_t *);
-  int    (*unwrite)     (struct streamout *,void *,size_t *);
-  int    (*seekforward) (struct streamout *,size_t *);
-  int    (*seekbackward)(struct streamout *,size_t *);
-  int    (*seekstart)	(struct streamout *);
-  int	 (*seekend)	(struct streamout *);
-  int    (*flush)       (struct streamout *);
-  int    (*close)       (struct streamout *);
-  void    *data;
-  size_t   size;
-  size_t   off;
-} *StreamOut;
+  Node   node;
+  void  *user;
+  int  (*readwrite)  ();	/* warning on this */
+  int  (*unrw)       ();	/* warning on this */
+  int  (*refillflush)(struct stream *,struct streamvector *);
+  int  (*close)      (struct stream *,struct streamvector *);
+};
+
+typedef struct stream
+{
+  int                  type;
+  int                  eof;
+  struct streamvector  calls;
+  List                 mods;
+  unsigned char       *data;
+  size_t               size;
+  size_t               off;
+} *Stream;
 
 /***********************************************************************/
 
-StreamIn	(MemoryStreamIn)	(void *,size_t);
-StreamIn	(FHStreamIn)		(int);
-StreamIn	(FileStreamIn)		(char *);
+extern Stream StdinStream;
+extern Stream StdoutStream;
+extern Stream StderrStream;
 
-int		(StreamInIOCtl)		(StreamIn,int, ... );
-size_t		(StreamInRead)		(StreamIn,void *,size_t);
-size_t		(StreamInUnRead)	(StreamIn,void *,size_t);
-size_t		(StreamInPos)		(StreamIn);
-size_t		(StreamInSeekForward)	(StreamIn,size_t);
-size_t		(StreamInSeekBackward)	(StreamIn,size_t);
-size_t		(StreamInSeekStart)	(StreamIn);
-size_t		(StreamInSeekEnd)	(StreamIn);
-int		(StreamInRefill)	(StreamIn);
-int		(StreamInClose)		(StreamIn);
-
-int		(StreamInVIOCtl)	(StreamIn,int, ... );
-int		(StreamInVRead)		(StreamIn,void *,size_t *);
-int		(StreamInVUnRead)	(StreamIn,void *,size_t *);
-int		(StreamInVSeekForward)	(StreamIn,size_t *);
-int		(StreamInVSeekBackward)	(StreamIn,size_t *);
-int		(StreamInVSeekStart)	(StreamIn);
-int		(StreamInVSeekEnd)	(StreamIn);
-int		(StreamInVClose)	(StreamIn);
-
-StreamOut	(MemoryStreamOut)	(void *,size_t);
-StreamOut	(DynamicStreamOut)	(void);
-StreamOut	(FHStreamOut)		(int);
-StreamOut	(FileStreamOut)		(char *,int);
-
-int		(StreamOutIOCtl)	(StreamOut,int, ... );
-size_t		(StreamOutWrite)	(StreamOut,void *,size_t);
-size_t		(StreamOutUnWrite)	(StreamOut,void *,size_t);
-size_t		(StreamOutPos)		(StreamOut);
-size_t		(StreamOutSeekForward)	(StreamOut,size_t);
-size_t		(StreamOutSeekBackward)	(StreamOut,size_t);
-
-
-
-int		(StreamInReadr)		(StreamIn,void *,size_t *);
-int		(StreamInUnReadr)	(StreamIn,void *,size_t *);
-
+int		 (StreamInit)		(void);
 Stream		 (MemoryStreamRead)	(void *,size_t);
 Stream		 (MemoryStreamWrite)	(void *,size_t);
 Stream		 (FHStreamRead)		(int);
 Stream		 (FHStreamWrite)	(int);
-Stream		 (FileStreamRead)	(char *);
-Stream		 (FileStreamWrite)	(char *,int);
-
+Stream		 (FileStreamRead)	(const char *);
+Stream		 (FileStreamWrite)	(const char *,int);
 Stream		 (StreamNewRead)	(void);
 Stream		 (StreamNewWrite)	(void);
+int		 (TCPStream)		(Stream [2],char *,unsigned short);
+Stream		 (StringStreamWrite)	(void);
+Stream		 (EntityStreamRead)	(Stream,int);
+Stream		 (TeeStreamWrite)	(Stream,Stream);
 
 int		 (StreamRead)		(Stream);
 int		 (StreamUnRead)		(Stream,int);
@@ -142,14 +107,15 @@ int		 (StreamWrite)		(Stream,int);
 int		 (StreamUnWrite)	(Stream);
 int		 (StreamFlush)		(Stream);
 int		 (StreamEOF)		(Stream);
-int		 (StreamClose)		(Stream);
+size_t		 (StreamCopy)		(Stream,Stream);
+int		 (StreamFree)		(Stream);
 
 size_t		 (LineS)		(const Stream,const char *);
 size_t		 (LineSFormat)		(const Stream,const char *,const char *, ... );
 size_t		 (LineSFormatv)		(const Stream,const char *,const char *,va_list);
 char		*(LineSRead)		(const Stream);
-
 int		 (Line_ReadChar)	(const Stream);
+char		*(StringFromStream)	(const Stream);
 
 /***********************************************************************/
 

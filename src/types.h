@@ -1,4 +1,3 @@
-
 /**************************************
 *
 * Copyright 2001 by Sean Conner.  All Rights Reserved.

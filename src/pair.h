@@ -20,69 +20,37 @@
 *
 *************************************************************************/
 
-#ifndef PAIR_H_INCLUDE
-#define PAIR_H_INCLUDE
-#  include <stddef.h>
-#  include "types.h"
-#  include "nodelist.h"
-#  include "errors.h"
-#  if 0
-#    include "stream.h"
-#  endif
-#endif
+#ifndef PAIR_H
+#define PAIR_H
+
+#include "nodelist.h"
+
+struct pair
+{
+  Node    node;
+  char   *name;
+  char   *value;
+};
 
 /**********************************************************************/
 
-#ifndef PAIR_H_DEFINE
-#define PAIR_H_DEFINE
+struct pair	*(PairNew)		(char **,char,char);
+struct pair	*(PairCreate)		(const char *,const char *);
+struct pair	*(PairClone)		(struct pair *);
+void		 (PairFree)		(struct pair *);
 
-#  define PAIRNEW		(ERR_PAIR + 0)
-#  define PAIRCREATE		(ERR_PAIR + 1)
-#  define PAIRFREE		(ERR_PAIR + 2)
-#  define PAIRLISTADD		(ERR_PAIR + 3)
-#  define PAIRLISTFIRST		(ERR_PAIR + 4)
-#  define PAIRLISTGETPAIR	(ERR_PAIR + 5)
-#  define PAIRLISTGETVALUE	(ERR_PAIR + 6)
-#  define PAIRLISTFREE		(ERR_PAIR + 7)
+void		 (PairListAdd)		(List *,char **,char,char);
+struct pair	*(PairListFirst)	(List *);
+struct pair	*(PairListGetPair)	(List *,const char *);
+char		*(PairListGetValue)	(List *,const char *);
+void		 (PairListFree)		(List *);
 
-#endif
-
-/**********************************************************************/
-
-#ifndef PAIR_H_TYPES
-#define PAIR_H_TYPES
-
-  struct pair
-  {
-    Node    node;
-    char   *name;
-    char   *value;
-    void   *user;
-    char   *oname;
-    char   *ovalue;
-    size_t  sname;
-    size_t  svalue;
-  };
-
-#endif
-
-/**********************************************************************/
-
-#ifndef PAIR_H_API
-#define PAIR_H_API
-
-  struct pair	*(PairNew)		(char **,char,char);
-  struct pair	*(PairCreate)		(const char *,const char *);
-  struct pair	*(PairClone)		(struct pair *);
-  void		 (PairFree)		(struct pair *);
-
-  void		 (PairListAdd)		(List *,char **,char,char);
-  struct pair	*(PairListFirst)	(List *);
-  struct pair	*(PairListGetPair)	(List *,const char *);
-  char		*(PairListGetValue)	(List *,const char *);
-  void		 (PairListFree)		(List *);
-
+#ifdef SCREAM
+#  define PairClone(p)		PairCreate((p)->name,(p)->value)
+#  define PairListFirst(l)	(struct pair *)ListGetHead((l))
 #endif
 
 /***********************************************************************/
+
+#endif
 

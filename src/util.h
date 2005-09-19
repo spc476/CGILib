@@ -24,15 +24,16 @@
 #define UTIL_H
 
 #include <stddef.h>
-#include "buffer.h"
+#include "stream.h"
 
 char		*spc_getenv		(const char *);
 char		*up_string		(char *);
 char		*down_string		(char *);
 char		*dup_string		(const char *);
-void		 free_string		(const char *);
+char		*dup_stringn		(const char *,size_t);
 char		*concat_strings		(const char *, ... );
 int		 empty_string		(const char *);
+int		 emptynull_string	(const char *);
 char		*remove_ctrl		(char *);
 char		*remove_char		(char *,int (*)(int));
 char		*trim_lspace		(char *);
@@ -42,7 +43,7 @@ int		 ctohex			(char);
 char		 hextoc			(int);
 char		*cat_string		(char *,const char *);
 size_t		 formatstr		(char *,size_t,const char *,const char *, ... );
-void		 dump_memory		(Buffer,const unsigned char *,size_t,size_t);
+void		 dump_memory		(Stream,const unsigned char *,size_t,size_t);
 
 #endif
 

@@ -22,18 +22,19 @@
 
 #ifndef DDT_H
 #  define DDT_H
-#  if defined(__unix__) || defined(__MACH__)
+#  ifdef __unix__
 #    define DDTLOGFILE	"/tmp/null"
 #    define DDTNULFILE	"/dev/null"
 #  else
 #    error Please define your system
 #  endif
 
-#  include "buffer.h"
+#  include <stdarg.h>
+#  include "stream.h"
 
    typedef struct ddtstruct
    {
-     Buffer  buffer;
+     Stream  output;
      char   *errtag;
    } *Debug;
 
@@ -41,8 +42,9 @@
    
    void		(DdtInit)	(void);
    int          (DdtFileOpen)	(Debug *,const char *,const char *);
-   int		(DdtBufferOpen)	(Debug *,Buffer,const char *);
+   int		(DdtStreamOpen)	(Debug *,Stream,const char *);
    void		(ddtlog)	(const Debug,const char *,const char *, ... );
+   void		(ddtlogv)	(const Debug,const char *,const char *, va_list);
    int		(DdtFree)	(Debug *);
    
 #  define DDTFILEOPEN		(ERR_DDT + 0)

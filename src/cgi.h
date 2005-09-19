@@ -20,53 +20,19 @@
 *
 *************************************************************************/
 
-#ifndef CGI_H_INCLUDE
-#define CGI_H_INCLUDE
-#  include <stddef.h>
-#  include "types.h"
-#  include "nodelist.h"
-#  include "pair.h"
-#  include "errors.h"
-#  include "http.h"
-#endif
+#ifndef CGI_H
+#define CGI_H
+
+#include <stddef.h>
+
+#include "types.h"
+#include "nodelist.h"
+#include "pair.h"
+#include "stream.h"
+#include "errors.h"
+#include "http.h"
 
 /*******************************************************************/
-
-#ifndef CGI_H_DEFINE
-#define CGI_H_DEFINE
-
-#  define CGINEW		(ERR_CGI +  0)
-#  define CGIOUTTEXT		(ERR_CGI +  1)
-#  define CGIOUTHTML		(ERR_CGI +  2)
-#  define CGIOUTSHTML		(ERR_CGI +  3)
-#  define CGIOUTLOCATION	(ERR_CGI +  4)
-#  define CGINEXTVALUE		(ERR_CGI +  5)
-#  define CGILISTMAKE		(ERR_CGI +  6)
-#  define CGILISTFIRST		(ERR_CGI +  7)
-#  define CGILISTGETPAIR	(ERR_CGI +  8)
-#  define CGILISTGETVALUE	(ERR_CGI +  9)
-#  define CGILISTREQUIRED	(ERR_CGI + 10)
-#  define CGILISTGETVALUES	(ERR_CGI + 11)
-
-#  define COOKIENEW		(ERR_COOKIE + 0)
-#  define COOKIELISTMAKE	(ERR_COOKIE + 1)
-#  define COOKIENEXTVALUE	(ERR_COOKIE + 2)
-#  define COOKIELISTFIRST	(ERR_COOKIE + 3)
-#  define COOKIELISTGETPAIR	(ERR_COOKIE + 4)
-#  define COOKIELISTGETVALUE	(ERR_COOKIE + 5)
-
-#  define CGIERR_REQUEST	(ERR_CGI + 1)
-#  define CGIERR_CONTENT	(ERR_CGI + 2)
-#  define CGIERR_LENGTH		(ERR_CGI + 3)
-#  define CGIERR_TIMEOUT	(ERR_CGI + 4)
-#  define CGIERR_READ		(ERR_CGI + 5)
-
-#endif
-
-/************************************************************************/
-
-#ifndef CGI_H_TYPES
-#define CGI_H_TYPES
 
 typedef struct cgi
 {
@@ -75,52 +41,43 @@ typedef struct cgi
   char   *pbufend;
   char   *pbuff;
   List    vars;
-  Buffer  input;
-  Buffer  output;
   void   *data;
   int     method;
 } *Cgi;
 
 typedef struct cgi *Cookie;
 
-#endif
-
 /************************************************************************/
 
-#ifndef CGI_H_API
-#define CGI_H_API
+int		 (CgiNew)		(Cgi *,void *);
+void		 (CgiGetRawData)	(const Cgi,char **,size_t *);
+void		 (CgiListMake)		(const Cgi);
+void		 (CgiOutText)		(const Cgi);
+void		 (CgiOutHtml)		(const Cgi);
+void		 (CgiOutShtml)		(const Cgi);
+void		 (CgiOutLocation)	(const Cgi,const char *);
+int		 (CgiMethod)		(const Cgi);
+char		*(CgiEnvGet)		(const Cgi,const char *);
+struct pair	*(CgiNextValue)		(const Cgi);
+struct pair	*(CgiListFirst)		(const Cgi);
+struct pair	*(CgiListGetPair)	(const Cgi,const char *);
+char		*(CgiListGetValue)	(const Cgi,const char *);
+size_t	 	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
+int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
+int		 (CgiFree)		(Cgi *);
 
-  int		 (CgiNew)		(Cgi *,void *);
-  void		 (CgiGetRawData)	(const Cgi,char **,size_t *);
-  void		 (CgiListMake)		(const Cgi);
-  void		 (CgiOutText)		(const Cgi);
-  void		 (CgiOutHtml)		(const Cgi);
-  void		 (CgiOutShtml)		(const Cgi);
-  void		 (CgiOutLocation)	(const Cgi,const char *);
-  Buffer         (CgiBufferOut)		(const Cgi);
-  int		 (CgiMethod)		(const Cgi);
-  char		*(CgiEnvGet)		(const Cgi,const char *);
-  struct pair	*(CgiNextValue)		(const Cgi);
-  struct pair	*(CgiListFirst)		(const Cgi);
-  struct pair	*(CgiListGetPair)	(const Cgi,const char *);
-  char		*(CgiListGetValue)	(const Cgi,const char *);
-  size_t	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
-  int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
-  int		 (CgiFree)		(Cgi *);
-
-  int		 (CookieNew)		(Cookie *,const Cgi);
-  void		 (CookieListMake)	(const Cookie);
-  struct pair	*(CookieNextValue)	(const Cookie);
-  struct pair	*(CookieListFirst)	(const Cookie);
-  struct pair	*(CookieListGetPair)	(const Cookie,const char *);
-  char		*(CookieListGetValue)	(const Cookie,const char *);
-  int		 (CookieFree)		(Cookie *);
+int		 (CookieNew)		(Cookie *,const Cgi);
+void		 (CookieListMake)	(const Cookie);
+struct pair	*(CookieNextValue)	(const Cookie);
+struct pair	*(CookieListFirst)	(const Cookie);
+struct pair	*(CookieListGetPair)	(const Cookie,const char *);
+char		*(CookieListGetValue)	(const Cookie,const char *);
+int		 (CookieFree)		(Cookie *);
   
 #  ifdef SCREAM
 #    define CgiGetRawData(c,pp,ps)	*(pp) = (c)->buffer ; 	\
 					*(ps) = (c)->bufsize
 #    define CgiOutText(c)		CgiOutHtml((c))
-#    define CgiBufferOut(c)		(c)->output
 #    define CgiMethod(c)		(c)->method
 #    define CgiOutLocation(c,s)		BufferFormatWrite((c)->buffer,"$","Location: %a\n\n",(s))
 #    define CgiListFirst(c)		PairListFirst(&(c)->vars)
