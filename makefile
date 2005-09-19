@@ -23,7 +23,7 @@ CFLAGS=-g
 AR=ar cr
 RANLIB=ranlib
 
-TARGET=$(HOSTDIR)/libcgi4.a
+TARGET=$(HOSTDIR)/libcgi5.a
 
 OFILES=$(HOSTDIR)/globals.o			\
 	$(HOSTDIR)/nodelist.o 			\
