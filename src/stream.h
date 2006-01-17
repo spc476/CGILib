@@ -33,6 +33,9 @@
 #define ENTITY_NOAMP	 0
 #define ENTITY_AMP	 1
 
+#define FHBUFFER_SIZE   8192
+#define FHBUFFER_WBSIZE   64
+
 #ifdef __unix__
 #  include <sys/types.h>
 #  include <sys/stat.h>
@@ -79,6 +82,18 @@ typedef struct stream
   size_t               size;
   size_t               off;
 } *Stream;
+
+struct fhmod
+{
+  char           *name;
+  int             fh;
+  void           *data;
+  off_t           rsize;
+  int           (*lowwrite)();
+  int           (*prevread)();
+  unsigned char   wb[FHBUFFER_WBSIZE];
+  size_t          wbsize;
+};
 
 /***********************************************************************/
 

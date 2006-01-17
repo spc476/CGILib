@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -40,8 +41,10 @@
 #include "../types.h"
 #include "../stream.h"
 
-#define FHBUFFER_SIZE	8192	
-#define FHBUFFER_WBSIZE	  64
+#if 0
+#  define FHBUFFER_SIZE		8192	
+#  define FHBUFFER_WBSIZE	  64
+#endif
 
 #ifndef SHUT_RD
 #  define SHUT_RD	0
@@ -53,6 +56,7 @@
 
 /***********************************************************************/
 
+#if 0
 struct fhmod
 {
   char           *name;
@@ -64,6 +68,7 @@ struct fhmod
   unsigned char   wb[FHBUFFER_WBSIZE];
   size_t          wbsize;
 };
+#endif
 
 static Stream        fh_create_read	(const char *,int,int);
 static Stream        fh_create_write	(const char *,int,int);
@@ -103,7 +108,10 @@ Stream (FileStreamRead)(const char *name)
   
   fh = open(name,O_RDONLY);
   if (fh == -1)
+  {
+    ddtlog(ddtstream,"$ $","open('%a') returned %b",name,strerror(errno));
     return(NULL);
+  }
 
   return(fh_create_read(name,fh,TRUE));
 }
