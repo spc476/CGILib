@@ -87,7 +87,7 @@ char *(RFC822LineRead)(const Stream in)
       ; line, which can cause problems later down the line.
       ;
       ; Need to fix this.
-      ;------------------------------------------------/
+      ;------------------------------------------------*/
       
       while(isspace(c))
         c = Line_ReadChar(in);
