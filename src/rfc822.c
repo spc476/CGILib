@@ -72,6 +72,22 @@ char *(RFC822LineRead)(const Stream in)
       /* ----------------------------------
       ; discard white space
       ;-----------------------------------*/
+
+      /*---------------------------------------------
+      ; BUG is here---basically, if we hit a section of
+      ; a header formatted like:
+      ;
+      ;		Random-J-Header: blah blah blah
+      ;		_
+      ;		body of text ...
+      ;
+      ; (that is, the blank line after the headers contains just
+      ; white space, which, being white, is hard to see) then the lines
+      ; in the following body are sucked up as part of the Random-J-Header
+      ; line, which can cause problems later down the line.
+      ;
+      ; Need to fix this.
+      ;------------------------------------------------/
       
       while(isspace(c))
         c = Line_ReadChar(in);
