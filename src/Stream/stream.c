@@ -166,6 +166,7 @@ size_t (StreamCopy)(Stream dest,Stream src)
   while(!StreamEOF(src))
   {
     c = StreamRead(src);
+    if (c == IEOF) break;
     StreamWrite(dest,c);
     amount++;
   }
