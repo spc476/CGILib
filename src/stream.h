@@ -113,6 +113,7 @@ Stream		 (StreamNewWrite)	(void);
 int		 (TCPStream)		(Stream [2],char *,unsigned short);
 Stream		 (StringStreamWrite)	(void);
 Stream		 (EntityStreamRead)	(Stream,int);
+Stream		 (EntityStreamWrite)	(Stream);
 Stream		 (TeeStreamWrite)	(Stream,Stream);
 
 int		 (StreamRead)		(Stream);

@@ -36,10 +36,16 @@ struct entmod
   int     amp;
 };
 
+/***********************************************************************/
+
 static int	entity_read	(struct stream *,struct streamvector *);
 static int	entity_unread	(struct stream *,struct streamvector *,int);
 static int	entity_refill	(struct stream *,struct streamvector *);
 static int	entity_close	(struct stream *,struct streamvector *);
+
+static int	entity_write	(struct stream *,struct streamvector *,int);
+static int	entity_flush	(struct stream *,struct streamvector *);
+static int	entity_unwrite	(struct stream *,struct streamvector *);
 
 /***********************************************************************/
 
@@ -61,6 +67,22 @@ Stream (EntityStreamRead)(Stream in,int convertamp)
   s->calls.user        = em;
   s->eof               = FALSE;
   
+  return(s);
+}
+
+/************************************************************************/
+
+Stream (EntityStreamWrite)(Stream out)
+{
+  Stream s;
+
+  s = StreamNewWrite();
+  s->calls.readwrite   = entity_write;
+  s->calls.refillflush = entity_flush;
+  s->calls.unrw        = entity_unwrite;
+  s->calls.user        = out;
+  s->eof               = FALSE;
+
   return(s);
 }
 
@@ -141,6 +163,53 @@ static int entity_close(struct stream *s,struct streamvector *v)
   
   MemFree(v->user);
   return(0);
+}
+
+/***************************************************************************/
+
+static int entity_write(struct stream *s,struct streamvector *v,int c)
+{
+  Stream out;
+  
+  ddt(s       != NULL);
+  ddt(v       != NULL);
+  ddt(v->user != NULL);
+  
+  out = v->user;
+  
+  switch(c)
+  {
+    case IEOF: s->eof = TRUE;       break;
+    case '>':  LineS(out,"&gt;");   break;
+    case '<':  LineS(out,"&lt;");   break;
+    case '"':  LineS(out,"&quot;"); break;
+    case '&':  LineS(out,"&amp;");  break;
+    default:   StreamWrite(out,c);  break;
+  }
+  
+  return(c);
+}
+
+/**************************************************************************/
+
+static int entity_flush(struct stream *s,struct streamvector *v)
+{
+  ddt(s       != NULL);
+  ddt(v       != NULL);
+  ddt(v->user != NULL);
+  
+  return(StreamFlush(v->user));
+}
+
+/**************************************************************************/
+
+static int entity_unwrite(struct stream *s,struct streamvector *v)
+{
+  ddt(s       != NULL);
+  ddt(v       != NULL);
+  ddt(v->user != NULL);
+  
+  return(StreamUnWrite(v->user));
 }
 
 /***************************************************************************/
