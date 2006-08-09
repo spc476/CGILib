@@ -155,6 +155,12 @@ static int cgi_new_post(const Cgi cgi)
   content_type   = CgiEnvGet(cgi,"CONTENT_TYPE");
   content_length = CgiEnvGet(cgi,"CONTENT_LENGTH");
   
+  /*-----------------------------------------------------------
+  ; XXX - if we send the ACCEPT-CHARSET attribute of <FORM> then 
+  ; this fails.  We need to check for this and do the intelligent
+  ; thing.  
+  ;-----------------------------------------------------------*/
+
   if (strcmp(content_type,"application/x-www-form-urlencoded") != 0)
     return(ERR_ERR);
     
