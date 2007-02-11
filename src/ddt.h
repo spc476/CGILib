@@ -23,7 +23,7 @@
 #ifndef DDT_H
 #  define DDT_H
 #  ifdef __unix__
-#    define DDTLOGFILE	"/tmp/null"
+#    define DDTLOGFILE	"/dev/null"
 #    define DDTNULFILE	"/dev/null"
 #  else
 #    error Please define your system

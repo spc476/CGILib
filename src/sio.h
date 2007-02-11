@@ -87,28 +87,50 @@ typedef struct sior
 {
   SIODir   dir;
   SIOType  type;
-  int    (*read)  (struct sioread *);
-  int    (*unread)(struct sioread *,int);
-  int    (*refill)(struct sioread *);
-  int    (*map)   (struct sioread *);
-  int    (*close) (struct sioread *);
+  int    (*read)  (struct sior *);
+  int    (*unread)(struct sior *,int);
+  int    (*refill)(struct sior *);
+  int    (*map)   (struct sior *);
+  int    (*close) (struct sior *);
   int      feof;
   size_t   size;
   size_t   off;
+  char    *data;
 } *SIOR;
 
 typedef struct siow
 {
   SIODir   dir;
   SIOType  type;
-  int    (*write)  (struct siowrite *,int);
-  int    (*unwrite)(struct siowrite *);
-  int    (*flush)  (struct siowrite *);
-  int    (*close)  (struct siowrite *);
+  int    (*write)  (struct siow *,int);
+  int    (*unwrite)(struct siow *);
+  int    (*flush)  (struct siow *);
+  int    (*close)  (struct siow *);
   int      feof;
   size_t   size;
   size_t   off;
+  char    *data;
 } *SIOW;
+
+struct siorfh
+{
+  struct sior     base;
+  char           *name;
+  int             fh;
+  int           (*prevread)();
+  unsigned char   wb[FHBUFFER_SIZE];
+  size_t          wbsize;
+};
+
+struct siowfh
+{
+  struct siow     base;
+  char           *name;
+  int             fh;
+  int           (*lowwrite)();
+  unsigned char   wb[FHBUFFER_SIZE];
+  size_t          wbsize;
+};
 
 /***********************************************************************/
 
@@ -117,6 +139,9 @@ extern SIOW SIOStdout;
 extern SIOW SIOStderr;
 
 int		 (SIOInit)		(void);
+
+SIOR		 (SIORNew)		(size_t);
+SIOW		 (SIOWNew)		(size_t);
 
 SIOR		 (SIORNull)		(void);
 SIOW	 	 (SIOWNull)		(void);
@@ -138,13 +163,15 @@ SIOW		 (SIOWTee)		(SIOW, ... );
 int		 (SIORWTCP)		(SIOR *,SIOW *,const char *,unsigned short);
 
 int		 (SIOREOF)		(SIOR);
+size_t		 (SIORSize)		(SIOR);
 int		 (SIORRead)		(SIOR);
-int		 (SIORUnread))		(SIOR);
+int		 (SIORUnread))		(SIOR,int);
 int		 (SIORRefill)		(SIOR);
 int		 (SIORMap)		(SIOR);
 int		 (SIORClose)		(SIOR);
 
 int		 (SIOWEOF)		(SIOW);
+size_t		 (SIOWSize)		(SIOW);
 int		 (SIOWWrite)		(SIOW,int);
 int		 (SIOWUnwrite)		(SIOW);
 int		 (SIOWFlush)		(SIOW);
@@ -164,12 +191,14 @@ char		*(StringFromSIO)	(const SIOW);
 #ifdef SCREAM
 
 #  define SIOREOF(sior)		((sior)->eof)
+#  define SIORSIZE(sior)	((sior)->size)
 #  define SIORRead(sior)	(*((sior)->read))   	((sior))
 #  define SIORUnread(sior,c)	(*((sior)->unread)) 	((sior),(c))
 #  define SIORRefill(sior)	(*((sior)->refill)) 	((sior))
 #  define SIORMap(sior)		(*((sior)->map))    	((sior))
 
 #  define SIOWEOF(siow)		((siow)->eof)
+#  define SIOWSize(siow)	((siow)->size)
 #  define SIOWWrite(siow,c)	(*((sior)->write)) 	((sior),(c))
 #  define SIOWUnwrite(siow)	(*((sior)->unwrite))	((sior))
 #  define SIOWFlush(siow)	(*((sior)->flush))	((sior))

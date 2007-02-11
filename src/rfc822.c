@@ -142,12 +142,17 @@ void (RFC822HeadersRead)(const Stream in,const List *list)
 
 size_t (RFC822HeadersWrite)(const Stream out,const List *list)
 {
+#if 1
+  struct pair *ppair;
+  size_t       size;
+#else
   struct pair  *ppair;
   int         (*conv)(int);
   size_t        size;
   char         *name;
   char         *t;
-  
+#endif
+
   ddt(out  != NULL);
   ddt(list != NULL);
   
@@ -158,6 +163,8 @@ size_t (RFC822HeadersWrite)(const Stream out,const List *list)
     ppair = (struct pair *)NodeNext(&ppair->node)
   )
   {
+    size += RFC822HeaderWrite(out,ppair->name,ppair->value);
+#if 0
     name = dup_string(ppair->name);
     for (conv = (toupper) , t = name ; *t ; t++)
     {
@@ -167,9 +174,35 @@ size_t (RFC822HeadersWrite)(const Stream out,const List *list)
 
     size += LineSFormat(out,"$ $","%a: %b\n",name,ppair->value);
     MemFree(name);
+#endif
   }
   return(size);
 }
 
 /*************************************************************************/
+
+size_t (RFC822HeaderWrite)(const Stream out,const char *name,const char *value)
+{
+  int    (*conv)(int);
+  size_t   size;
+  char    *n;
+  char    *t;
+  
+  ddt(out   != NULL);
+  ddt(name  != NULL);
+  ddt(value != NULL);
+  
+  n = dup_string(name);
+  for (conv = (toupper) , t = n ; *t ; t++)
+  {
+    *t = (*conv)(*t);
+    conv = isalpha(*t) ? (tolower) : (toupper);
+  }
+  
+  size = LineSFormat(out,"$ $","%a: %b\n",n,value);
+  MemFree(n);
+  return(size);
+}
+
+/***********************************************************************/
 

@@ -29,5 +29,6 @@
 char		*(RFC822LineRead)	(const Stream);
 void		 (RFC822HeadersRead)	(const Stream,const List *);
 size_t		 (RFC822HeadersWrite)	(const Stream,const List *);
+size_t		 (RFC822HeaderWrite)	(const Stream,const char *,const char *);
 
 #endif
