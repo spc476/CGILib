@@ -47,6 +47,7 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/stream.tee.o		\
 		$(HOSTDIR)/stream.entity.o	\
 	$(HOSTDIR)/rfc822.o			\
+	$(HOSTDIR)/mail.o			\
 	$(HOSTDIR)/rawfmt.o
 
 $(TARGET) : $(OFILES)
@@ -128,6 +129,9 @@ $(HOSTDIR)/htmltok.o : src/htmltok.c src/htmltok.h
 
 $(HOSTDIR)/rfc822.o : src/rfc822.c src/rfc822.h
 	$(CC) $(CFLAGS) -c -o $@ src/rfc822.c
+
+$(HOSTDIR)/mail.o : src/mail.c src/mail.h
+	$(CC) $(CFLAGS) -c -o $@ src/mail.c
 
 debug:
 	make -f make.debug
