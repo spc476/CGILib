@@ -124,6 +124,7 @@ int		 (StreamUnWrite)	(Stream);
 int		 (StreamFlush)		(Stream);
 int		 (StreamEOF)		(Stream);
 size_t		 (StreamCopy)		(Stream,Stream);
+size_t		 (StreamCopyN)		(Stream,Stream,size_t);
 int		 (StreamFree)		(Stream);
 
 size_t		 (LineS)		(const Stream,const char *);

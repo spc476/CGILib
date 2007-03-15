@@ -160,10 +160,24 @@ int (StreamEOF)(Stream s)
 
 size_t (StreamCopy)(Stream dest,Stream src)
 {
+  ddt(dest != NULL);
+  ddt(src  != NULL);
+
+  return (StreamCopyN(dest,src,SIZET_MAX));
+}
+
+/**********************************************************************/
+
+size_t (StreamCopyN)(Stream dest,Stream src,size_t size)
+{
   size_t amount = 0;
   int    c;
+
+  ddt(dest != NULL);
+  ddt(src  != NULL);
+  ddt(size >  0);
   
-  while(!StreamEOF(src))
+  while(size-- && !StreamEOF(src))
   {
     c = StreamRead(src);
     if (c == IEOF) break;

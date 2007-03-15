@@ -40,6 +40,7 @@ typedef struct cgi
   size_t  bufsize;
   char   *pbufend;
   char   *pbuff;
+  char   *datatype;
   List    vars;
   void   *data;
   int     method;

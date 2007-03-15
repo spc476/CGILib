@@ -199,29 +199,21 @@ static int cgi_new_head(const Cgi cgi)
 
 static int cgi_new_put(const Cgi cgi)
 {
-  size_t  length;
   char   *content_length;
-  size_t  i;
-  
-  ddt(cgi != NULL);
+  size_t  length;
 
   content_length = CgiEnvGet(cgi,"CONTENT_LENGTH");
-  
-  errno  = 0;
-  length = strtoul(content_length,NULL,10);
+  errno          = 0;
+  length         = strtoul(content_length,NULL,10);
+  MemFree(content_length);
+
   if ((length == LONG_MAX) && (errno == ERANGE))
     return(ERR_ERR);
-  
-  cgi->buffer = MemAlloc(length);
-  memset(cgi->buffer,'\0',length);
-  cgi->bufsize = length;
 
-  for (i = 0 ; i < length ; i++)
-    cgi->buffer[i] = StreamRead(StdinStream);
-    
-  cgi->pbuff   = cgi->buffer;
-  cgi->pbufend = &cgi->buffer[cgi->bufsize];
-  cgi->method  = PUT;
+  cgi->bufsize  = length;
+  cgi->datatype = CgiEnvGet(cgi,"CONTENT_TYPE");
+  cgi->method   = PUT;
+
   return(ERR_OKAY);
 }
 
