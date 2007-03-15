@@ -103,8 +103,9 @@ int (EmailSend)(Email email)
   LineS(output,"\n");
   
   body = StringFromStream(email->body);
+
   LineS(output,body);
-  
+  MemFree(body);
   close_sendmail(email,output);
   return(ERR_OKAY);  
 }
