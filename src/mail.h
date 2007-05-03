@@ -30,14 +30,14 @@
 
 typedef struct email
 {
-  char   *from;
-  char   *to;
-  char   *replyto;
-  char   *subject;
-  time_t  timestamp;
-  List    headers;
-  Stream  body;
-  FILE   *pipe;
+  const char *from;
+  const char *to;
+  const char *replyto;
+  const char *subject;
+  time_t      timestamp;
+  List        headers;
+  Stream      body;
+  FILE       *pipe;
 } *Email;
 
 /********************************************************************/

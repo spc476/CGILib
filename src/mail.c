@@ -34,10 +34,13 @@
 #include "mail.h"
 
 #define SENDMAIL	"/usr/sbin/sendmail"
-#define DEF_FROM	"fred@example.net"
-#define DEF_TO		"wilma@example.net"
-#define DEF_REPLYTO	""
-#define DEF_SUBJECT	"I think Barney's up to no good"
+
+/*****************************************************************/
+
+const char m_from[]    = "fred@example.net";
+const char m_to[]      = "wilma@example.net";
+const char m_replyto[] = "";
+const char m_subject[] = "I think Barney's up to no good";
 
 /*****************************************************************/
 
@@ -46,10 +49,10 @@ Email (EmailNew)(void)
   Email email;
   
   email            = MemAlloc(sizeof(struct email));
-  email->from      = dup_string(DEF_FROM);
-  email->to        = dup_string(DEF_TO);
-  email->replyto   = dup_string(DEF_REPLYTO);
-  email->subject   = dup_string(DEF_SUBJECT);
+  email->from      = m_from;
+  email->to        = m_to;
+  email->replyto   = m_replyto;
+  email->subject   = m_subject;
   email->timestamp = time(NULL);
   email->body      = StringStreamWrite();
   ListInit(&email->headers);
@@ -116,10 +119,10 @@ int (EmailFree)(Email email)
 {
   PairListFree(&email->headers);
   StreamFree(email->body);
-  MemFree(email->subject);
-  MemFree(email->replyto);
-  MemFree(email->to);
-  MemFree(email->from);
+  if (email->subject != m_subject) MemFree((void *)email->subject);
+  if (email->replyto != m_replyto) MemFree((void *)email->replyto);
+  if (email->to      != m_to)      MemFree((void *)email->to);
+  if (email->from    != m_from)    MemFree((void *)email->from);
   MemFree(email);
   return(ERR_OKAY);
 }
