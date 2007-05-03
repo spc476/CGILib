@@ -22,7 +22,7 @@
 
 #ifndef DDT_H
 #  define DDT_H
-#  ifdef __unix__
+#  if defined(__unix__) || defined(__MACH__)
 #    define DDTLOGFILE	"/dev/null"
 #    define DDTNULFILE	"/dev/null"
 #  else

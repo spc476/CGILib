@@ -83,7 +83,7 @@ int (CgiNew)(Cgi *pcgi,void *data)
 /*******************************************************************/
 
 #ifdef STDCGI
-#  ifdef __unix__
+#  if defined(__unix__) || defined(__MACH__)
      static int cgi_create(Cgi *pcgi,void *data)
      {
        struct cgi *cgi;

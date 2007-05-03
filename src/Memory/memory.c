@@ -43,6 +43,9 @@
 #elif defined RS6000
 #  define PADDING	0xB1
 #  define NULLP		0xB1B1B1B1
+#elif defined __POWERPC__
+#  define PADDING	0xB1
+#  define NULLP		0xB1B1B1B1
 #else
 #  error Please define system
 #endif

@@ -23,7 +23,7 @@
 #define CGILIB_GLOBALS_H
 
 #include "stream.h"
-#include "error.h"
+#include "errors.h"
 #include "memory.h"
 #include "ddt.h"
 

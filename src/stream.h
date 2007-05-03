@@ -36,7 +36,7 @@
 #define FHBUFFER_SIZE   8192
 #define FHBUFFER_WBSIZE   64
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__MACH__)
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  include <fcntl.h>

@@ -266,8 +266,9 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
 	  }
 	  else
 	  {
-	    char fms[BUFSIZ];
-	    char fms2[BUFSIZ];
+	    char  fms[BUFSIZ];
+	    char  fms2[BUFSIZ];
+	    char *tfms2;
 	    char *t;
 	    
 	    /*----------------------------------------------------------
@@ -279,8 +280,8 @@ int (HttpOpen)(HTTP *phttp,int mode,URLHTTP url,const char *pcheaders[])
 	    
 	    D(ddtlog(ddtstream,"$ $","file: %a query: %b",url->file,url->query);)
 	    strcpy(fms,url->file);
-	    dirname(fms);
-	    sprintf(fms2,"%s/%s",fms,tloc);
+	    tfms2 = dirname(fms);
+	    sprintf(tfms2,"%s/%s",fms,tloc);
 	    t = url->file;
 	    url->file = fms2;
 	    UrlMakeString((URL)url,tmpbuf,sizeof(tmpbuf));
