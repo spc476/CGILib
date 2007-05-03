@@ -93,6 +93,7 @@ int (EmailSend)(Email email)
   char      *body;
   
   output = open_sendmail(email);
+  if (output == NULL) return(ERR_ERR);
   
   ptm    = localtime(&email->timestamp);
   strftime(date,BUFSIZ,"%a, %d %b %Y %H:%M:%S %Z",ptm);
