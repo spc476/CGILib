@@ -42,12 +42,6 @@
 #include "ddt.h"
 #include "util.h"
 
-#if 0
-#  define DDTOPEN	100
-#  define DDTLOG	101
-#  define DDTCLOSE	102
-#endif
-
 #ifdef DDT
 #  define i_ddt(expr)						\
 		((void)((expr) ? 				\

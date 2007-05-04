@@ -46,10 +46,8 @@
 #define POST		1
 #define HEAD		2
 #define PUT		3
-#if 0
-#  define DELETE	4
-#  define TRACE		5
-#endif
+#define DELETE		4
+#define TRACE		5
 
 typedef struct http
 {
