@@ -96,7 +96,7 @@ int (EmailSend)(Email email)
   if (output == NULL) return(ERR_ERR);
   
   ptm    = localtime(&email->timestamp);
-  strftime(date,BUFSIZ,"%a, %d %b %Y %H:%M:%S %Z",ptm);
+  strftime(date,BUFSIZ,"Date: %a, %d %b %Y %H:%M:%S %Z",ptm);
   
   RFC822HeaderWrite(output,"from",email->from);
   if (!empty_string(email->replyto)) RFC822HeaderWrite(output,"reply-to",email->replyto);
