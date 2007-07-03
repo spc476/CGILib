@@ -46,6 +46,7 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/stream.string.o	\
 		$(HOSTDIR)/stream.tee.o		\
 		$(HOSTDIR)/stream.entity.o	\
+		$(HOSTDIR)/stream.bundle.o	\
 	$(HOSTDIR)/rfc822.o			\
 	$(HOSTDIR)/mail.o			\
 	$(HOSTDIR)/rawfmt.o
@@ -105,6 +106,9 @@ $(HOSTDIR)/stream.entity.o : src/Stream/entity.c src/stream.h
 
 $(HOSTDIR)/stream.tee.o : src/Stream/tee.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/tee.c
+
+$(HOSTDIR)/stream.bundle.o : src/Stream/bundle.c src/stream.h
+	$(CC) $(CFLAGS) -c -o $@ src/Stream/bundle.c
 
 $(HOSTDIR)/url.o : src/Url/url.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/url.c

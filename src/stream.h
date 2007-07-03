@@ -115,6 +115,7 @@ Stream		 (StringStreamWrite)	(void);
 Stream		 (EntityStreamRead)	(Stream,int);
 Stream		 (EntityStreamWrite)	(Stream);
 Stream		 (TeeStreamWrite)	(Stream,Stream);
+Stream		 (BundleStreamRead)	(void);
 
 int		 (StreamRead)		(Stream);
 int		 (StreamUnRead)		(Stream,int);
@@ -133,6 +134,7 @@ size_t		 (LineSFormatv)		(const Stream,const char *,const char *,va_list);
 char		*(LineSRead)		(const Stream);
 int		 (Line_ReadChar)	(const Stream);
 char		*(StringFromStream)	(const Stream);
+void		 (BundleReadAdd)	(const Stream,const Stream);
 
 /***********************************************************************/
 
