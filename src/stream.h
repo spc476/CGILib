@@ -52,6 +52,12 @@
 #    define MODE_WRITE		O_WRONLY
 #  endif
 
+#  ifdef _POSTIX_PATH_MAX
+#    define FILENAME_LEN	_POSIX_PATH_MAX
+#  else
+#    define FILENAME_LEN	255
+#  endif
+
 #else
 #  error Please define your OS
 #endif

@@ -49,6 +49,7 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/stream.bundle.o	\
 	$(HOSTDIR)/rfc822.o			\
 	$(HOSTDIR)/mail.o			\
+	$(HOSTDIR)/chunk.o			\
 	$(HOSTDIR)/rawfmt.o
 
 $(TARGET) : $(OFILES)
@@ -136,6 +137,9 @@ $(HOSTDIR)/rfc822.o : src/rfc822.c src/rfc822.h
 
 $(HOSTDIR)/mail.o : src/mail.c src/mail.h
 	$(CC) $(CFLAGS) -c -o $@ src/mail.c
+
+$(HOSTDIR)/chunk.o : src/chunk.c src/chunk.h
+	$(CC) $(CFLAGS) -c -o $@ src/chunk.c
 
 debug:
 	make -f make.debug
