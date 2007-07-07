@@ -144,7 +144,6 @@ int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
 {
   char   fname[FILENAME_LEN];
   Stream in;
-  int    c;
 
   ddt(chunk != NULL);
   ddt(name  != NULL);
@@ -155,6 +154,22 @@ int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
   in = FileStreamRead(fname);
   if (in == NULL)
     return(ERR_ERR);
+
+  ChunkProcessStream(chunk,in,out,data);
+  
+  StreamFree(in);
+  return(ERR_OKAY);
+}
+
+/*********************************************************************/
+
+int (ChunkProcessStream)(Chunk chunk,Stream in,Stream out,void *data)
+{
+  int c;
+  
+  ddt(chunk != NULL);
+  ddt(in    != NULL);
+  ddt(out   != NULL);
 
   while(!StreamEOF(in))
   {
@@ -173,8 +188,7 @@ int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
     }
     StreamWrite(out,c);    
   }
-
-  StreamFree(in);  
+  
   return(ERR_OKAY);
 }
 

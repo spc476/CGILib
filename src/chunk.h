@@ -44,6 +44,7 @@ typedef struct chunk
 
 int	 (ChunkNew)		(Chunk *,const char *,struct chunk_callback *,size_t);
 int	 (ChunkProcess)		(Chunk,const char *,Stream,void *);
+int	 (ChunkProcessStream)	(Chunk,Stream,Stream,void *);
 int	 (ChunkFree)		(Chunk);
 
 #endif
