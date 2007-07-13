@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "memory.h"
 #include "stream.h"
