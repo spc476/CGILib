@@ -89,18 +89,55 @@ int (EmailSend)(Email email)
 {
   Stream     output;
   struct tm *ptm;
-  char       date[BUFSIZ];
+  char       date  [BUFSIZ];
+  char       tfrom [BUFSIZ];
+  char       tto   [BUFSIZ];
+  char       treply[BUFSIZ];
   char      *body;
   
+  /*-----------------------------------------
+  ; (see below for more details)---since we
+  ; need to format the addresses between 
+  ; angle brackets, check to see if we have
+  ; enough space.  Properly, I should write
+  ; these to an output string, then recover
+  ; the string, but that just seems too much
+  ; overhead for me.  Ah well ... 
+  ;-----------------------------------------*/
+
+  if (strlen(email->from) > (BUFSIZ - 5))
+    return(ERR_ERR);
+
+  if (strlen(email->to) > (BUFSIZ - 5))
+    return(ERR_ERR);
+
+  if (strlen(email->replyto) > (BUFSIZ - 5))
+    return(ERR_ERR);
+
   output = open_sendmail(email);
   if (output == NULL) return(ERR_ERR);
   
   ptm    = localtime(&email->timestamp);
   strftime(date,BUFSIZ,"%a, %d %b %Y %H:%M:%S %Z",ptm);
+
+  /*---------------------------------------------------
+  ; BellSouth appears not to like how we're formating
+  ; our addresses.  I guess they're now forcing compliance,
+  ; so let's see if this works ... 
+  ;---------------------------------------------------*/
+
+  sprintf(tfrom,"<%s>",email->from);
+  sprintf(tto,"<%s>",email->to);
+  sprintf(treply,"<%s>",email->replyto);
   
-  RFC822HeaderWrite(output,"from",email->from);
-  if (!empty_string(email->replyto)) RFC822HeaderWrite(output,"reply-to",email->replyto);
-  RFC822HeaderWrite(output,"to",email->to);
+  RFC822HeaderWrite(output,"from",tfrom);
+  if (!empty_string(email->replyto))
+  {
+    sprintf(treply,"<%s>",email->replyto);
+    RFC822HeaderWrite(output,"reply-to",treply);
+  }
+
+  RFC822HeaderWrite(output,"to",tto);
   RFC822HeaderWrite(output,"subject",email->subject);
   RFC822HeaderWrite(output,"date",date);
   RFC822HeadersWrite(output,&email->headers);

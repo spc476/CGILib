@@ -83,34 +83,35 @@ typedef enum siotype
 
 /************************************************************************/
 
-typedef struct sior
+typedef struct sread
 {
   SIODir   dir;
   SIOType  type;
-  int    (*read)  (struct sior *);
-  int    (*unread)(struct sior *,int);
-  int    (*refill)(struct sior *);
-  int    (*map)   (struct sior *);
-  int    (*close) (struct sior *);
+  int    (*read)  (struct sread *);
+  int    (*unread)(struct sread *,int);
+  int	 (*rewind)(struct sread *);
+  int    (*refill)(struct sread *);
+  int    (*map)   (struct sread *);
+  int    (*close) (struct sread *);
   int      feof;
   size_t   size;
   size_t   off;
   char    *data;
-} *SIOR;
+} *SRead;
 
-typedef struct siow
+typedef struct swrite
 {
   SIODir   dir;
   SIOType  type;
-  int    (*write)  (struct siow *,int);
-  int    (*unwrite)(struct siow *);
-  int    (*flush)  (struct siow *);
-  int    (*close)  (struct siow *);
+  int    (*write)  (struct swrite *,int);
+  int    (*unwrite)(struct swrite *);
+  int    (*flush)  (struct swrite *);
+  int    (*close)  (struct swrite *);
   int      feof;
   size_t   size;
   size_t   off;
   char    *data;
-} *SIOW;
+} *SWrite;
 
 struct siorfh
 {
@@ -134,57 +135,57 @@ struct siowfh
 
 /***********************************************************************/
 
-extern SIOR SIOStdin;
-extern SIOW SIOStdout;
-extern SIOW SIOStderr;
+extern SRead  SRStdin;
+extern SWrite SWStdout;
+extern SWrite SWStderr;
 
 int		 (SIOInit)		(void);
 
-SIOR		 (SIORNew)		(size_t);
-SIOW		 (SIOWNew)		(size_t);
+SRead		 (SReadNew)		(size_t);
+SWrite		 (SWriteNew)		(size_t);
 
-SIOR		 (SIORNull)		(void);
-SIOW	 	 (SIOWNull)		(void);
-SIOR	 	 (SIORMemory)		(void *,size_t);
-SIOW	 	 (SIOWMemory)		(void *,size_t);
-SIOR	 	 (SIORString)		(const char *);
-SIOW		 (SIOWString)		(char *,size_t);
-SIOR	 	 (SIORFH)		(int);
-SIOW		 (SIOWFH)		(int);
-SIOR	 	 (SIORFile)		(const char *);
-SIOW		 (SIOWFile)		(const char *,int);
+SRead		 (SReadNull)		(void);
+SWrite	 	 (SWriteNull)		(void);
+SRead	 	 (SReadMemory)		(void *,size_t);
+SWrite	 	 (SWriteMemory)		(void *,size_t);
+SRead	 	 (SReadString)		(const char *);
+SWrite		 (SWriteString)		(char *,size_t);
+SRead	 	 (SReadFH)		(int);
+SWrite		 (SWriteFH)		(int);
+SRead	 	 (SReadFile)		(const char *);
+SWrite		 (SWriteFile)		(const char *,int);
 
-SIOR	 	 (SIORToEntit)		(SIOR);
-SIOR	 	 (SIORFromEntity)	(SIOR);
-SIOW		 (SIOWToEntity)		(SIOW);
-SIOW		 (SIOWFromEntity)	(SIOW);
+SRead	 	 (SRreadToEntit)	(SRead);
+SRead	 	 (SRreadFromEntity)	(SRead);
+SWrite		 (SWwriteToEntity)	(SWrite);
+SWrite		 (SWwriteFromEntity)	(SWrite);
 
-SIOW		 (SIOWTee)		(SIOW, ... );
-int		 (SIORWTCP)		(SIOR *,SIOW *,const char *,unsigned short);
+SWrite		 (SWriteTee)		(SWrite, ... );
+int		 (STCP)			(SRead *,SWrite *,const char *,unsigned short);
 
-int		 (SIOREOF)		(SIOR);
-size_t		 (SIORSize)		(SIOR);
-int		 (SIORRead)		(SIOR);
-int		 (SIORUnread))		(SIOR,int);
-int		 (SIORRefill)		(SIOR);
-int		 (SIORMap)		(SIOR);
-int		 (SIORClose)		(SIOR);
+int		 (SReadEOF)		(SRead);
+size_t		 (SReadSize)		(SRead);
+int		 (SRead)		(SRead);
+int		 (SReadUndo)		(SRead,int);
+int		 (SReadRefill)		(SRead);
+int		 (SReadMap)		(SRead);
+int		 (SReadClose)		(SRead);
 
-int		 (SIOWEOF)		(SIOW);
-size_t		 (SIOWSize)		(SIOW);
-int		 (SIOWWrite)		(SIOW,int);
-int		 (SIOWUnwrite)		(SIOW);
-int		 (SIOWFlush)		(SIOW);
-int		 (SIOWClose)		(SIOW);
+int		 (SWriteEOF)		(SWrite);
+size_t		 (SWriteSize)		(SWrite);
+int		 (SWriteWrite)		(SWrite,int);
+int		 (SWriteUndo)		(SWrite);
+int		 (SWriteFlush)		(SWrite);
+int		 (SWriteClose)		(SWrite);
 
-size_t		 (SIOCopy)		(SIOW,SIOR);
+size_t		 (SCopy)		(SWrite,SRead);
 
-size_t		 (LineSIOW)		(const SIOW,const char *);
-size_t		 (LineSIOWFormat)	(const SIOW,const char *,const char *, ... );
-size_t		 (LineSIOWFormatv)	(const SIOW,const char *,const char *,va_list);
+size_t		 (LineSWrite)		(const SWrite,const char *);
+size_t		 (LineSWriteFormat)	(const SWrite,const char *,const char *, ... );
+size_t		 (LineSWriteFormatv)	(const SWrite,const char *,const char *,va_list);
 
-char		*(LineSIOR)		(const SIOR);
-char		*(StringFromSIO)	(const SIOW);
+char		*(LineSRead)		(const SRead);
+char		*(StringFromSWrite)	(const SWrite);
 
 /***********************************************************************************/
 
