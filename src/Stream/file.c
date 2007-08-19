@@ -95,7 +95,7 @@ Stream (FHStreamRead)(int fh)
 Stream (FHStreamWrite)(int fh)
 {
   ddt(fh > -1);
-  return(fh_create_write("",fh,FALSE));
+  return(fh_create_write("",fh,TRUE));
 }
 
 /***********************************************************************/
@@ -113,7 +113,7 @@ Stream (FileStreamRead)(const char *name)
     return(NULL);
   }
 
-  return(fh_create_read(name,fh,FALSE));
+  return(fh_create_read(name,fh,TRUE));
 }
 
 /***********************************************************************/
