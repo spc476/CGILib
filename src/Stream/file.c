@@ -196,6 +196,9 @@ static Stream fh_create_read(const char *name,int fh,int refill)
   ; so that when we actually try to read, it will block *then*.
   ; For non-interactive streams like a disk, we can safely prefill
   ; the stream.
+  ;
+  ; Bug---Stdin may be a pipe, in which case, we don't want to 
+  ; prefill, much like the TCP connection.  Need to fix this.
   ;-------------------------------------------------------------------*/
   
   if (refill) 
