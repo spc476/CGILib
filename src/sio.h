@@ -42,10 +42,12 @@ typedef struct soutput
 SInput		 (NullSInput)		(void);
 SInput		 (FileSInput)		(const char *);
 SInput		 (FHSInput)		(int);
+SInput		 (MemorySInput)		(void *,size_t);
 
 SOutput		 (NullSOutput)		(void);
 SOutput		 (FileSOutput)		(const char *,int);
 SOutput		 (FHSOutput)		(int);
+SOutput		 (MemorySOutput)	(void *,size_t);
 
 int		 (TCPSInputOutput)	(SInput *,SOutput *,const char *,int);
 
