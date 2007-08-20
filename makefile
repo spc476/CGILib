@@ -49,6 +49,7 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/stream.bundle.o	\
 	$(HOSTDIR)/sio.o			\
 		$(HOSTDIR)/sio.file.o		\
+		$(HOSTDIR)/sio.memory.o		\
 	$(HOSTDIR)/rfc822.o			\
 	$(HOSTDIR)/mail.o			\
 	$(HOSTDIR)/chunk.o			\
@@ -100,6 +101,9 @@ $(HOSTDIR)/sio.o : src/SIO/sio.c src/sio.h
 
 $(HOSTDIR)/sio.file.o : src/SIO/file.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
+
+$(HOSTDIR)/sio.memory.o : src/SIO/memory.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/memory.c
 
 $(HOSTDIR)/stream.memory.o : src/Stream/memory.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/memory.c
