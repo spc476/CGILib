@@ -47,6 +47,8 @@ OFILES=$(HOSTDIR)/globals.o			\
 		$(HOSTDIR)/stream.tee.o		\
 		$(HOSTDIR)/stream.entity.o	\
 		$(HOSTDIR)/stream.bundle.o	\
+	$(HOSTDIR)/sio.o			\
+		$(HOSTDIR)/sio.file.o		\
 	$(HOSTDIR)/rfc822.o			\
 	$(HOSTDIR)/mail.o			\
 	$(HOSTDIR)/chunk.o			\
@@ -92,6 +94,12 @@ $(HOSTDIR)/stream.o : src/Stream/stream.c src/stream.h
 
 $(HOSTDIR)/stream.file.o : src/Stream/file.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/file.c
+
+$(HOSTDIR)/sio.o : src/SIO/sio.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/sio.c
+
+$(HOSTDIR)/sio.file.o : src/SIO/file.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
 
 $(HOSTDIR)/stream.memory.o : src/Stream/memory.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/memory.c

@@ -2,6 +2,9 @@
 #ifndef SIO_H
 #define SIO_H
 
+#include <stdlib.h>
+#include <stddef.h>
+
 struct buffer
 {
   char *data;
@@ -12,14 +15,14 @@ struct buffer
 
 typedef struct sinput
 {
-  size_t   bytes;
-  int      eof;
-  int      error;
-  int    (*readchar)  (struct sinput *);
-  size_t (*readblock) (struct sinput *,void *,size_t);
-  char   (*readstring)(struct sinput *);
-  int    (*unread)    (struct sinput *,int);
-  int    (*close)     (struct sinput *);
+  size_t    bytes;
+  int       eof;
+  int       error;
+  int     (*readchar)  (struct sinput *);
+  size_t  (*readblock) (struct sinput *,void *,size_t);
+  char   *(*readstring)(struct sinput *);
+  int     (*unread)    (struct sinput *,int);
+  int     (*close)     (struct sinput *);
 } *SInput;
 
 typedef struct soutput
@@ -29,7 +32,7 @@ typedef struct soutput
   int      error;
   size_t (*writechar)  (struct soutput *,int);
   size_t (*writeblock) (struct soutput *,void *,size_t);
-  size_t (*writestring)(struct souput *,const char *);
+  size_t (*writestring)(struct soutput *,const char *);
   size_t (*flush)      (struct soutput *);
   int    (*close)      (struct soutput *);
 } *SOutput;

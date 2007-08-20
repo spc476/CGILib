@@ -13,6 +13,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "../sio.h"
+#include "../memory.h"
+#include "../util.h"
+#include "../errors.h"
+#include "../types.h"
+#include "../ddt.h"
+
 #define FILE_BUFFER_SIZE	BUFSIZ
 #ifndef SHUT_RD
 #  define SHUT_RD 0
@@ -91,10 +98,10 @@ int TCPSInputOutput(SInput *psi,SOutput *pso,const char *host,int port)
     return(ERR_ERR);
   }
   
-  *psi               = FHSInput(fh);
-  *pso               = FHSOutput(fh);
-  (*psi)->base.close = tcp_in_close;
-  (*pso)->base.close = tcp_out_close;
+  *psi          = FHSInput(fh);
+  *pso          = FHSOutput(fh);
+  (*psi)->close = tcp_in_close;
+  (*pso)->close = tcp_out_close;
   
   return(ERR_OKAY);
 }
@@ -126,7 +133,7 @@ SInput (FHSInput)(int fh)
   ddt(fh >= 0);
   
   in                  = MemAlloc(sizeof(struct sifile));
-  in->base.in_bytes   = 0;
+  in->base.bytes      = 0;
   in->base.eof        = FALSE;
   in->base.error      = 0;
   in->base.readchar   = readchar;
@@ -147,10 +154,10 @@ SInput (FHSInput)(int fh)
 static size_t refill(struct sifile *si)
 {
   ssize_t rrc;
+
+  ddt(si != NULL);  
   
-  ddt(si != NULL);
-  
-  si->base.errno = 0;
+  si->base.error = 0;
   
   do
   {
@@ -166,14 +173,14 @@ static size_t refill(struct sifile *si)
   if (rrc == 0)
   {
     si->base.eof = TRUE;
-    si->idx      = 0;
-    si->max      = 0;
+    si->data.idx = 0;
+    si->data.max = 0;
     return(0);
   }
   
-  si->idx = 0;
-  si->max = rrc;
-  return(si->max);
+  si->data.idx = 0;
+  si->data.max = rrc;
+  return(si->data.max);
 }
 
 /********************************************************************/
@@ -262,7 +269,7 @@ static char *readstring(struct sinput *me)
 
   ddt(me != NULL);
   
-  si    = me;
+  si    = (struct sifile *)me;
   b     = &si->data;
   s     = dup_string("");
   total = 0;
@@ -281,15 +288,15 @@ static char *readstring(struct sinput *me)
     if (p != NULL)
     {
       sz = (size_t)(p - b->data) + 1;
-      s  = MemRealloc(s,total + sz);
+      s  = MemResize(s,total + sz);
       memcpy(&s[total],b->data,sz);
-      s[total + sz] = '\0';
-      b->idx += sz;
-      si->base.in_bytes += (total + sz);
+      s[total + sz]   = '\0';
+      b->idx         += sz;
+      si->base.bytes += (total + sz);
       return(s);
     }
 
-    s = MemRealloc(s,total + b->max);
+    s = MemResize(s,total + b->max);
     memcpy(&s[total],b->data,b->max);
     total += b->max;
     b->idx = b->max;
@@ -311,7 +318,7 @@ static int unread(struct sinput *me,int c)
 
 static int in_close(struct sinput *me)
 {
-  struct sifile *si = (struct sofile *)me;
+  struct sifile *si = (struct sifile *)me;
   
   ddt(me != NULL);
 
@@ -348,7 +355,7 @@ SOutput (FHSOutput)(int fh)
   ddt(fh >= 0);
   
   so                   = MemAlloc(sizeof(struct sofile));
-  so->base.out_bytes   = 0;
+  so->base.bytes       = 0;
   so->base.eof         = FALSE;
   so->base.error       = 0;
   so->base.writechar   = writechar;
@@ -371,6 +378,7 @@ static size_t flush(struct soutput *me)
   struct sofile *so = (struct sofile *)me;
   char          *data;
   size_t         trans;
+  ssize_t        rrc;
   
   ddt(me != NULL);
   
@@ -378,7 +386,7 @@ static size_t flush(struct soutput *me)
   trans          = 0;
   data           = so->data.data;
   
-  while(si->data.idx)
+  while(so->data.idx)
   {
     rrc = write(so->fh,data,so->data.idx);
     if (rrc == -1)
@@ -419,7 +427,7 @@ static size_t writechar(struct soutput *me,int c)
   }
   
   so->base.bytes++;
-  so->base.data[so->base.idx++] = c;
+  so->data.data[so->data.idx++] = c;
   return(1);
 }
 
@@ -486,7 +494,7 @@ static size_t writestring(struct soutput *me,const char *s)
   
   len = strlen(s);
   if (len)
-    return (writeblock(me,s,len));
+    return (writeblock(me,(void *)s,len));
   else
     return(0);
 }

@@ -1,4 +1,13 @@
 
+
+#include "../sio.h"
+#include "../memory.h"
+#include "../types.h"
+#include "../util.h"
+#include "../ddt.h"
+
+/****************************************************************/
+
 static int	 readchar	(struct sinput *);
 static size_t	 readblock	(struct sinput *,void *,size_t);
 static char	*readstring	(struct sinput *);
@@ -7,8 +16,8 @@ static int	 in_close	(struct sinput *);
 
 static size_t 	 writechar	(struct soutput *,int);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
-static size_t	 writestring	(struct soutput *,char *);
-static int	 flush		(struct soutput *);
+static size_t	 writestring	(struct soutput *,const char *);
+static size_t	 flush		(struct soutput *);
 static int	 out_close	(struct soutput *);
 
 /***********************************************************/
@@ -18,14 +27,13 @@ SInput (NullSInput)(void)
   SInput in;
   
   in            = MemAlloc(sizeof(struct sinput));
-  in.readchar   = readchar;
-  in.readblock  = readblock;
-  in.readstring = readstring;
-  in.unread     = unread;
-  in.refill     = refill;
-  in.close      = in_close;
-  in.eof        = TRUE;
-  in.bytes      = 0;
+  in->readchar   = readchar;
+  in->readblock  = readblock;
+  in->readstring = readstring;
+  in->unread     = unread;
+  in->close      = in_close;
+  in->eof        = TRUE;
+  in->bytes      = 0;
   return(in);
 }
 
@@ -71,6 +79,8 @@ int (SIEof)(SInput in)
 
 int (SIFree)(SInput in)
 {
+  int rc;
+  
   ddt(in != NULL);
   
   rc = (*in->close)(in);
@@ -122,7 +132,7 @@ static int unread(struct sinput *me,int c)
 
 /************************************************************/
 
-static int close(struct sinput *me)
+static int in_close(struct sinput *me)
 {
   ddt(me != NULL);
   
@@ -135,13 +145,14 @@ SOutput (NullSOutput)(void)
 {
   SOutput out;
   
-  out             = MemAlloc(sizeof(struct soutput));
-  out->writechar  = writechar;
-  out->writeblock = writeblock;
-  out->flush      = flush;
-  out->close      = out_close;
-  out->eof        = FALSE;
-  out->bytes      = 0;
+  out              = MemAlloc(sizeof(struct soutput));
+  out->writechar   = writechar;
+  out->writeblock  = writeblock;
+  out->writestring = writestring;
+  out->flush       = flush;
+  out->close       = out_close;
+  out->eof         = FALSE;
+  out->bytes       = 0;
   return(out);
 }
 
@@ -178,7 +189,7 @@ size_t (SOString)(SOutput out,char *s)
 
 /*****************************************************************/
 
-int (SOFlush)(SOutput out)
+size_t (SOFlush)(SOutput out)
 {
   ddt(out != NULL);
   
@@ -198,6 +209,8 @@ int (SOEof)(SOutput out)
 
 int (SOFree)(SOutput out)
 {
+  int rc;
+  
   ddt(out != NULL);
   
   rc = (*out->close)(out);
@@ -233,7 +246,7 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
 
 /***********************************************************************/
 
-static size_t writestring(struct soutput *me,char *s)
+static size_t writestring(struct soutput *me,const char *s)
 {
   size_t sz;
   
@@ -247,11 +260,11 @@ static size_t writestring(struct soutput *me,char *s)
 
 /**********************************************************************/
 
-static int flush(struct soutput *me)
+static size_t flush(struct soutput *me)
 {
   ddt(me != NULL);
   
-  return(ERR_OKAY);
+  return(me->bytes);
 }
 
 /*************************************************************************/
