@@ -48,13 +48,13 @@ struct sofile
 
 static int	 readchar	(struct sinput *);
 static size_t	 readblock	(struct sinput *,void *,size_t);
-static char	*readstring	(struct sinput *);
+static char	*readline	(struct sinput *);
 static int	 unread		(struct sinput *,int);
 static int	 in_close	(struct sinput *);
 
 static size_t	 writechar	(struct soutput *,int);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
-static size_t	 writestring	(struct soutput *,const char *);
+static size_t	 writeline	(struct soutput *,const char *);
 static size_t	 flush		(struct soutput *);
 static int	 out_close	(struct soutput *);
 
@@ -133,12 +133,13 @@ SInput (FHSInput)(int fh)
   ddt(fh >= 0);
   
   in                  = MemAlloc(sizeof(struct sifile));
+  in->fh              = fh;
   in->base.bytes      = 0;
   in->base.eof        = FALSE;
   in->base.error      = 0;
   in->base.readchar   = readchar;
   in->base.readblock  = readblock;
-  in->base.readstring = readstring;
+  in->base.readline   = readline;
   in->base.unread     = unread;
   in->base.close      = in_close;
   in->data.data       = MemAlloc(FILE_BUFFER_SIZE);
@@ -257,7 +258,7 @@ static size_t readblock(struct sinput *me,void *data,size_t size)
 
 /************************************************************************/
 
-static char *readstring(struct sinput *me)
+static char *readline(struct sinput *me)
 {
   struct sifile *si;
   struct buffer *b;
@@ -276,6 +277,8 @@ static char *readstring(struct sinput *me)
   
   while(1)
   {    
+    ddt(b->idx <= b->max);
+
     if (b->idx == b->max)
     {
       if (refill(si) == 0)
@@ -287,12 +290,13 @@ static char *readstring(struct sinput *me)
     
     if (p != NULL)
     {
-      sz = (size_t)(p - b->data) + 1;
-      s  = MemResize(s,total + sz);
-      memcpy(&s[total],b->data,sz);
+      sz = (size_t)(p - &b->data[b->idx]);
+      s  = MemResize(s,total + sz + 1);
+      memcpy(&s[total],&b->data[b->idx],sz);
       s[total + sz]   = '\0';
-      b->idx         += sz;
+      b->idx         += sz + 1;
       si->base.bytes += (total + sz);
+      ddt(b->idx <= b->max);
       return(s);
     }
 
@@ -355,12 +359,13 @@ SOutput (FHSOutput)(int fh)
   ddt(fh >= 0);
   
   so                   = MemAlloc(sizeof(struct sofile));
+  so->fh               = fh;
   so->base.bytes       = 0;
   so->base.eof         = FALSE;
   so->base.error       = 0;
   so->base.writechar   = writechar;
   so->base.writeblock  = writeblock;
-  so->base.writestring = writestring;
+  so->base.writeline   = writeline;
   so->base.flush       = flush;
   so->base.close       = out_close;
   so->data.data        = MemAlloc(FILE_BUFFER_SIZE);
@@ -446,6 +451,7 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
   ddt(size >  0);
   
   so    = (struct sofile *)me;
+  src   = data;
   b     = &so->data;
   trans = 0;
   
@@ -485,7 +491,7 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
 
 /*************************************************************************/
 
-static size_t writestring(struct soutput *me,const char *s)
+static size_t writeline(struct soutput *me,const char *s)
 {
   size_t len;
   

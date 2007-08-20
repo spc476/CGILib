@@ -10,13 +10,13 @@
 
 static int	 readchar	(struct sinput *);
 static size_t	 readblock	(struct sinput *,void *,size_t);
-static char	*readstring	(struct sinput *);
+static char	*readline	(struct sinput *);
 static int	 unread		(struct sinput *,int);
 static int	 in_close	(struct sinput *);
 
 static size_t 	 writechar	(struct soutput *,int);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
-static size_t	 writestring	(struct soutput *,const char *);
+static size_t	 writeline	(struct soutput *,const char *);
 static size_t	 flush		(struct soutput *);
 static int	 out_close	(struct soutput *);
 
@@ -29,7 +29,7 @@ SInput (NullSInput)(void)
   in            = MemAlloc(sizeof(struct sinput));
   in->readchar   = readchar;
   in->readblock  = readblock;
-  in->readstring = readstring;
+  in->readline   = readline;
   in->unread     = unread;
   in->close      = in_close;
   in->eof        = TRUE;
@@ -59,11 +59,11 @@ size_t (SIBlock)(SInput in,void *data,size_t size)
 
 /***********************************************************/
 
-char *(SIString)(SInput in)
+char *(SILine)(SInput in)
 {
   ddt(in != NULL);
   
-  return((*in->readstring)(in));
+  return((*in->readline)(in));
 }
 
 /************************************************************/
@@ -113,7 +113,7 @@ static size_t readblock(struct sinput *me,void *data,size_t size)
 
 /***********************************************************/
 
-static char *readstring(struct sinput *me)
+static char *readline(struct sinput *me)
 {
   ddt(me != NULL);
   
@@ -148,7 +148,7 @@ SOutput (NullSOutput)(void)
   out              = MemAlloc(sizeof(struct soutput));
   out->writechar   = writechar;
   out->writeblock  = writeblock;
-  out->writestring = writestring;
+  out->writeline   = writeline;
   out->flush       = flush;
   out->close       = out_close;
   out->eof         = FALSE;
@@ -179,12 +179,12 @@ size_t (SOBlock)(SOutput out,void *data,size_t size)
 
 /*****************************************************************/
 
-size_t (SOString)(SOutput out,char *s)
+size_t (SOLine)(SOutput out,char *s)
 {
   ddt(out != NULL);
   ddt(s   != NULL);
   
-  return((*out->writestring)(out,s));
+  return((*out->writeline)(out,s));
 }
 
 /*****************************************************************/
@@ -246,7 +246,7 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
 
 /***********************************************************************/
 
-static size_t writestring(struct soutput *me,const char *s)
+static size_t writeline(struct soutput *me,const char *s)
 {
   size_t sz;
   

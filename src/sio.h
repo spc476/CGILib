@@ -20,7 +20,7 @@ typedef struct sinput
   int       error;
   int     (*readchar)  (struct sinput *);
   size_t  (*readblock) (struct sinput *,void *,size_t);
-  char   *(*readstring)(struct sinput *);
+  char   *(*readline)  (struct sinput *);
   int     (*unread)    (struct sinput *,int);
   int     (*close)     (struct sinput *);
 } *SInput;
@@ -32,7 +32,7 @@ typedef struct soutput
   int      error;
   size_t (*writechar)  (struct soutput *,int);
   size_t (*writeblock) (struct soutput *,void *,size_t);
-  size_t (*writestring)(struct soutput *,const char *);
+  size_t (*writeline)  (struct soutput *,const char *);
   size_t (*flush)      (struct soutput *);
   int    (*close)      (struct soutput *);
 } *SOutput;
@@ -51,13 +51,13 @@ int		 (TCPSInputOutput)	(SInput *,SOutput *,const char *,int);
 
 int		 (SIChar)		(SInput);
 size_t		 (SIBlock)		(SInput,void *,size_t);
-char		*(SIString)		(SInput);
+char		*(SILine)		(SInput);
 int		 (SIEof)		(SInput);
 int		 (SIFree)		(SInput);
 
 size_t		 (SOChar)		(SOutput,int);
 size_t		 (SOBlock)		(SOutput,void *,size_t);
-size_t		 (SOString)		(SOutput,char *);
+size_t		 (SOLine)		(SOutput,char *);
 size_t		 (SOFlush)		(SOutput);
 int		 (SOEof)		(SOutput);
 int		 (SOFree)		(SOutput);
@@ -67,11 +67,11 @@ int		 (SOFree)		(SOutput);
 #ifdef SCREAM
 #  define SIChar(in)		((*(in)->readchar)   ((in))
 #  define SIBlock(in,d,s)	((*(in)->readblock)  ((in),(d),(s))
-#  define SIString(in)		((*(in)->readstring) ((in))
+#  define SILine(in)		((*(in)->readline)   ((in))
 
 #  define SOChar(out,c)		((*(out)->writechar)   ((out),(c))
 #  define SOBlock(out,d,s)	((*(out)->writeblock)  ((out),(d),(s))
-#  define SOString(out,s)	((*(out)->writestring) ((out),(s))
+#  define SOLine(out,s)	        ((*(out)->writeline) ((out),(s))
 #  define SOFlush(out)		((*(out)->flush)       ((out))
 #endif
 
