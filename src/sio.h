@@ -21,7 +21,6 @@ typedef struct sinput
   int     (*readchar)  (struct sinput *);
   size_t  (*readblock) (struct sinput *,void *,size_t);
   char   *(*readline)  (struct sinput *);
-  int     (*unread)    (struct sinput *,int);
   int     (*close)     (struct sinput *);
 } *SInput;
 
@@ -67,14 +66,16 @@ int		 (SOFree)		(SOutput);
 /*************************************************************************/
 
 #ifdef SCREAM
-#  define SIChar(in)		((*(in)->readchar)   ((in))
-#  define SIBlock(in,d,s)	((*(in)->readblock)  ((in),(d),(s))
-#  define SILine(in)		((*(in)->readline)   ((in))
+#  define SIChar(in)		((*(in)->readchar)  ((in))
+#  define SIBlock(in,d,s)	((*(in)->readblock) ((in),(d),(s))
+#  define SILine(in)		((*(in)->readline)  ((in))
+#  define SIFree(in)		((*(in)->close)     ((in))
 
-#  define SOChar(out,c)		((*(out)->writechar)   ((out),(c))
-#  define SOBlock(out,d,s)	((*(out)->writeblock)  ((out),(d),(s))
-#  define SOLine(out,s)	        ((*(out)->writeline) ((out),(s))
-#  define SOFlush(out)		((*(out)->flush)       ((out))
+#  define SOChar(out,c)		((*(out)->writechar)  ((out),(c))
+#  define SOBlock(out,d,s)	((*(out)->writeblock) ((out),(d),(s))
+#  define SOLine(out,s)	        ((*(out)->writeline)  ((out),(s))
+#  define SOFlush(out)		((*(out)->flush)      ((out))
+#  define SOFree(out)		((*(out)->close)      ((out))
 #endif
 
 #endif

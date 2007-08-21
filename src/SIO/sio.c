@@ -11,7 +11,6 @@
 static int	 readchar	(struct sinput *);
 static size_t	 readblock	(struct sinput *,void *,size_t);
 static char	*readline	(struct sinput *);
-static int	 unread		(struct sinput *,int);
 static int	 in_close	(struct sinput *);
 
 static size_t 	 writechar	(struct soutput *,int);
@@ -30,7 +29,6 @@ SInput (NullSInput)(void)
   in->readchar   = readchar;
   in->readblock  = readblock;
   in->readline   = readline;
-  in->unread     = unread;
   in->close      = in_close;
   in->eof        = TRUE;
   in->bytes      = 0;
@@ -79,16 +77,8 @@ int (SIEof)(SInput in)
 
 int (SIFree)(SInput in)
 {
-  int rc;
-  
   ddt(in != NULL);
-  
-  rc = (*in->close)(in);
-  if (rc != ERR_OKAY)
-    return(rc);
-  
-  MemFree(in);
-  return(ERR_OKAY);
+  return ((*in->close)(in));
 }
 
 /**********************************************************/
@@ -122,20 +112,11 @@ static char *readline(struct sinput *me)
 
 /************************************************************/
 
-static int unread(struct sinput *me,int c)
-{
-  ddt(me != NULL);
-  ddt(c  != IEOF);
-  
-  return(c);
-}
-
-/************************************************************/
-
 static int in_close(struct sinput *me)
 {
   ddt(me != NULL);
-  
+
+  MemFree(me);
   return(ERR_OKAY);
 }
 
@@ -209,16 +190,8 @@ int (SOEof)(SOutput out)
 
 int (SOFree)(SOutput out)
 {
-  int rc;
-  
   ddt(out != NULL);
-  
-  rc = (*out->close)(out);
-  if (rc != ERR_OKAY)
-    return(rc);
-  
-  MemFree(out);
-  return(ERR_OKAY);
+  return ((*out->close)(out));
 }
 
 /*********************************************************************/
@@ -272,7 +245,7 @@ static size_t flush(struct soutput *me)
 static int out_close(struct soutput *me)
 {
   ddt(me != NULL);
-  
+  MemFree(me); 
   return(ERR_OKAY);
 }
 

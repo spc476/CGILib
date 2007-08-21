@@ -29,7 +29,6 @@ struct somem
 static int	 readchar	(struct sinput *);
 static size_t	 readblock	(struct sinput *,void *,size_t);
 static char	*readline	(struct sinput *);
-static int	 unread		(struct sinput *,int);
 static int	 in_close	(struct sinput *);
 
 static size_t	 writechar	(struct soutput *,int);
@@ -54,7 +53,6 @@ SInput (MemorySInput)(void *data,size_t size)
   in->base.readchar  = readchar;
   in->base.readblock = readblock;
   in->base.readline  = readline;
-  in->base.unread    = unread;
   in->base.close     = in_close;
   in->data.data      = data;
   in->data.size      = size;
@@ -149,17 +147,6 @@ static char *readline(struct sinput *me)
 }
 
 /*************************************************************************/
-
-static int unread(struct sinput *me,int c)
-{
-  ddt(me != NULL);
-  ddt(c  != IEOF);
-  
-  ddt(0);
-  return(c);
-}
-
-/************************************************************************/
 
 static int in_close(struct sinput *me)
 {
