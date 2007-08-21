@@ -7,6 +7,8 @@
 #include "../util.h"
 #include "../ddt.h"
 
+#define min(a,b)	((a) < (b)) ? (a) : (b)
+
 /****************************************************************/
 
 static int	 readchar	(struct sinput *);
@@ -25,6 +27,7 @@ static int	 out_close	(struct soutput *);
 size_t (SIOCopy)(SOutput so,SInput si)
 {
   size_t trans;
+  size_t amount;
   char   buffer[BUFSIZ];
   
   ddt(so != NULL);
@@ -42,6 +45,26 @@ size_t (SIOCopy)(SOutput so,SInput si)
 }
 
 /*******************************************************************/  
+
+size_t (SIOCopyN)(SOutput so,SInput si,size_t size)
+{
+  size_t trans;
+  size_t amount;
+  char   buffer[BUFSIZ];
+  
+  for (trans = 0 ; size > 0 ; )
+  {
+    amount = SIBlock(si,buffer,min(size,sizeof(buffer));
+    if (amount == 0) break;
+    SOBlock(so,buffer,amount);
+    trans += amount;
+    size  -= amount;
+  }
+  
+  return(trans);
+}
+
+/********************************************************************/
     
 SInput (NullSInput)(void)
 {

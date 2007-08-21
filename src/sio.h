@@ -54,6 +54,7 @@ int		 (TCPSInputOutput)	(SInput *,SOutput *,const char *,int);
 void		 (BundleSInputAdd)	(SInput,SInput);
 void		 (BundleSOutputAdd)	(SOutput,SOutput);
 size_t		 (SIOCopy)		(SOutput,SInput);
+size_t		 (SIOCopyN)		(SOutput,SInput,size_t);
 
 int		 (SIChar)		(SInput);
 size_t		 (SIBlock)		(SInput,void *,size_t);
