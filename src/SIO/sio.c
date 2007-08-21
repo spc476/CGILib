@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../sio.h"
 #include "../memory.h"
@@ -54,7 +55,7 @@ size_t (SIOCopyN)(SOutput so,SInput si,size_t size)
   
   for (trans = 0 ; size > 0 ; )
   {
-    amount = SIBlock(si,buffer,min(size,sizeof(buffer));
+    amount = SIBlock(si,buffer,min(size,sizeof(buffer)));
     if (amount == 0) break;
     SOBlock(so,buffer,amount);
     trans += amount;
