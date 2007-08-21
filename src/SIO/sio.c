@@ -249,5 +249,78 @@ static int out_close(struct soutput *me)
   return(ERR_OKAY);
 }
 
-/**************************************************************************/
+/***********************************************************************
+* see comment in sio.h for explaination of these routines
+************************************************************************/
+
+size_t slow_readblock(struct sinput *me,void *data,size_t size)
+{
+  size_t  trans;
+  char   *p;
+  int     c;
+  
+  for (trans = 0 , p = data ; size ; size--)
+  {
+    c = (*me->readchar)(me);
+    if (c == IEOF)
+    {
+      me->eof = TRUE;
+      return(trans);
+    }
+    
+    *p++ = c;
+  }
+  return(trans);
+}
+
+/**********************************************************************/
+
+char *slow_readline(struct sinput *me)
+{
+  return(NULL);
+}
+
+/***********************************************************************/
+
+size_t slow_writeblock(struct soutput *me,void *data,size_t size)
+{
+  size_t  trans;
+  char   *p;
+  char    c;
+  int     rc;
+  
+  ddt(me   != NULL);
+  ddt(data != NULL);
+  ddt(size >  0);
+  
+  for (trans = 0 , p = data ; size ; size--)
+  {
+    c = *p++;
+    rc = (*me->writechar)(me,c);
+    if (rc == 0)
+    {
+      me->eof = TRUE;
+      return(trans);
+    }
+  }
+  return(trans);
+}
+
+/***********************************************************************/
+
+size_t slow_writeline(struct soutput *me,const char *s)
+{
+  size_t len;
+  
+  ddt(me != NULL);
+  ddt(s  != NULL);
+  
+  len = strlen(s);
+  if (len)
+    return((*me->writeblock)(me,(void *)s,len));
+  else
+    return(0);
+}
+
+/************************************************************************/
 

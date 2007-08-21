@@ -33,7 +33,6 @@ static int	 in_close	(struct sinput *);
 
 static size_t	 writechar	(struct soutput *,int);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
-static size_t	 writeline	(struct soutput *,const char *);
 static size_t	 flush		(struct soutput *);
 static int	 out_close	(struct soutput *);
 
@@ -174,7 +173,7 @@ SOutput MemSOutput(void *data,size_t size)
   so->base.error      = 0;
   so->base.writechar  = writechar;
   so->base.writeblock = writeblock;
-  so->base.writeline  = writeline;
+  so->base.writeline  = slow_writeline;
   so->base.flush      = flush;
   so->base.close      = out_close;
   so->data.data       = data;
@@ -229,22 +228,6 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
   so->data.idx   += delta;
   so->base.bytes += delta;
   return(delta);
-}
-
-/*******************************************************************************/
-
-static size_t writeline(struct soutput *me,const char *s)
-{
-  size_t len;
-  
-  ddt(me != NULL);
-  ddt(s  != NULL);
-  
-  len = strlen(s);
-  if (len)
-    return(writeblock(me,(void *)s,len));
-  else
-    return(0);
 }
 
 /*******************************************************************************/

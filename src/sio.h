@@ -42,13 +42,17 @@ SInput		 (NullSInput)		(void);
 SInput		 (FileSInput)		(const char *);
 SInput		 (FHSInput)		(int);
 SInput		 (MemorySInput)		(void *,size_t);
+SInput		 (BundleSInput)		(void);
 
 SOutput		 (NullSOutput)		(void);
 SOutput		 (FileSOutput)		(const char *,int);
 SOutput		 (FHSOutput)		(int);
 SOutput		 (MemorySOutput)	(void *,size_t);
+SOutput		 (BundleSOutput)	(void);
 
 int		 (TCPSInputOutput)	(SInput *,SOutput *,const char *,int);
+void		 (BundleSInputAdd)	(SInput,SInput);
+void		 (BundleSOutputAdd)	(SOutput,SOutput);
 
 int		 (SIChar)		(SInput);
 size_t		 (SIBlock)		(SInput,void *,size_t);
@@ -62,6 +66,18 @@ size_t		 (SOLine)		(SOutput,char *);
 size_t		 (SOFlush)		(SOutput);
 int		 (SOEof)		(SOutput);
 int		 (SOFree)		(SOutput);
+
+	/*---------------------------------------------------------
+	; the following functions are not meant to be called
+	; by application code.  Instead, they are used to quickly
+	; get new sub-modules running.  They work by repeatedly
+	; calling the character-by-character methods.
+	;---------------------------------------------------------*/
+
+size_t		  slow_readblock	(struct sinput *,void *,size_t);
+char		 *slow_readline		(struct sinput *);
+size_t		  slow_writeblock	(struct soutput *,void *,size_t);
+size_t		  slow_writeline	(struct soutput *,const char *);
 
 /*************************************************************************/
 

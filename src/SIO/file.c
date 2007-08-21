@@ -53,7 +53,6 @@ static int	 in_close	(struct sinput *);
 
 static size_t	 writechar	(struct soutput *,int);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
-static size_t	 writeline	(struct soutput *,const char *);
 static size_t	 flush		(struct soutput *);
 static int	 out_close	(struct soutput *);
 
@@ -352,7 +351,7 @@ SOutput (FHSOutput)(int fh)
   so->base.error       = 0;
   so->base.writechar   = writechar;
   so->base.writeblock  = writeblock;
-  so->base.writeline   = writeline;
+  so->base.writeline   = slow_writeline;
   so->base.flush       = flush;
   so->base.close       = out_close;
   so->data.data        = MemAlloc(FILE_BUFFER_SIZE);
@@ -474,22 +473,6 @@ static size_t writeblock(struct soutput *me,void *data,size_t size)
   ddt(0);
   so->base.bytes += trans;
   return(trans);
-}
-
-/*************************************************************************/
-
-static size_t writeline(struct soutput *me,const char *s)
-{
-  size_t len;
-  
-  ddt(me != NULL);
-  ddt(s  != NULL);
-  
-  len = strlen(s);
-  if (len)
-    return (writeblock(me,(void *)s,len));
-  else
-    return(0);
 }
 
 /*************************************************************************/
