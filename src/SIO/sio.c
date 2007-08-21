@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 
 #include "../sio.h"
 #include "../memory.h"
@@ -21,6 +22,27 @@ static int	 out_close	(struct soutput *);
 
 /***********************************************************/
 
+size_t (SIOCopy)(SOutput so,SInput si)
+{
+  size_t trans;
+  char   buffer[BUFSIZ];
+  
+  ddt(so != NULL);
+  ddt(si != NULL);
+  
+  for (trans = 0 ; ; )
+  {
+    amount = SIBlock(si,buffer,BUFSIZ);
+    if (amount == 0) break;
+    SOBlock(so,buffer,amount);
+    trans += amount;
+  }
+  
+  return(trans);
+}
+
+/*******************************************************************/  
+    
 SInput (NullSInput)(void)
 {
   SInput in;
