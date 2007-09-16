@@ -328,7 +328,7 @@ static int fh_flush(struct stream *s,struct streamvector *v)
     if (rc < 0)
     {
       if (errno == EINTR) continue;
-      rc = errno;
+      s->eof = TRUE;
       return(FALSE);
     }
     else if (rc == 0)
