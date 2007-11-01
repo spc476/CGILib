@@ -6,6 +6,9 @@
 #
 #-------------------------------------------------------------------
 
+DESTLIB=/usr/local/lib
+DESTHEADER=/usr/local/include/cgilib
+
 SHELL=/bin/sh
 CC=gcc -DCGILIB -DSTDCGI -Wall -pedantic -ansi
 #CC=cc -DCGILIB -DSTDCGI 
@@ -165,6 +168,12 @@ clean:
 	/bin/rm src/*~
 	/bin/rm src/*/*~
 	/bin/rm cgi4.tar.gz
+
+install:
+	install -d $(DESTLIB)
+	install -d $(DESTHEADER)
+	install $(TARGET) $(DESTLIB)
+	install src/*.h $(DESTHEADER)
 
 package:
 	make -i clean
