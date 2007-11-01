@@ -24,37 +24,37 @@ CFLAGS=-g
 AR=ar cr
 RANLIB=ranlib
 
-TARGET=$(HOSTDIR)/libcgi5.a
+TARGET=obj/libcgi5.a
 
-OFILES=$(HOSTDIR)/globals.o			\
-	$(HOSTDIR)/nodelist.o 			\
-	$(HOSTDIR)/ddt.o			\
-	$(HOSTDIR)/util.o			\
-	$(HOSTDIR)/pair.o			\
-	$(HOSTDIR)/cgi.o			\
-	$(HOSTDIR)/http.o			\
-	$(HOSTDIR)/htmltok.o			\
-	$(HOSTDIR)/memory.o			\
-		$(HOSTDIR)/mem.memstdc.o	\
-	$(HOSTDIR)/url.o			\
-		$(HOSTDIR)/url.file.o		\
-		$(HOSTDIR)/url.http.o		\
-	$(HOSTDIR)/stream.o			\
-		$(HOSTDIR)/stream.file.o 	\
-		$(HOSTDIR)/stream.memory.o 	\
-		$(HOSTDIR)/stream.line.o	\
-		$(HOSTDIR)/stream.string.o	\
-		$(HOSTDIR)/stream.tee.o		\
-		$(HOSTDIR)/stream.entity.o	\
-		$(HOSTDIR)/stream.bundle.o	\
-	$(HOSTDIR)/sio.o			\
-		$(HOSTDIR)/sio.file.o		\
-		$(HOSTDIR)/sio.memory.o		\
-		$(HOSTDIR)/sio.bundle.o		\
-	$(HOSTDIR)/rfc822.o			\
-	$(HOSTDIR)/mail.o			\
-	$(HOSTDIR)/chunk.o			\
-	$(HOSTDIR)/rawfmt.o
+OFILES=obj/globals.o			\
+	obj/nodelist.o 			\
+	obj/ddt.o			\
+	obj/util.o			\
+	obj/pair.o			\
+	obj/cgi.o			\
+	obj/http.o			\
+	obj/htmltok.o			\
+	obj/memory.o			\
+		obj/mem.memstdc.o	\
+	obj/url.o			\
+		obj/url.file.o		\
+		obj/url.http.o		\
+	obj/stream.o			\
+		obj/stream.file.o 	\
+		obj/stream.memory.o 	\
+		obj/stream.line.o	\
+		obj/stream.string.o	\
+		obj/stream.tee.o		\
+		obj/stream.entity.o	\
+		obj/stream.bundle.o	\
+	obj/sio.o			\
+		obj/sio.file.o		\
+		obj/sio.memory.o		\
+		obj/sio.bundle.o		\
+	obj/rfc822.o			\
+	obj/mail.o			\
+	obj/chunk.o			\
+	obj/rawfmt.o
 
 $(TARGET) : $(OFILES)
 	$(AR) $(TARGET) $(OFILES)
@@ -64,104 +64,104 @@ $(TARGET) : $(OFILES)
 # rules to compile source files
 #----------------------------------------------------------------------
 
-$(HOSTDIR)/ntest : $(HOSTDIR)/ntest.o $(OFILES)
-	$(CC) $(CFLAGS) -o $(HOSTDIR)/ntest $(HOSTDIR)/ntest.o $(OFILES)
+obj/ntest : obj/ntest.o $(OFILES)
+	$(CC) $(CFLAGS) -o obj/ntest obj/ntest.o $(OFILES)
 
-$(HOSTDIR)/ntest.o : src/ntest.c
+obj/ntest.o : src/ntest.c
 	$(CC) $(CFLAGS) -c -o $@ src/ntest.c
 
-$(HOSTDIR)/globals.o : src/globals.c
+obj/globals.o : src/globals.c
 	$(CC) $(CFLAGS) -c -o $@ src/globals.c
 
-$(HOSTDIR)/nodelist.o : src/nodelist.c src/nodelist.h
+obj/nodelist.o : src/nodelist.c src/nodelist.h
 	$(CC) $(CFLAGS) -c -o $@ src/nodelist.c
 
-$(HOSTDIR)/memory.o : src/Memory/memory.c src/memory.h
+obj/memory.o : src/Memory/memory.c src/memory.h
 	$(CC) $(CFLAGS) -c -o $@ src/Memory/memory.c
 
-$(HOSTDIR)/mem.memstdc.o : src/Memory/memstdc.c src/memory.h
+obj/mem.memstdc.o : src/Memory/memstdc.c src/memory.h
 	$(CC) $(CFLAGS) -c -o $@ src/Memory/memstdc.c
 
-$(HOSTDIR)/util.o : src/util.c src/util.h
+obj/util.o : src/util.c src/util.h
 	$(CC) $(CFLAGS) -c -o $@ src/util.c
 
-$(HOSTDIR)/ddt.o : src/ddt.c src/ddt.h
+obj/ddt.o : src/ddt.c src/ddt.h
 	$(CC) $(CFLAGS) -c -o $@ src/ddt.c
 
-$(HOSTDIR)/rawfmt.o : src/rawfmt.c src/rawfmt.h
+obj/rawfmt.o : src/rawfmt.c src/rawfmt.h
 	$(CC) $(CFLAGS) -c -o $@ src/rawfmt.c
 
-$(HOSTDIR)/stream.o : src/Stream/stream.c src/stream.h
+obj/stream.o : src/Stream/stream.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/stream.c
 
-$(HOSTDIR)/stream.file.o : src/Stream/file.c src/stream.h
+obj/stream.file.o : src/Stream/file.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/file.c
 
-$(HOSTDIR)/sio.o : src/SIO/sio.c src/sio.h
+obj/sio.o : src/SIO/sio.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/sio.c
 
-$(HOSTDIR)/sio.file.o : src/SIO/file.c src/sio.h
+obj/sio.file.o : src/SIO/file.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
 
-$(HOSTDIR)/sio.memory.o : src/SIO/memory.c src/sio.h
+obj/sio.memory.o : src/SIO/memory.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/memory.c
 
-$(HOSTDIR)/sio.bundle.o : src/SIO/bundle.c src/sio.h
+obj/sio.bundle.o : src/SIO/bundle.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/bundle.c
 
-$(HOSTDIR)/stream.memory.o : src/Stream/memory.c src/stream.h
+obj/stream.memory.o : src/Stream/memory.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/memory.c
 
-$(HOSTDIR)/stream.line.o : src/Stream/line.c src/stream.h
+obj/stream.line.o : src/Stream/line.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/line.c
 
-$(HOSTDIR)/stream.string.o : src/Stream/string.c src/stream.h
+obj/stream.string.o : src/Stream/string.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/string.c
 
-$(HOSTDIR)/stream.entity.o : src/Stream/entity.c src/stream.h
+obj/stream.entity.o : src/Stream/entity.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/entity.c
 
-$(HOSTDIR)/stream.tee.o : src/Stream/tee.c src/stream.h
+obj/stream.tee.o : src/Stream/tee.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/tee.c
 
-$(HOSTDIR)/stream.bundle.o : src/Stream/bundle.c src/stream.h
+obj/stream.bundle.o : src/Stream/bundle.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/bundle.c
 
-$(HOSTDIR)/url.o : src/Url/url.c src/url.h
+obj/url.o : src/Url/url.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/url.c
 
-$(HOSTDIR)/url.file.o : src/Url/file.c src/url.h
+obj/url.file.o : src/Url/file.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/file.c
 
-$(HOSTDIR)/url.http.o : src/Url/http.c src/url.h
+obj/url.http.o : src/Url/http.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/http.c
 
-$(HOSTDIR)/cgi.o : src/Cgi/cgi.c src/cgi.h
+obj/cgi.o : src/Cgi/cgi.c src/cgi.h
 	$(CC) $(CFLAGS) -c -o $@ src/Cgi/cgi.c
 
-$(HOSTDIR)/pair.o : src/pair.c src/pair.h
+obj/pair.o : src/pair.c src/pair.h
 	$(CC) $(CFLAGS) -c -o $@ src/pair.c
 
-$(HOSTDIR)/http.o : src/http.c src/http.h
+obj/http.o : src/http.c src/http.h
 	$(CC) $(CFLAGS) -c -o $@ src/http.c
 
-$(HOSTDIR)/htmltok.o : src/htmltok.c src/htmltok.h
+obj/htmltok.o : src/htmltok.c src/htmltok.h
 	$(CC) $(CFLAGS) -c -o $@ src/htmltok.c
 
-$(HOSTDIR)/rfc822.o : src/rfc822.c src/rfc822.h
+obj/rfc822.o : src/rfc822.c src/rfc822.h
 	$(CC) $(CFLAGS) -c -o $@ src/rfc822.c
 
-$(HOSTDIR)/mail.o : src/mail.c src/mail.h
+obj/mail.o : src/mail.c src/mail.h
 	$(CC) $(CFLAGS) -c -o $@ src/mail.c
 
-$(HOSTDIR)/chunk.o : src/chunk.c src/chunk.h
+obj/chunk.o : src/chunk.c src/chunk.h
 	$(CC) $(CFLAGS) -c -o $@ src/chunk.c
 
 debug:
 	make -f make.debug
 
 clean:
-	/bin/rm $(HOSTDIR)/*
+	/bin/rm obj/*
 	/bin/rm src/*~
 	/bin/rm src/*/*~
 	/bin/rm cgi4.tar.gz
