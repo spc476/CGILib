@@ -175,7 +175,6 @@ install:
 	install $(TARGET) $(DESTLIB)
 	install src/*.h $(DESTHEADER)
 
-package:
-	make -i clean
-	tar czvf cgi4.tar.gz makefile library.doc src
+tarball:
+	(cd .. ; tar czvf /tmp/cgilib.tar.gz -X cgi/.exclude cgi/ )
 
