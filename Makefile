@@ -27,37 +27,37 @@ CFLAGS=-g
 AR=ar cr
 RANLIB=ranlib
 
-TARGET=obj/libcgi5.a
+TARGET=build/libcgi5.a
 
-OFILES=obj/globals.o			\
-	obj/nodelist.o 			\
-	obj/ddt.o			\
-	obj/util.o			\
-	obj/pair.o			\
-	obj/cgi.o			\
-	obj/http.o			\
-	obj/htmltok.o			\
-	obj/memory.o			\
-		obj/mem.memstdc.o	\
-	obj/url.o			\
-		obj/url.file.o		\
-		obj/url.http.o		\
-	obj/stream.o			\
-		obj/stream.file.o 	\
-		obj/stream.memory.o 	\
-		obj/stream.line.o	\
-		obj/stream.string.o	\
-		obj/stream.tee.o		\
-		obj/stream.entity.o	\
-		obj/stream.bundle.o	\
-	obj/sio.o			\
-		obj/sio.file.o		\
-		obj/sio.memory.o		\
-		obj/sio.bundle.o		\
-	obj/rfc822.o			\
-	obj/mail.o			\
-	obj/chunk.o			\
-	obj/rawfmt.o
+OFILES=build/globals.o			\
+	build/nodelist.o 			\
+	build/ddt.o			\
+	build/util.o			\
+	build/pair.o			\
+	build/cgi.o			\
+	build/http.o			\
+	build/htmltok.o			\
+	build/memory.o			\
+		build/mem.memstdc.o	\
+	build/url.o			\
+		build/url.file.o		\
+		build/url.http.o		\
+	build/stream.o			\
+		build/stream.file.o 	\
+		build/stream.memory.o 	\
+		build/stream.line.o	\
+		build/stream.string.o	\
+		build/stream.tee.o		\
+		build/stream.entity.o	\
+		build/stream.bundle.o	\
+	build/sio.o			\
+		build/sio.file.o		\
+		build/sio.memory.o		\
+		build/sio.bundle.o		\
+	build/rfc822.o			\
+	build/mail.o			\
+	build/chunk.o			\
+	build/rawfmt.o
 
 $(TARGET) : $(OFILES)
 	$(AR) $(TARGET) $(OFILES)
@@ -67,104 +67,105 @@ $(TARGET) : $(OFILES)
 # rules to compile source files
 #----------------------------------------------------------------------
 
-obj/ntest : obj/ntest.o $(OFILES)
-	$(CC) $(CFLAGS) -o obj/ntest obj/ntest.o $(OFILES)
+build/ntest : build/ntest.o $(OFILES)
+	$(CC) $(CFLAGS) -o build/ntest build/ntest.o $(OFILES)
 
-obj/ntest.o : src/ntest.c
+build/ntest.o : src/ntest.c
 	$(CC) $(CFLAGS) -c -o $@ src/ntest.c
 
-obj/globals.o : src/globals.c
+build/globals.o : src/globals.c
 	$(CC) $(CFLAGS) -c -o $@ src/globals.c
 
-obj/nodelist.o : src/nodelist.c src/nodelist.h
+build/nodelist.o : src/nodelist.c src/nodelist.h
 	$(CC) $(CFLAGS) -c -o $@ src/nodelist.c
 
-obj/memory.o : src/Memory/memory.c src/memory.h
+build/memory.o : src/Memory/memory.c src/memory.h
 	$(CC) $(CFLAGS) -c -o $@ src/Memory/memory.c
 
-obj/mem.memstdc.o : src/Memory/memstdc.c src/memory.h
+build/mem.memstdc.o : src/Memory/memstdc.c src/memory.h
 	$(CC) $(CFLAGS) -c -o $@ src/Memory/memstdc.c
 
-obj/util.o : src/util.c src/util.h
+build/util.o : src/util.c src/util.h
 	$(CC) $(CFLAGS) -c -o $@ src/util.c
 
-obj/ddt.o : src/ddt.c src/ddt.h
+build/ddt.o : src/ddt.c src/ddt.h
 	$(CC) $(CFLAGS) -c -o $@ src/ddt.c
 
-obj/rawfmt.o : src/rawfmt.c src/rawfmt.h
+build/rawfmt.o : src/rawfmt.c src/rawfmt.h
 	$(CC) $(CFLAGS) -c -o $@ src/rawfmt.c
 
-obj/stream.o : src/Stream/stream.c src/stream.h
+build/stream.o : src/Stream/stream.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/stream.c
 
-obj/stream.file.o : src/Stream/file.c src/stream.h
+build/stream.file.o : src/Stream/file.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/file.c
 
-obj/sio.o : src/SIO/sio.c src/sio.h
+build/sio.o : src/SIO/sio.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/sio.c
 
-obj/sio.file.o : src/SIO/file.c src/sio.h
+build/sio.file.o : src/SIO/file.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
 
-obj/sio.memory.o : src/SIO/memory.c src/sio.h
+build/sio.memory.o : src/SIO/memory.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/memory.c
 
-obj/sio.bundle.o : src/SIO/bundle.c src/sio.h
+build/sio.bundle.o : src/SIO/bundle.c src/sio.h
 	$(CC) $(CFLAGS) -c -o $@ src/SIO/bundle.c
 
-obj/stream.memory.o : src/Stream/memory.c src/stream.h
+build/stream.memory.o : src/Stream/memory.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/memory.c
 
-obj/stream.line.o : src/Stream/line.c src/stream.h
+build/stream.line.o : src/Stream/line.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/line.c
 
-obj/stream.string.o : src/Stream/string.c src/stream.h
+build/stream.string.o : src/Stream/string.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/string.c
 
-obj/stream.entity.o : src/Stream/entity.c src/stream.h
+build/stream.entity.o : src/Stream/entity.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/entity.c
 
-obj/stream.tee.o : src/Stream/tee.c src/stream.h
+build/stream.tee.o : src/Stream/tee.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/tee.c
 
-obj/stream.bundle.o : src/Stream/bundle.c src/stream.h
+build/stream.bundle.o : src/Stream/bundle.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/bundle.c
 
-obj/url.o : src/Url/url.c src/url.h
+build/url.o : src/Url/url.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/url.c
 
-obj/url.file.o : src/Url/file.c src/url.h
+build/url.file.o : src/Url/file.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/file.c
 
-obj/url.http.o : src/Url/http.c src/url.h
+build/url.http.o : src/Url/http.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/http.c
 
-obj/cgi.o : src/Cgi/cgi.c src/cgi.h
+build/cgi.o : src/Cgi/cgi.c src/cgi.h
 	$(CC) $(CFLAGS) -c -o $@ src/Cgi/cgi.c
 
-obj/pair.o : src/pair.c src/pair.h
+build/pair.o : src/pair.c src/pair.h
 	$(CC) $(CFLAGS) -c -o $@ src/pair.c
 
-obj/http.o : src/http.c src/http.h
+build/http.o : src/http.c src/http.h
 	$(CC) $(CFLAGS) -c -o $@ src/http.c
 
-obj/htmltok.o : src/htmltok.c src/htmltok.h
+build/htmltok.o : src/htmltok.c src/htmltok.h
 	$(CC) $(CFLAGS) -c -o $@ src/htmltok.c
 
-obj/rfc822.o : src/rfc822.c src/rfc822.h
+build/rfc822.o : src/rfc822.c src/rfc822.h
 	$(CC) $(CFLAGS) -c -o $@ src/rfc822.c
 
-obj/mail.o : src/mail.c src/mail.h
+build/mail.o : src/mail.c src/mail.h
 	$(CC) $(CFLAGS) -c -o $@ src/mail.c
 
-obj/chunk.o : src/chunk.c src/chunk.h
+build/chunk.o : src/chunk.c src/chunk.h
 	$(CC) $(CFLAGS) -c -o $@ src/chunk.c
 
 debug:
 	make -f make.debug
 
 clean:
-	/bin/rm obj/*
+	/bin/rm build/*.o
+	/bin/rm build/*.a
 	/bin/rm src/*~
 	/bin/rm src/*/*~
 	/bin/rm cgi4.tar.gz
