@@ -83,7 +83,7 @@ size_t		  slow_writeline	(struct soutput *,const char *);
 
 /*************************************************************************/
 
-#ifdef SCREAM
+#ifdef SCREAM_NO
 #  define SIChar(in)		((*(in)->readchar)  ((in))
 #  define SIBlock(in,d,s)	((*(in)->readblock) ((in),(d),(s))
 #  define SILine(in)		((*(in)->readline)  ((in))

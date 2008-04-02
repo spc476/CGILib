@@ -19,7 +19,7 @@ CC=gcc -DCGILIB -DSTDCGI -Wall -pedantic -ansi
 #CFLAGS=-O4 -fomit-frame-pointer -DSCREAM
 #CFLAGS=-O3 -fomit-frame-pointer -DSCREAM
 #CFLAGS=-O3 -fomit-frame-pointer
-#CFLAGS=-march=pentium3 -O3 -fomit-frame-pointer 
+#CFLAGS=-march=pentium3 -O3 -fomit-frame-pointer -DSCREAM
 #CFLAGS=-pg -g -DSCREAM -O4
 #CFLAGS=-g -DDDT
 CFLAGS=-g
