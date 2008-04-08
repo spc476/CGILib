@@ -1,5 +1,6 @@
 .git
 .cvsignore
+.DS_Store
 CVS
 *.o
 *.a

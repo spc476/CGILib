@@ -26,7 +26,7 @@
 #include <limits.h>
 #include "types.h"
 #include "url.h"
-#include "cgi.h"
+/*#include "cgi.h"*/
 #include "stream.h"
 #include "nodelist.h"
 #include "errors.h"
