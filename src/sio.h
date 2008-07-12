@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 struct buffer
 {
@@ -65,6 +66,8 @@ int		 (SIFree)		(SInput);
 size_t		 (SOChar)		(SOutput,int);
 size_t		 (SOBlock)		(SOutput,void *,size_t);
 size_t		 (SOLine)		(SOutput,char *);
+size_t		 (SOLineF)		(SOutput,const char *,const char *, ...);
+size_t		 (SOLineFv)		(SOutput,const char *,const char *,va_list);
 size_t		 (SOFlush)		(SOutput);
 int		 (SOEof)		(SOutput);
 int		 (SOFree)		(SOutput);

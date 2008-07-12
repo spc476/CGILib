@@ -1,11 +1,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "../sio.h"
 #include "../memory.h"
 #include "../types.h"
 #include "../util.h"
+#include "../rawfmt.h"
 #include "../ddt.h"
 
 #define min(a,b)	((a) < (b)) ? (a) : (b)
@@ -18,6 +20,7 @@ static char	*readline	(struct sinput *);
 static int	 in_close	(struct sinput *);
 
 static size_t 	 writechar	(struct soutput *,int);
+static void	 writecharv	(char,void *);
 static size_t	 writeblock	(struct soutput *,void *,size_t);
 static size_t	 writeline	(struct soutput *,const char *);
 static size_t	 flush		(struct soutput *);
@@ -216,6 +219,34 @@ size_t (SOLine)(SOutput out,char *s)
 
 /*****************************************************************/
 
+size_t (SOLineF)(SOutput out,const char *format,const char *msg, ... )
+{
+  va_list args;
+  size_t  s;
+  
+  ddt(out    != NULL);
+  ddt(format != NULL);
+  ddt(msg    != NULL);
+  
+  va_start(args,msg);
+  s = SOLineFv(out,format,msg,args);
+  va_end(args);
+  return s;
+}
+
+/****************************************************************/
+
+size_t (SOLineFv)(SOutput out,const char *format,const char *msg,va_list args)
+{
+  ddt(out    != NULL);
+  ddt(format != NULL);
+  ddt(msg    != NULL);
+  
+  return RawDoFmtv(format,msg,writecharv,out,args);
+}
+
+/***************************************************************/
+
 size_t (SOFlush)(SOutput out)
 {
   ddt(out != NULL);
@@ -252,6 +283,15 @@ static size_t writechar(struct soutput *me,int c)
 }
 
 /*********************************************************************/
+
+static void writecharv(char c,void *datum)
+{
+  ddt(datum != NULL);
+  
+  SOChar((SOutput)datum,c);
+}
+
+/********************************************************************/
 
 static size_t writeblock(struct soutput *me,void *data,size_t size)
 {
