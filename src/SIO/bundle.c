@@ -60,6 +60,7 @@ SInput (BundleSInput)(void)
   si->data.size      = BUNDLE_BUMP;
   si->data.max       = 0;
   si->data.idx       = 0;
+  SIEoln((SInput)si,"\n");
   return((SInput)si);
 }
 

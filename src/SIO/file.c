@@ -100,7 +100,9 @@ int TCPSInputOutput(SInput *psi,SOutput *pso,const char *host,int port)
   *pso          = FHSOutput(fh);
   (*psi)->close = tcp_in_close;
   (*pso)->close = tcp_out_close;
-  
+
+  SIEoln(*psi,"\n");
+  SOEoln(*pso,"\n");  
   return(ERR_OKAY);
 }
 
@@ -144,6 +146,7 @@ SInput (FHSInput)(int fh)
   in->data.max        = 0;
   in->data.idx        = 0;
   
+  SIEoln((SInput)in,"\n");
   return((SInput)in);
 }
 
@@ -359,6 +362,7 @@ SOutput (FHSOutput)(int fh)
   so->data.max         = FILE_BUFFER_SIZE;
   so->data.idx         = 0;
   
+  SOEoln((SOutput)so,"\n");
   return((SOutput)so);
 }
 

@@ -74,14 +74,27 @@ SInput (NullSInput)(void)
 {
   SInput in;
   
-  in            = MemAlloc(sizeof(struct sinput));
+  in             = MemAlloc(sizeof(struct sinput));
   in->readchar   = readchar;
   in->readblock  = readblock;
   in->readline   = readline;
   in->close      = in_close;
   in->eof        = TRUE;
   in->bytes      = 0;
+  SIEoln(in,"\n");
   return(in);
+}
+
+/**********************************************************/
+
+void (SIEoln)(SInput in,const char *eoln)
+{
+  ddt(in != NULL);
+  ddt(eoln != NULL);
+  
+  in->eoln[0] = eoln[0];
+  in->eoln[1] = eoln[1];
+  in->eoln[2] = '\0';
 }
 
 /**********************************************************/
@@ -183,10 +196,23 @@ SOutput (NullSOutput)(void)
   out->close       = out_close;
   out->eof         = FALSE;
   out->bytes       = 0;
+  SOEoln(out,"\n");
   return(out);
 }
 
 /*******************************************************************/
+
+void (SOEoln)(SOutput out,const char *eoln)
+{
+  ddt(out  != NULL);
+  ddt(eoln != NULL);
+  
+  out->eoln[0] = eoln[0];
+  out->eoln[1] = eoln[1];
+  out->eoln[2] = '\0';
+}
+
+/********************************************************************/
 
 size_t (SOChar)(SOutput out,int c)
 {

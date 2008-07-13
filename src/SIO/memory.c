@@ -57,7 +57,8 @@ SInput (MemorySInput)(void *data,size_t size)
   in->data.size      = size;
   in->data.max       = size;
   in->data.idx       = 0;
-  
+
+  SIEoln((SInput)in,"\n");  
   return((SInput)in);
 }
 
@@ -181,6 +182,7 @@ SOutput MemSOutput(void *data,size_t size)
   so->data.max        = size;
   so->data.idx        = 0;
   
+  SOEoln((SOutput)so,"\n");
   return((SOutput)so);
 }
 
