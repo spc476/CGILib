@@ -19,6 +19,7 @@ typedef struct sinput
   size_t    bytes;
   int       eof;
   int       error;
+  char      eoln[3];
   int     (*readchar)  (struct sinput *);
   size_t  (*readblock) (struct sinput *,void *,size_t);
   char   *(*readline)  (struct sinput *);
@@ -30,6 +31,7 @@ typedef struct soutput
   size_t   bytes;
   int      eof;
   int      error;
+  char     eoln[3];
   size_t (*writechar)  (struct soutput *,int);
   size_t (*writeblock) (struct soutput *,void *,size_t);
   size_t (*writeline)  (struct soutput *,const char *);
@@ -57,12 +59,14 @@ void		 (BundleSOutputAdd)	(SOutput,SOutput);
 size_t		 (SIOCopy)		(SOutput,SInput);
 size_t		 (SIOCopyN)		(SOutput,SInput,size_t);
 
+void		 (SIEoln)		(SInput,const char *);
 int		 (SIChar)		(SInput);
 size_t		 (SIBlock)		(SInput,void *,size_t);
 char		*(SILine)		(SInput);
 int		 (SIEof)		(SInput);
 int		 (SIFree)		(SInput);
 
+void		 (SOEoln)		(SOutput,const char *);
 size_t		 (SOChar)		(SOutput,int);
 size_t		 (SOBlock)		(SOutput,void *,size_t);
 size_t		 (SOLine)		(SOutput,char *);
