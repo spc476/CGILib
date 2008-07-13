@@ -27,13 +27,13 @@
 
 #include "ddt.h"
 #include "memory.h"
-#include "stream.h"
+#include "sio.h"
 #include "util.h"
 #include "chunk.h"
 
 /**********************************************************************/
 
-static void chunk_readcallback(Stream in,char *buff,size_t size)
+static void chunk_readcallback(SInput in,char *buff,size_t size)
 {
   int c;
   
@@ -45,12 +45,12 @@ static void chunk_readcallback(Stream in,char *buff,size_t size)
   
   while(size)
   {
-    c = StreamRead(in);
+    c = SIChar(in);
     if (c == IEOF) return;
     
     if (c == '}')
     {
-      c = StreamRead(in);
+      c = SIChar(in);
       if (c == IEOF) return;
       if (c == '%')  return;
       *buff++ = '}';
@@ -66,7 +66,7 @@ static void chunk_readcallback(Stream in,char *buff,size_t size)
 /**************************************************************************/
 
 static void chunk_docallback(
-                              Stream                 out,
+                              SOutput                out,
                               char                  *cmd,
                               struct chunk_callback *pcc,
                               size_t                 scc,
@@ -88,14 +88,14 @@ static void chunk_docallback(
       return;
     }
   }
-  LineSFormat(out,"$","%%{processing error - can't find [%a] }%%",cmd);
+  SOLineF(out,"$","%%{processing error - can't find [%a] }%%",cmd);
 }
 
 /************************************************************************/
 
 static void chunk_handle(
-			  Stream                 in,
-			  Stream                 out,
+			  SInput                 in,
+			  SOutput                out,
                           struct chunk_callback *pcc,
                           size_t                 scc,
                           void                  *data
@@ -120,11 +120,10 @@ static void chunk_handle(
 
 /**************************************************************************/
 
-int (ChunkNew)(Chunk *pch,const char *cname,struct chunk_callback *pcc,size_t scc)
+Chunk (ChunkNew)(const char *cname,struct chunk_callback *pcc,size_t scc)
 {
   Chunk chunk;
 
-  ddt(pch   != NULL);
   ddt(cname != NULL);
   ddt(pcc   != NULL);
   ddt(scc   >  0);
@@ -133,17 +132,16 @@ int (ChunkNew)(Chunk *pch,const char *cname,struct chunk_callback *pcc,size_t sc
   chunk->name   = dup_string(cname);
   chunk->cb     = pcc;
   chunk->cbsize = scc;  
-  *pch          = chunk;
   
-  return(ERR_OKAY);
+  return chunk;  
 }
 
 /***********************************************************************/
 
-int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
+int (ChunkProcess)(Chunk chunk,const char *name,SOutput out,void *data)
 {
   char   fname[FILENAME_LEN];
-  Stream in;
+  SInput in;
 
   ddt(chunk != NULL);
   ddt(name  != NULL);
@@ -151,19 +149,19 @@ int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
     
   sprintf(fname,"%s/%s",chunk->name,name);
   
-  in = FileStreamRead(fname);
+  in = FileSInput(fname);
   if (in == NULL)
     return(ERR_ERR);
 
   ChunkProcessStream(chunk,in,out,data);
-  
-  StreamFree(in);
+
+  SIFree(in);  
   return(ERR_OKAY);
 }
 
 /*********************************************************************/
 
-int (ChunkProcessStream)(Chunk chunk,Stream in,Stream out,void *data)
+int (ChunkProcessStream)(Chunk chunk,SInput in,SOutput out,void *data)
 {
   int c;
   
@@ -171,22 +169,22 @@ int (ChunkProcessStream)(Chunk chunk,Stream in,Stream out,void *data)
   ddt(in    != NULL);
   ddt(out   != NULL);
 
-  while(!StreamEOF(in))
+  while(!SIEof(in))
   {
-    c = StreamRead(in);
+    c = SIChar(in);
     if (c == IEOF) break;
     if (c == '%')
     {
-      c = StreamRead(in);
+      c = SIChar(in);
       if (c == '{')
       {
         chunk_handle(in,out,chunk->cb,chunk->cbsize,data);
         continue;
       }
 
-      StreamWrite(out,'%');
+      SOChar(out,'%');
     }
-    StreamWrite(out,c);    
+    SOChar(out,c);
   }
   
   return(ERR_OKAY);
