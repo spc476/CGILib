@@ -1,0 +1,22 @@
+2007-05-03T16:47:00
+
+	RawDoFmt() may also not support leading 0's either.
+
+2006-02-01T22:54:00
+
+	RawDoFmt() doesn't handle formating of negative numbers
+	correctly, nor is there a way to specify the printing
+	of the sign reguardless of value.
+
+2005-12-31T23:59:59
+src/Buffer/*.c
+
+	LineBuffer is broken for output
+	MemoryBuffer is broken for output
+
+	In general, avoid using buffers unless you really need to.
+	
+	FIXED: removed the entire subsystem.
+
+
+
