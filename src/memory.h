@@ -20,7 +20,7 @@
 *
 *************************************************************************/
 
-#ifndef CGILIB_MEMORH_H
+#ifndef CGILIB_MEMORY_H
 #define CGILIB_MEMORY_H
 
 #include <stdlib.h>
