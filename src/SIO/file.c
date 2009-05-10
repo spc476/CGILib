@@ -1,9 +1,16 @@
 
+#include <errno.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "../types.h"
+#include "../memory.h"
+#include "../ddt.h"
+#include "../sio.h"
 
 /************************************************************/
 
@@ -31,11 +38,12 @@ struct file_sinput
 
 SInput FileSInput(const char *fname)
 {
-  struct stat status;
-  int         fh;
-  int         rc;
+  struct stat  status;
+  int          fh;
+  int          rc;
+  void        *data;
   
-  assert(fname != NULL);
+  ddt(fname != NULL);
 
   fh = open(fname,O_RDONLY);
   if (fh == -1) 
@@ -53,7 +61,7 @@ SInput FileSInput(const char *fname)
   {
     struct file_sinput *si;
     
-    si = SInputNew(sizeof(struct file_sinput));
+    si = (struct file_sinput *)SInputNew(sizeof(struct file_sinput));
     si->base.read       = file_read;
     si->base.readblock  = file_readblock;
     si->base.readstr    = file_readstr;
@@ -64,7 +72,7 @@ SInput FileSInput(const char *fname)
     si->max             = sizeof(si->buffer);
     si->used            = sizeof(si->buffer);
     si->idx             = sizeof(si->buffer);
-    return si;
+    return (SInput)si;
   }
   else
   {
@@ -72,7 +80,7 @@ SInput FileSInput(const char *fname)
     
     close(fh);
     si = MemorySInput(data,status.st_size);
-    si->base.close = mmap_close;
+    si->close = mmap_close;
     return si;
   }
   
@@ -92,11 +100,11 @@ SInput FileSInput(const char *fname)
 
 static int mmap_close(SInput me)
 {
-  struct mem_sinput *si = me;
+  struct mem_sinput *si = (struct mem_sinput *)me;
   
-  assert(me != NULL);
+  ddt(me != NULL);
   
-  munmap(si->data,si->max);
+  munmap((void *)si->data,si->max);
   MemFree(si);
   return 0;
 }
@@ -105,17 +113,18 @@ static int mmap_close(SInput me)
 
 static int file_read(SInput me)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
+  int                 rc;
   
-  assert(me != NULL);
+  ddt(me != NULL);
   
   if (si->idx == si->used)
   {
     rc = read(si->fh,si->buffer,si->max);
     if (rc < 0)
     {
-      si->base.err = errno;
-      si->f.err    = TRUE;
+      si->base.err   = errno;
+      si->base.f.err = TRUE;
       return IEOF;
     }
     
@@ -135,12 +144,12 @@ static int file_read(SInput me)
 
 /***********************************************************************/
 
-static int struct blockdata file_readblock(SInput me)
+static struct blockdata file_readblock(SInput me)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
   struct blockdata    result;
   
-  assert(me != NULL);
+  ddt(me != NULL);
   
   if (si->base.f.eof)
   {
@@ -150,7 +159,7 @@ static int struct blockdata file_readblock(SInput me)
   }
   
   result.size = si->idx;
-  result.data = buffer;
+  result.data = si->buffer;
   return result;
 }
 
@@ -158,14 +167,15 @@ static int struct blockdata file_readblock(SInput me)
 
 static struct blockdata file_readstr(SInput me)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
   struct blockdata    result;
   char               *dest;
   size_t              dmax;
   size_t              duse;
+  int                 rc;
   
-  assert(me      != NULL);
-  assert(si->idx <= si->used);
+  ddt(me      != NULL);
+  ddt(si->idx <= si->used);
   
   dmax        = 0;
   duse        = 0;
@@ -176,7 +186,7 @@ static struct blockdata file_readstr(SInput me)
     if (duse == dmax)
     {
       dmax += BUFSIZ;
-      dest  = MemRealloc(dest,dmax);
+      dest  = MemResize(dest,dmax);
     }
     
     if (si->idx == si->used)
@@ -184,8 +194,8 @@ static struct blockdata file_readstr(SInput me)
       rc = read(si->fh,si->buffer,si->max);
       if (rc < 0)
       {
-        si->base.err = errno;
-        si->f.err    = TRUE;
+        si->base.err   = errno;
+        si->base.f.err = TRUE;
         goto do_return;
       }
       
@@ -221,13 +231,13 @@ static struct blockdata file_readstr(SInput me)
 
 static int file_readreturn(SInput me,struct blockdata data)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
   
-  assert(me        != NULL);
-  assert(data.size >  0);
-  assert(data.data != NULL);
+  ddt(me        != NULL);
+  ddt(data.size >  0);
+  ddt(data.data != NULL);
   
-  if ((data.data >= si->buffer) && (data.data < &si->buffer[si->max]))
+  if (((char *)data.data >= si->buffer) && ((char *)data.data < &si->buffer[si->max]))
   {
     si->idx += data.size;
     return 0;
@@ -241,9 +251,10 @@ static int file_readreturn(SInput me,struct blockdata data)
 
 static int file_rewind(SInput me)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
+  int                 rc;
   
-  assert(me != NULL);
+  ddt(me != NULL);
   
   si->used = sizeof(si->buffer);
   si->idx  = sizeof(si->buffer);
@@ -262,9 +273,9 @@ static int file_rewind(SInput me)
 
 static int file_close(SInput me)
 {
-  struct file_sinput *si = me;
+  struct file_sinput *si = (struct file_sinput *)me;
   
-  assert(me != NULL);
+  ddt(me != NULL);
   
   close(si->fh);
   MemFree(si);

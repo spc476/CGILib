@@ -1,10 +1,26 @@
 
+#include <string.h>
 
-
-
+#include "../types.h"
+#include "../memory.h"
+#include "../ddt.h"
+#include "../sio.h"
 
 #define min(a,b)	(a) < (b) ? (a) : (b)
 
+/**************************************************************/
+
+static int		sinull_read		(SInput);
+static struct blockdata	sinull_readblock	(SInput);
+static struct blockdata sinull_readstr		(SInput);
+static int		sinull_rewind		(SInput);
+static int		sinull_close		(SInput);
+
+static size_t		sonull_write		(SOutput,int);
+static size_t		sonull_writeblock	(SOutput,struct blockdata);
+static size_t		sonull_writestr		(SOutput,const char *);
+static int		sonull_rewind		(SOutput);
+static int		sonull_close		(SOutput);
 
 /***************************************************************/
 
@@ -16,9 +32,9 @@ size_t SIOCopy(SOutput dest,SInput src)
   {
     struct blockdata data;
     
-    data    = SIReadBlock(src);
-    amount += SOWriteBlock(dest,data);
-    SIReadUpdate(src,data);
+    data    = SIBlock(src);
+    amount += SOBlock(dest,data);
+    SIUpdate(src,data);
   }
   return amount;
 }
@@ -33,19 +49,16 @@ size_t SIOCopyN(SOutput dest,SInput src,size_t size)
   {
     struct blockdata data;
     
-    data       = SIReadBlock(src);
+    data       = SIBlock(src);
     data.size  = min(data.size,size);
-    amount    += SOWriteBlock(dest,data);
-    SIReadUpdate(src,data);
+    amount    += SOBlock(dest,data);
+    SIUpdate(src,data);
     size -= data.size;
   }
   return amount;
 }
 
 /****************************************************************/
-    
-
-
 
 SInput SInputNew(size_t size)
 {
@@ -81,7 +94,7 @@ static struct blockdata sinull_readblock(SInput si)
 {
   struct blockdata result;
   
-  assert(si != NULL);
+  ddt(si != NULL);
   
   result.size = 0;
   result.data = NULL;
@@ -94,7 +107,7 @@ static struct blockdata sinull_readstr(SInput si)
 {
   struct blockdata result;
   
-  assert(si != NULL);
+  ddt(si != NULL);
   
   result.size = 0;
   result.data = "";
@@ -105,7 +118,7 @@ static struct blockdata sinull_readstr(SInput si)
 
 static int sinull_rewind(SInput si)
 {
-  assert(si != NULL);
+  ddt(si != NULL);
   
   return 0;
 }
@@ -126,7 +139,7 @@ SOutput SOutputNew(size_t size)
 {
   SOutput so;
   
-  assert(size >= sizeof(struct soutput));
+  ddt(size >= sizeof(struct soutput));
   
   so             = MemAlloc(size);
   so->write      = sonull_write;
@@ -146,11 +159,11 @@ SOutput SOutputNew(size_t size)
 
 static size_t sonull_write(SOutput so,int c)
 {
-  assert(so != NULL);
+  ddt(so != NULL);
   
   if (c == IEOF)
   {
-    so->eof = TRUE;
+    so->f.eof = TRUE;
     return 0;
   }
   
@@ -162,20 +175,21 @@ static size_t sonull_write(SOutput so,int c)
 
 static size_t sonull_writeblock(SOutput so,struct blockdata data)
 {
-  assert(so        != NULL);
-  assert(data.data != NULL);
-  assert(data.size >  0);
+  ddt(so        != NULL);
+  ddt(data.data != NULL);
+  ddt(data.size >  0);
   
   so->size += data.size;
-  return size;
+  return data.size;
 }
 
 /**********************************************************************/
 
 static size_t sonull_writestr(SOutput so,const char *src)
 {
-  assert(so  != NULL);
-  assert(src != NULL);
+  size_t size;
+  ddt(so  != NULL);
+  ddt(src != NULL);
   
   size = strlen(src);
   so->size += size;
@@ -186,7 +200,7 @@ static size_t sonull_writestr(SOutput so,const char *src)
 
 static int sonull_rewind(SOutput so)
 {
-  assert(so != NULL);
+  ddt(so != NULL);
   
   so->f.eof = FALSE;
   return 0;
@@ -196,7 +210,7 @@ static int sonull_rewind(SOutput so)
 
 static int sonull_close(SOutput so)
 {
-  assert(so != NULL);
+  ddt(so != NULL);
   
   MemFree(so);
   return 0;

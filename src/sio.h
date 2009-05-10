@@ -72,7 +72,7 @@ typedef struct soutput
   size_t size;
 } *SOutput;
 
-typedef SOutput SOString;
+typedef SOutput SOStringT;
 
 struct mem_sinput
 {
@@ -97,16 +97,14 @@ SInput		 BundleSInput	(void);
 SOutput		 SOutputNew	(size_t);
 SOutput		 FileSOutput	(const char *,int);
 SOutput		 FHSOutput	(int);
-SOString	 StringSOutput	(void);
+SOStringT	 StringSOutput	(void);
 SOutput		 TeeSOutput	(SOutput,SOutput);
-
-void		 TCPStream	(SInput *,SOutput *,const char *,int);
 
 size_t		 SOFormat	(SOutput,const char *,const char *, ... );
 size_t		 SOFormatv	(SOutput,const char *,const char *,va_list);
 size_t		 SIOCopy	(SOutput,SInput);
 size_t		 SIOCopyN	(SOutput,SInput,size_t);
-struct blockdata SOToString	(SOString);
+struct blockdata SOToString	(SOStringT);
 
 /************************************************************/
 
@@ -178,7 +176,7 @@ static inline int SOEof(SOutput so)
 
 static inline int SOErr(SOutput so)
 {
-  reutrn so->f.err;
+  return so->f.err;
 }
 
 static inline int SOErrCode(SOutput so)
@@ -188,8 +186,9 @@ static inline int SOErrCode(SOutput so)
 
 static inline int SOErrClear(SOutput so)
 {
-  si->f.err = FALSE;
-  si->err   = 0;
+  so->f.err = FALSE;
+  so->err   = 0;
+  return 0;
 }
 
 static inline size_t SOChar(SOutput so,int c)
