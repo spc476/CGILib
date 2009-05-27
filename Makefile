@@ -50,10 +50,6 @@ OFILES=build/globals.o			\
 		build/stream.tee.o		\
 		build/stream.entity.o	\
 		build/stream.bundle.o	\
-	build/sio.o			\
-		build/sio.file.o		\
-		build/sio.memory.o		\
-		build/sio.bundle.o		\
 	build/rfc822.o			\
 	build/mail.o			\
 	build/chunk.o			\
@@ -99,18 +95,6 @@ build/stream.o : src/Stream/stream.c src/stream.h
 
 build/stream.file.o : src/Stream/file.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/file.c
-
-build/sio.o : src/SIO/sio.c src/sio.h
-	$(CC) $(CFLAGS) -c -o $@ src/SIO/sio.c
-
-build/sio.file.o : src/SIO/file.c src/sio.h
-	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
-
-build/sio.memory.o : src/SIO/memory.c src/sio.h
-	$(CC) $(CFLAGS) -c -o $@ src/SIO/memory.c
-
-build/sio.bundle.o : src/SIO/bundle.c src/sio.h
-	$(CC) $(CFLAGS) -c -o $@ src/SIO/bundle.c
 
 build/stream.memory.o : src/Stream/memory.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/memory.c
