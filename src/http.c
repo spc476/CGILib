@@ -41,7 +41,6 @@
 #include "errors.h"
 #include "stream.h"
 #include "rfc822.h"
-#include "pair.h"
 
 /*************************************************************************/
 

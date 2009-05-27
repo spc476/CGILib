@@ -20,8 +20,8 @@
 *
 *************************************************************************/
 
-#ifndef CGILIB_MEMORH_H
-#define CGILIB_MEMORY_H
+#ifndef MEMORH_H
+#define MEMORY_H
 
 #include <stdlib.h>
 #include "nodelist.h"

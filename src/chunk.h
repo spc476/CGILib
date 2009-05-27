@@ -23,14 +23,14 @@
 #ifndef BLOG_CHUNK
 #define BLOG_CHUNK
 
-#include "sio.h"
+#include "stream.h"
 
 /*********************************************************************/
 
 struct chunk_callback
 {
   const char *const name;
-  void (*callback)(SOutput,void *);
+  void (*callback)(Stream,void *);
 };
 
 typedef struct chunk
@@ -42,9 +42,9 @@ typedef struct chunk
   
 /*********************************************************************/
 
-Chunk	 (ChunkNew)		(const char *,struct chunk_callback *,size_t);
-int	 (ChunkProcess)		(Chunk,const char *,SOutput,void *);
-int	 (ChunkProcessStream)	(Chunk,SInput,SOutput,void *);
+int	 (ChunkNew)		(Chunk *,const char *,struct chunk_callback *,size_t);
+int	 (ChunkProcess)		(Chunk,const char *,Stream,void *);
+int	 (ChunkProcessStream)	(Chunk,Stream,Stream,void *);
 int	 (ChunkFree)		(Chunk);
 
 #endif
