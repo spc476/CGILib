@@ -148,11 +148,11 @@ debug:
 	make -f make.debug
 
 clean:
-	/bin/rm build/*.o
-	/bin/rm build/*.a
-	/bin/rm src/*~
-	/bin/rm src/*/*~
-	/bin/rm cgi4.tar.gz
+	/bin/rm -rf build/*.o
+	/bin/rm -rf build/*.a
+	/bin/rm -rf src/*~
+	/bin/rm -rf src/*/*~
+	/bin/rm -rf cgi4.tar.gz
 
 install:
 	install -d $(DESTLIB)
