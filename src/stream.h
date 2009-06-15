@@ -149,8 +149,10 @@ void		 (BundleReadAdd)	(const Stream,const Stream);
 #  define StreamUnRead(s,c)	(*((s)->calls.unrw))       ((s),&(s)->calls,(c))
 #  define StreamRefill(s)	(*((s)->calls.refillflush))((s),&(s)->calls)
 #  define StreamWrite(s,c)	(*((s)->calls.readwrite))  ((s),&(s)->calls,(c))
+#if 0
 #  define StreamUnWrite(s)	(*((s)->calls.unrw))       ((s),&(s)->calls)
 #  define StreamFlush(s)	(*((s)->calls.refillflush))((s),&(s)->calls)
+#endif
 #  define StreamEOF(s)		((s)->eof)
 #endif
 

@@ -1,100 +1,223 @@
+/************************************************************************
+*
+* Copyright 2001 by Sean Conner.  All Rights Reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*
+* Comments, questions and criticisms can be sent to: sean@conman.org
+*
+*************************************************************************/
 
 #ifndef SIO_H
 #define SIO_H
 
-#include <stdlib.h>
-#include <stddef.h>
+/************************************************************************/
 
-struct buffer
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+
+#define IEOF		-1
+
+/*********************************************************************/
+
+struct blockdata
 {
-  char *data;
-  size_t size;
-  size_t max;
-  size_t idx;
+  size_t  size;
+  void   *data;
 };
 
 typedef struct sinput
 {
-  size_t    bytes;
-  int       eof;
-  int       error;
-  int     (*readchar)  (struct sinput *);
-  size_t  (*readblock) (struct sinput *,void *,size_t);
-  char   *(*readline)  (struct sinput *);
-  int     (*close)     (struct sinput *);
+  int              (*read)       (struct sinput *);
+  struct blockdata (*readblock)  (struct sinput *);
+  struct blockdata (*readstr)    (struct sinput *);
+  int              (*readreturn) (struct sinput *,struct blockdata);
+  int              (*rewind)     (struct sinput *);
+  int              (*close)      (struct sinput *);
+  struct
+  {
+    unsigned int eof  : 1;
+    unsigned int err  : 1;
+  } f;
+  int    err;
+  size_t size;
 } *SInput;
 
 typedef struct soutput
 {
-  size_t   bytes;
-  int      eof;
-  int      error;
-  size_t (*writechar)  (struct soutput *,int);
-  size_t (*writeblock) (struct soutput *,void *,size_t);
-  size_t (*writeline)  (struct soutput *,const char *);
-  size_t (*flush)      (struct soutput *);
-  int    (*close)      (struct soutput *);
+  size_t (*write)     (struct soutput *,int);
+  size_t (*writeblock)(struct soutput *,struct blockdata);
+  size_t (*writestr)  (struct soutput *,const char *);
+  int    (*rewind)    (struct soutput *);
+  int    (*close)     (struct soutput *);
+  struct
+  {
+    unsigned int eof : 1;
+    unsigned int err : 1;
+  } f;
+  int    err;
+  size_t size;
 } *SOutput;
 
-/************************************************************************/
+typedef SOutput SOStringT;
 
-SInput		 (NullSInput)		(void);
-SInput		 (FileSInput)		(const char *);
-SInput		 (FHSInput)		(int);
-SInput		 (MemorySInput)		(void *,size_t);
-SInput		 (BundleSInput)		(void);
+struct mem_sinput
+{
+  struct sinput  base;
+  const char    *data;
+  size_t         max;
+  size_t         idx;
+};
 
-SOutput		 (NullSOutput)		(void);
-SOutput		 (FileSOutput)		(const char *,int);
-SOutput		 (FHSOutput)		(int);
-SOutput		 (MemorySOutput)	(void *,size_t);
-SOutput		 (BundleSOutput)	(void);
+/**************************************************************/
 
-int		 (TCPSInputOutput)	(SInput *,SOutput *,const char *,int);
-void		 (BundleSInputAdd)	(SInput,SInput);
-void		 (BundleSOutputAdd)	(SOutput,SOutput);
-size_t		 (SIOCopy)		(SOutput,SInput);
-size_t		 (SIOCopyN)		(SOutput,SInput,size_t);
+extern SInput	Stdin;
+extern SOutput	Stdout;
+extern SOutput	Stderr;
 
-int		 (SIChar)		(SInput);
-size_t		 (SIBlock)		(SInput,void *,size_t);
-char		*(SILine)		(SInput);
-int		 (SIEof)		(SInput);
-int		 (SIFree)		(SInput);
+SInput		 SInputNew	(size_t);
+SInput		 MemorySInput	(void *,size_t);
+SInput		 FileSInput	(const char *);
+SInput		 FHSInput	(int);
+SInput		 BundleSInput	(void);
 
-size_t		 (SOChar)		(SOutput,int);
-size_t		 (SOBlock)		(SOutput,void *,size_t);
-size_t		 (SOLine)		(SOutput,char *);
-size_t		 (SOFlush)		(SOutput);
-int		 (SOEof)		(SOutput);
-int		 (SOFree)		(SOutput);
+SOutput		 SOutputNew	(size_t);
+SOutput		 FileSOutput	(const char *,int);
+SOutput		 FHSOutput	(int);
+SOStringT	 StringSOutput	(void);
+SOutput		 TeeSOutput	(SOutput,SOutput);
 
-	/*---------------------------------------------------------
-	; the following functions are not meant to be called
-	; by application code.  Instead, they are used to quickly
-	; get new sub-modules running.  They work by repeatedly
-	; calling the character-by-character methods.
-	;---------------------------------------------------------*/
+size_t		 SOFormat	(SOutput,const char *,const char *, ... );
+size_t		 SOFormatv	(SOutput,const char *,const char *,va_list);
+size_t		 SIOCopy	(SOutput,SInput);
+size_t		 SIOCopyN	(SOutput,SInput,size_t);
+struct blockdata SOToString	(SOStringT);
 
-size_t		  slow_readblock	(struct sinput *,void *,size_t);
-char		 *slow_readline		(struct sinput *);
-size_t		  slow_writeblock	(struct soutput *,void *,size_t);
-size_t		  slow_writeline	(struct soutput *,const char *);
+/************************************************************/
 
-/*************************************************************************/
+static inline size_t SInputSize(SInput si)
+{
+  return si->size;
+}
 
-#ifdef SCREAM
-#  define SIChar(in)		((*(in)->readchar)  ((in))
-#  define SIBlock(in,d,s)	((*(in)->readblock) ((in),(d),(s))
-#  define SILine(in)		((*(in)->readline)  ((in))
-#  define SIFree(in)		((*(in)->close)     ((in))
+static inline int SIEof(SInput si)
+{
+  return si->f.eof;
+}
 
-#  define SOChar(out,c)		((*(out)->writechar)  ((out),(c))
-#  define SOBlock(out,d,s)	((*(out)->writeblock) ((out),(d),(s))
-#  define SOLine(out,s)	        ((*(out)->writeline)  ((out),(s))
-#  define SOFlush(out)		((*(out)->flush)      ((out))
-#  define SOFree(out)		((*(out)->close)      ((out))
-#endif
+static inline int SIErr(SInput si)
+{
+  return si->f.err;
+}
+
+static inline int SIErrCode(SInput si)
+{
+  return si->err;
+}
+
+static inline void SIErrClear(SInput si)
+{
+  si->f.err = FALSE;
+  si->err   = 0;
+}
+
+static inline int SIChar(SInput si)
+{
+  return (*si->read)(si);
+}
+
+static inline struct blockdata SIBlock(SInput si)
+{
+  return (*si->readblock)(si);
+}
+
+static inline struct blockdata SIString(SInput si)
+{
+  return (*si->readstr)(si);
+}
+
+static inline int SIUpdate(SInput si,struct blockdata data)
+{
+  return (*si->readreturn)(si,data);
+}
+
+static inline int SIRewind(SInput si)
+{
+  return (*si->rewind)(si);
+}
+
+static inline int SIFree(SInput si)
+{
+  return (*si->close)(si);
+}
+
+static inline size_t SOutputSize(SOutput so)
+{
+  return so->size;
+}
+
+static inline int SOEof(SOutput so)
+{
+  return so->f.eof;
+}
+
+static inline int SOErr(SOutput so)
+{
+  return so->f.err;
+}
+
+static inline int SOErrCode(SOutput so)
+{
+  return so->err;
+}
+
+static inline int SOErrClear(SOutput so)
+{
+  so->f.err = FALSE;
+  so->err   = 0;
+  return 0;
+}
+
+static inline size_t SOChar(SOutput so,int c)
+{
+  return (*so->write)(so,c);
+}
+
+static inline size_t SOBlock(SOutput so,struct blockdata data)
+{
+  return (*so->writeblock)(so,data);
+}
+
+static inline size_t SOString(SOutput so,const char *s)
+{
+  return (*so->writestr)(so,s);
+}
+
+static inline int SORewind(SOutput so)
+{
+  return (*so->rewind)(so);
+}
+
+static inline int SOFree(SOutput so)
+{
+  return (*so->close)(so);
+}
+
+/***********************************************************************/
 
 #endif
 

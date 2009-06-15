@@ -10,7 +10,7 @@ DESTLIB=/usr/local/lib
 DESTHEADER=/usr/local/include/cgilib
 
 SHELL=/bin/sh
-CC=gcc -DCGILIB -DSTDCGI -Wall -pedantic -ansi
+CC=gcc -DCGILIB -DSTDCGI -Wall -pedantic -std=c99
 #CC=cc -DCGILIB -DSTDCGI 
 #CFLAGS=-Wpointer-arith -Wshadow -Wwrite-strings -Wmissing-prototypes -Wcast-qual -Wmissing-declarations -Wnested-externs -Winline -W
 #CFLAGS=-Wtraditional -Wpointer-arith -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Waggregate-return -Wmissing-declarations -Wnested-externs -Winline -W
@@ -40,16 +40,19 @@ OFILES=build/globals.o			\
 	build/memory.o			\
 		build/mem.memstdc.o	\
 	build/url.o			\
-		build/url.file.o		\
-		build/url.http.o		\
+		build/url.file.o	\
+		build/url.http.o	\
 	build/stream.o			\
 		build/stream.file.o 	\
 		build/stream.memory.o 	\
 		build/stream.line.o	\
 		build/stream.string.o	\
-		build/stream.tee.o		\
+		build/stream.tee.o	\
 		build/stream.entity.o	\
 		build/stream.bundle.o	\
+	build/sio.sio.o			\
+		build/sio.memory.o	\
+		build/sio.file.o	\
 	build/rfc822.o			\
 	build/mail.o			\
 	build/chunk.o			\
@@ -113,6 +116,15 @@ build/stream.tee.o : src/Stream/tee.c src/stream.h
 
 build/stream.bundle.o : src/Stream/bundle.c src/stream.h
 	$(CC) $(CFLAGS) -c -o $@ src/Stream/bundle.c
+
+build/sio.sio.o : src/SIO/sio.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/sio.c
+
+build/sio.memory.o : src/SIO/memory.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/memory.c
+
+build/sio.file.o : src/SIO/file.c src/sio.h
+	$(CC) $(CFLAGS) -c -o $@ src/SIO/file.c
 
 build/url.o : src/Url/url.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ src/Url/url.c

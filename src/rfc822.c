@@ -56,6 +56,19 @@ char *(RFC822LineRead)(const Stream in)
     c = Line_ReadChar(in);
     if (c == '\n')
     {
+      /*--------------------------------------------
+      ; BUG is here---basically, if we hit a section
+      ; of a header formatted like:
+      ;
+      ;		Random-J-Header: blah blah blah
+      ;		
+      ;		_Body of text
+      ;
+      ; (that is, a actual blank line, followed by whitespace then
+      ; text, it's taken to be a header, but without a proper
+      ; format, which causes code later down the line to break.
+      ;----------------------------------------------------------*/
+      
       c = Line_ReadChar(in);
       
       /*---------------------------------------
@@ -68,7 +81,7 @@ char *(RFC822LineRead)(const Stream in)
         StreamUnRead(in,c);
         break;
       }
-
+      
       /* ----------------------------------
       ; discard white space
       ;-----------------------------------*/
@@ -92,6 +105,20 @@ char *(RFC822LineRead)(const Stream in)
       while(isspace(c))
         c = Line_ReadChar(in);
 
+      /*-------------------------------------------------
+      ; I think this will fix the above two bugs.  Basically,
+      ; once we scan past the white space, check to see
+      ; how much we've actually stored.  If 0, this means
+      ; we hit one of the two conditions above (I suspect).
+      ; Pushback the data, then break.
+      ;----------------------------------------------------*/
+      
+      if (size == 0)
+      {
+        StreamUnRead(in,c);
+        break;
+      }
+      
       /*-----------------------------------
       ; save the first-nonspace character,
       ; but continue with at least one space
