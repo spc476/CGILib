@@ -36,6 +36,9 @@
 #  define SIZET_MAX	~((size_t)0)
 #endif
 
+#define min(a,b)	(a) < (b) ? (a) : (b)
+#define max(a,b)	(a) > (b) ? (a) : (b)
+
 typedef unsigned char   Byte;
 typedef unsigned long	Size;
 typedef unsigned long	Flags;
