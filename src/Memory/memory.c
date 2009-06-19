@@ -31,23 +31,25 @@
 #include "../ddt.h"
 #include "../util.h"
 
-#ifdef MIPS
-#  define PADDING	0xB1
-#  define NULLP		0xB1B1B1B1
-#elif defined __i386__
-#  define PADDING	0xCC
-#  define NULLP		0xCCCCCCCC
-#elif defined MC68K
-#  define PADDING	0xA1
-#  define NULLP		0xA1A1A1A1
-#elif defined RS6000
-#  define PADDING	0xB1
-#  define NULLP		0xB1B1B1B1
-#elif defined __POWERPC__
-#  define PADDING	0xB1
-#  define NULLP		0xB1B1B1B1
-#else
-#  error Please define system
+#ifdef DDT
+#  ifdef MIPS
+#    define PADDING	0xB1
+#    define NULLP	0xB1B1B1B1
+#  elif defined __i386__
+#    define PADDING	0xCC
+#    define NULLP	0xCCCCCCCC
+#  elif defined MC68K
+#    define PADDING	0xA1
+#    define NULLP	0xA1A1A1A1
+#  elif defined RS6000
+#    define PADDING	0xB1
+#    define NULLP	0xB1B1B1B1
+#  elif defined __POWERPC__
+#    define PADDING	0xB1
+#    define NULLP	0xB1B1B1B1
+#  else
+#    error Please define system
+#  endif
 #endif
 
 /*#ifdef DDT*/
