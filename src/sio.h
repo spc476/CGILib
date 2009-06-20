@@ -42,35 +42,24 @@ struct blockdata
 
 typedef struct sinput
 {
-  int              (*read)       (struct sinput *);
-  struct blockdata (*readblock)  (struct sinput *);
-  struct blockdata (*readstr)    (struct sinput *);
-  int              (*readreturn) (struct sinput *,struct blockdata);
-  int              (*rewind)     (struct sinput *);
-  int              (*close)      (struct sinput *);
-  struct
-  {
-    unsigned int eof  : 1;
-    unsigned int err  : 1;
-  } f;
-  int    err;
-  size_t size;
+  int     (*readc)     (struct sinput *);
+  size_t  (*readblock) (struct sinput *,void *,size_t);
+  char   *(*readstring)(struct sinput *);
+  
+  FILE   *fp;
+  size_t  size;
+  int     err;
+  bool    feof;
+  bool    ferr;
 } *SInput;
 
 typedef struct soutput
 {
-  size_t (*write)     (struct soutput *,int);
-  size_t (*writeblock)(struct soutput *,struct blockdata);
-  size_t (*writestr)  (struct soutput *,const char *);
-  int    (*rewind)    (struct soutput *);
-  int    (*close)     (struct soutput *);
-  struct
-  {
-    unsigned int eof : 1;
-    unsigned int err : 1;
-  } f;
-  int    err;
-  size_t size;
+  FILE   *fp;
+  size_t  size;
+  int     err;
+  bool    feof;
+  bool    ferr;
 } *SOutput;
 
 typedef SOutput SOStringT;
@@ -83,19 +72,27 @@ struct mem_sinput
   size_t         idx;
 };
 
+struct mem_soutput
+{
+  struct soutput base;
+  const char *data;
+  size_t      max;
+  size_t      idx;
+};
+
 /**************************************************************/
 
 extern SInput	Stdin;
 extern SOutput	Stdout;
 extern SOutput	Stderr;
 
-SInput		 SInputNew	(size_t);
+SInput		 NullSInput	(void);
 SInput		 MemorySInput	(void *,size_t);
 SInput		 FileSInput	(const char *);
 SInput		 FHSInput	(int);
 SInput		 BundleSInput	(void);
 
-SOutput		 SOutputNew	(size_t);
+SOutput		 NullSOutput	(void);
 SOutput		 FileSOutput	(const char *,int);
 SOutput		 FHSOutput	(int);
 SOStringT	 StringSOutput	(void);

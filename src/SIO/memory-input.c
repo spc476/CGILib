@@ -1,4 +1,7 @@
 
+#define _GNU_SOURCE	1
+
+#include <stdio.h>
 #include <string.h>
 
 #include "../types.h"
@@ -18,6 +21,17 @@ static int		simem_rewind		(SInput);
 SInput MemorySInput(void *data,size_t size)
 {
   struct mem_sinput *si;
+  
+  si            = MemAlloc(sizeof(struct mem_sinput));
+  si->base.fp   = fmemopen(data,size,"r");
+  si->base.size = size;
+  si->base.err  = 0;
+  si->base.feof = false;
+  si->base.ferr = false;
+  
+  
+  
+  
   
   si = (struct mem_sinput *)SInputNew(sizeof(struct mem_sinput));
   si->base.read       = simem_read;
