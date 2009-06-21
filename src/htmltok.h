@@ -24,57 +24,52 @@
 #define HTMLTOK_H
 
 #include <stdio.h>
+
 #include "nodelist.h"
 #include "pair.h"
-#include "stream.h"
 #include "errors.h"
 
 /************************************************************************/
 
-#define T_TAGIGNORE	-2
-#define T_EOF		-1
-#define T_STRING	 0
-#define T_TAG		 1
-#define T_COMMENT	 2
+typedef enum htoken
+{
+  T_EOF,
+  T_STRING,
+  T_TAG,
+  T_COMMENT,
+  T_TAGIGNORE
+} HToken;
 
 /*************************************************************************/
 
 typedef struct htmltoken
 {
   Node    node;	
-  int	  token;
+  HToken  token;
   char	 *value;
   List    pairs;
   int	  state;
-  Stream  input;
-  Stream  acc;
+  FILE   *input;
   List    children;
+  char   *data;
+  size_t  max;
+  size_t  idx;
 } *HtmlToken;
 
 /************************************************************************/
 
-int			 (HtmlParseNew)		(HtmlToken *,Stream);
-int			 (HtmlParseClone)	(HtmlToken *,HtmlToken);
+HtmlToken		 (HtmlParseNew)		(FILE *);
+HtmlToken		 (HtmlParseClone)	(HtmlToken);
 int			 (HtmlParseNext)	(HtmlToken);
 char			*(HtmlParseValue)	(HtmlToken);
-int			 (HtmlParseToken)	(HtmlToken);
+HToken			 (HtmlParseToken)	(HtmlToken);
 void			 (HtmlParseAddPair)	(HtmlToken,struct pair *);
 struct pair		*(HtmlParseFirstOption)	(HtmlToken);
 struct pair		*(HtmlParseGetPair)	(HtmlToken,const char *);
 struct pair		*(HtmlParseNextValue)	(HtmlToken);
 char			*(HtmlParseGetValue)	(HtmlToken,char *);
-void			 (HtmlParsePrintTag)	(HtmlToken,Stream);
-int			 (HtmlParseFree)	(HtmlToken *);
-
-
-#ifdef SCREAM
-#  define HtmlParseValue(t)		(t)->value
-#  define HtmlParseToken(t)		(t)->token
-#  define HtmlParseFirstOption(t)	PairListFirst(&((t)->pairs))
-#  define HtmlParseGetPair(t,n)		PairListGetPair(&((t)->pairs),(n))
-#  define HtmlParseGetValue(t,n)	PairListGetValue(&((t)->pairs),(n))
-#  define HtmlParseAddPair(t,p)		ListAddTail((t)->pairs,&(p)->node)
-#endif
+void			 (HtmlParsePrintTag)	(HtmlToken,FILE *);
+int			 (HtmlParseFree)	(HtmlToken);
 
 /**********************************************************************/
 

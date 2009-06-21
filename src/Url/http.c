@@ -20,25 +20,25 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
-#include "../memory.h"
 #include "../errors.h"
-#include "../util.h"
 #include "../url.h"
-#include "../ddt.h"
 
 /**********************************************************************/
 
 static int		 http_new	(URL,const char *);
-static int		 http_normal	(URL,URL);
+static int		 http_normal	(URL *,URL);
 static int		 http_compare	(URL,URL);
-static int		 http_makestring(URL,char *,size_t);
+static char             *http_makestring(URL);
 static int		 http_free	(URL);
 #ifdef DDT
   static int		 HTTP_check	(struct urlhttp *);
@@ -57,41 +57,46 @@ const struct urlvector httpvec =
 
 /********************************************************************/
 
-char *(UrlHttpRequest)(URLHTTP url)
+char *(UrlHttpRequest)(struct urlhttp *url)
 {
-  char *req;
+  FILE   *out;
+  char   *req;
+  size_t  size;
   
-  ddt(url != NULL);
+  assert(url != NULL);
   
-  req = dup_string(url->file);
+  out = open_memstream(&req,&size);  
+  fputs(url->file,out);
+
   if (url->params[0])
-    req = concat_strings(req,";",url->params,(char *)NULL);
+    fprintf(out,";%s",url->params);
   
   if (url->query[0])
-    req = concat_strings(req,"?",url->query,(char *)NULL);
+    fprintf(out,"?%s",url->query);
   
-  return(req);
+  fclose(out);
+  return (req);
 }
 
 /************************************************************************/
 
-char *(UrlHttpHost)(URLHTTP url)
+char *(UrlHttpHost)(struct urlhttp *url)
 {
-  return(dup_string(url->host));
+  return strdup(url->host);
 }
 
 /************************************************************************/
 
-char *(UrlHttpHostPort)(URLHTTP url)
+char *(UrlHttpHostPort)(struct urlhttp *url)
 {
   if (url->port == 80)
-    return(dup_string(url->host));
+    return strdup(url->host);
   else
   {
     char tmp[BUFSIZ];
     
-    sprintf(tmp,":%d",url->port);
-    return(concat_strings(url->host,tmp,(char *)NULL));
+    sprintf(tmp,"%s:%d",url->host,url->port);
+    return strdup(tmp);
   }
 }
 
@@ -99,13 +104,15 @@ char *(UrlHttpHostPort)(URLHTTP url)
 
 static int http_new(URL url,const char *surl)
 {
-  URLHTTP hurl = (URLHTTP)url;
-  long    lport;
-  char    tmpbuf[BUFSIZ];
-  size_t  tmpsz;
+  struct urlhttp *hurl;
+  long            lport;
+  char            tmpbuf[BUFSIZ];
+  size_t          tmpsz;
   
-  ddt(url  != NULL);
-  ddt(surl != NULL);
+  assert(url  != NULL);
+  assert(surl != NULL);
+  
+  hurl = &url->http;
   
   /*-----------------------------------------------------------------
   ; at this point, durl->protocol is set, and url points just past the
@@ -125,7 +132,7 @@ static int http_new(URL url,const char *surl)
   ;-------------------------------------------------*/
 
   tmpsz      = UrlGetHost(tmpbuf,BUFSIZ,&surl) + 1;  
-  hurl->host = MemAlloc(tmpsz);
+  hurl->host = malloc(tmpsz);
   strcpy(hurl->host,tmpbuf);
   
   /*-------------------------------------------------------
@@ -153,11 +160,11 @@ static int http_new(URL url,const char *surl)
   tmpsz = UrlGetFile(tmpbuf,BUFSIZ,&surl) + 1;
   if (tmpsz-1)
   {
-    hurl->file = MemAlloc(tmpsz);
+    hurl->file = malloc(tmpsz);
     strcpy(hurl->file,tmpbuf);
   }
   else
-    hurl->file = dup_string("/");
+    hurl->file = strdup("/");
 
   /*------------------------------------------------------
   ; params, query and fragment parts
@@ -169,14 +176,14 @@ static int http_new(URL url,const char *surl)
       tmpsz = UrlGetFile(tmpbuf,BUFSIZ,&surl) + 1;
       if (tmpsz - 1)
       {
-        hurl->params = MemAlloc(tmpsz);
+        hurl->params = malloc(tmpsz);
         strcpy(hurl->params,tmpbuf);
       }
       else
-        hurl->params = dup_string("");
+        hurl->params = strdup("");
     }
     else
-      hurl->params = dup_string("");
+      hurl->params = strdup("");
   
     if (*surl == '?')	/* query part */
     {
@@ -184,14 +191,14 @@ static int http_new(URL url,const char *surl)
       tmpsz = UrlGetFile(tmpbuf,BUFSIZ,&surl) + 1;
       if (tmpsz - 1)
       {
-        hurl->query = MemAlloc(tmpsz);
+        hurl->query = malloc(tmpsz);
         strcpy(hurl->query,tmpbuf);
       }
       else
-        hurl->query = dup_string("");
+        hurl->query = strdup("");
     }
     else
-      hurl->query = dup_string("");
+      hurl->query = strdup("");
   
   /*---------------------------------------------------------------
   ; fragment part (of file) if any
@@ -201,11 +208,11 @@ static int http_new(URL url,const char *surl)
   {
     surl++;
     tmpsz          = strlen(surl) + 1;
-    hurl->fragment = MemAlloc(tmpsz);
+    hurl->fragment = malloc(tmpsz);
     strcpy(hurl->fragment,surl);
   }
   else
-    hurl->fragment = dup_string("");
+    hurl->fragment = strdup("");
  
     
   return(ERR_OKAY);
@@ -213,7 +220,7 @@ static int http_new(URL url,const char *surl)
 
 /**********************************************************************/
 
-static int http_normal(URL durl,URL surl)
+static int http_normal(URL *durl,URL surl)
 {
   /*--------------------------------------------------------------------
   ; the normalization of a URL.  In this case, http:.  
@@ -244,13 +251,18 @@ static int http_normal(URL durl,URL surl)
 
 static int http_compare(URL durlb,URL surlb)
 {
-  URLHTTP durl = (URLHTTP)durlb;
-  URLHTTP surl = (URLHTTP)surlb;
-  int     rc;
+  struct urlhttp *durl;
+  struct urlhttp *surl;
+  int             rc;
 
-  ddt(HTTP_check(durl));
-  ddt(HTTP_check(surl));
-  
+  durl = &durlb->http;
+  surl = &surlb->http;
+
+#ifdef DDT  
+  assert(HTTP_check(durl));
+  assert(HTTP_check(surl));
+#endif
+
   rc = strcmp(durl->protocol,surl->protocol);
   if (rc != 0) return(rc);
   rc = strcmp(durl->host,surl->host);
@@ -267,119 +279,53 @@ static int http_compare(URL durlb,URL surlb)
 
 /**********************************************************************/
 
-static int http_makestring(URL urlb,char *d,size_t sd)
+static char *http_makestring(URL url)
 {
-  URLHTTP         url = (URLHTTP)urlb;
-  struct urlhttp  turl;
-  char            bport    [33];	/* big enough for a decimal number between 0 65536 */
-  char            bparams  [BUFSIZ];
-  char            bquery   [BUFSIZ];
-  char            bfragment[BUFSIZ];
-  size_t          sproto;
-  size_t          shost;
-  size_t          sport;
-  size_t          sfile;
-  size_t          sparams;
-  size_t          squery;
-  size_t          sfragment;
-    
-  ddt(d      != NULL);
-  ddt(sd     >  0);
-  ddt(HTTP_check(url));
-
-  bport    [0] = '\0';
-  bparams  [0] = '\0';
-  bquery   [0] = '\0';
-  bfragment[0] = '\0';
-
-  turl.protocol = url->protocol;
-  sproto        = strlen(turl.protocol);
+  FILE   *out;
+  char   *res;
+  size_t  size;
   
-  if (url->host[0])
-  {
-    turl.host = url->host;
-    turl.port = url->port;
-    shost     = strlen(turl.host) + 2;	/* host + "//" */
-    if (turl.port != 80)
-      sport = formatstr(bport,sizeof(bport),"i",":%a",turl.port);
-    else
-    {
-      bport[0] = '\0';
-      sport    = 0;
-    } 
-  }
-  else
-  {
-    turl.host = "";
-    turl.port = 0;
-    shost     = 0;
-    sport     = 0;
-  }
+  out = open_memstream(&res,&size);
   
-  ddt(url->file);
-  turl.file = url->file;
-  sfile     = strlen(turl.file);
+  fprintf(out,"http://%s",url->http.host);
+  if (url->http.port != 80)
+    fprintf(out,":%d",url->http.port);
   
-  if (url->params[0])
-  {
-    turl.params = url->params;
-    sparams     = formatstr(bparams,sizeof(bparams),"$",";%a",turl.params);
-  }
-  else
-  {
-    turl.params = "";
-    sparams     = 0;
-  }
+  fprintf(out,"%s",url->http.file);
   
-  if (url->query[0])
-  {
-    turl.query = url->query;
-    squery     = formatstr(bquery,sizeof(bquery),"$","?%a",turl.query);
-  }
-  else
-  {
-    turl.query = "";
-    squery     = 0;
-  }
+  if (url->http.params[0])
+    fprintf(out,";%s",url->http.params);
   
-  if (url->fragment[0])
-  {
-    turl.fragment = url->fragment;
-    sfragment     = formatstr(bfragment,sizeof(bfragment),"$","#%a",turl.fragment);
-  }
-  else
-  {
-    turl.fragment = "";
-    sfragment     = 0;
-  }
+  if (url->http.query[0])
+    fprintf(out,"?%s",url->http.query);
   
-  if (sd < (sproto + shost + sport + sfile + sparams + squery + sfragment + 1))
-  {
-    ddt(0);
-    return(ERR_ERR);
-  }
+  if (url->http.fragment[0])
+    fprintf(out,"#%s",url->http.fragment);
   
-  formatstr(d,sd,"$ $ $ $ $ $ $","%a://%b%c%d%e%f%g",turl.protocol,turl.host,bport,turl.file,bparams,bquery,bfragment);
-  return(ERR_OKAY);
+  fclose(out);
+  return res;
 }
 
 /**************************************************************************/
 
 static int http_free(URL url)
 {
-  URLHTTP purl = (URLHTTP)url;
+  struct urlhttp *purl;
 
-  ddt(HTTP_check(purl));
-  /*ddt(url != (URL)&httpself);*/
+  purl = &url->http;
 
-  purl->vector = NULL;  
-  MemFree(purl->protocol);
-  MemFree(purl->host);
-  MemFree(purl->file);
-  MemFree(purl->params);
-  MemFree(purl->query);
-  MemFree(purl->fragment);
-  purl->port = 0;
+#ifdef DDT
+  assert(HTTP_check(&purl->http));
+#endif
+
+  free(purl->protocol);
+  free(purl->host);
+  free(purl->file);
+  free(purl->params);
+  free(purl->query);
+  free(purl->fragment);
+  free(url);
+
   return(ERR_OKAY);
 }
 
@@ -388,16 +334,16 @@ static int http_free(URL url)
 #ifdef DDT
   static int HTTP_check(struct urlhttp *purl)
   {
-    if (purl == NULL) 				return(0);
-    if (purl->protocol == NULL) 		return(0);
-    if (strcmp(purl->protocol,"http") != 0)	return(0);
-    if (purl->host     == NULL) 		return(0);
-    if (purl->port     <  0)    		return(0);
-    if (purl->port     >  PORTMAX) 		return(0);
-    if (purl->file     == NULL)			return(0);
-    if (purl->params   == NULL)                 return(0);
-    if (purl->query    == NULL)			return(0);
-    if (purl->fragment == NULL) 		return(0);
+    if (purl                          == NULL) 	  return(0);
+    if (purl->protocol                == NULL) 	  return(0);
+    if (strcmp(purl->protocol,"http") != 0)	  return(0);
+    if (purl->host                    == NULL) 	  return(0);
+    if (purl->port                    <  0)    	  return(0);
+    if (purl->port                    >  PORTMAX) return(0);
+    if (purl->file                    == NULL)	  return(0);
+    if (purl->params                  == NULL)    return(0);
+    if (purl->query                   == NULL)	  return(0);
+    if (purl->fragment                == NULL) 	  return(0);
     return(1);
   }
 #endif

@@ -23,6 +23,8 @@
 #ifndef NODELIST_H
 #define NODELIST_H
 
+#include <stdbool.h>
+
 /*********************************************************************/
 
 typedef struct node
@@ -47,31 +49,15 @@ Node           *(ListGetHead)		(List *const);
 Node           *(ListGetTail)		(List *const);
 Node           *(ListRemHead)		(List *const);
 Node           *(ListRemTail)		(List *const);
-int		(ListEmpty)		(List *const);
+bool		(ListEmpty)		(List *const);
 
 void		(NodeInsert)		(Node *const,Node *const);
 void		(NodeRemove)		(Node *const);
 Node           *(NodeNext)		(Node *);
 Node           *(NodePrev)		(Node *);
-Node           *(NodeNextW)		(Node *);
-Node           *(NodePrevW)		(Node *);
-int		(NodeValid)		(Node *const);
+bool		(NodeValid)		(Node *const);
 
 /************************************************************************/
 
-#ifdef SCREAM
-
-#  define NodeValid(n)	(n)->ln_Succ ? (n)->ln_Pred ? 1 : 0 : 0 
-#  define NodeNext(n)	((n)->ln_Succ ? (n)->ln_Pred ? (n)->ln_Succ : (n):(n))
-#  define NodePrev(n)	((n)->ln_Succ ? (n)->ln_Pred ? (n)->ln_Pred : (n):(n))
-
-#  define ListAddHead(l,n)	NodeInsert((Node *)&(l)->lh_Head,(n))
-#  define ListAddTail(l,n)	NodeInsert((l)->lh_TailPred,(n))
-#  define ListGetHead(l)	(l)->lh_Head
-#  define ListGetTail(l)	(l)->lh_TailPred
-#  define ListEmpty(l)		((l)->lh_Head == (Node *)&(l)->lh_Tail)
-
-#endif
-	
 #endif
 

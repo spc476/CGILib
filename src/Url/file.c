@@ -20,26 +20,25 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
-#include "../conf.h"
-#include "../memory.h"
 #include "../errors.h"
-#include "../util.h"
 #include "../url.h"
-#include "../ddt.h"
 
 /**********************************************************************/
 
 static int		 file_new	(URL,const char *);
-static int		 file_normal	(URL,URL);
+static int		 file_normal	(URL *,URL);
 static int		 file_compare	(URL,URL);
-static int		 file_makestring(URL,char *,size_t);
+static char		*file_makestring(URL);
 static int		 file_free	(URL);
 #ifdef DDT
   static int		 FILE_check	(struct urlfile *);
@@ -60,13 +59,15 @@ const struct urlvector filevec =
 
 static int file_new(URL url,const char *surl)
 {
-  URLFILE furl = (URLFILE)url;
+  struct urlfile *furl;
   char    tmpbuf[BUFSIZ];
   size_t  tmpsz;
   
-  ddt(url  != NULL);
-  ddt(surl != NULL);
+  assert(url  != NULL);
+  assert(surl != NULL);
 
+  furl = &url->file;
+  
   /*------------------------------------------------------------
   ; host portion of string - can be either one of 'localhost' or
   ; the host this library is running on, or nothing.  If the host
@@ -76,7 +77,6 @@ static int file_new(URL url,const char *surl)
   tmpsz = UrlGetHost(tmpbuf,BUFSIZ,&surl);
   if (tmpsz)
   {
-    /*if ((strcmp(tmpbuf,"localhost") != 0) && (strcmp(tmpbuf,CGIHOST) != 0))*/
     if (strcmp(tmpbuf,"localhost") != 0)
       return(ERR_ERR);
   }
@@ -87,7 +87,7 @@ static int file_new(URL url,const char *surl)
   
   tmpsz = UrlGetFile(tmpbuf,BUFSIZ,&surl);
   if (tmpsz)
-    furl->file = dup_string(tmpbuf);
+    furl->file = strdup(tmpbuf);
   else
     return(ERR_ERR);
     
@@ -96,7 +96,7 @@ static int file_new(URL url,const char *surl)
 
 /**************************************************************************/
     
-static int file_normal(URL durl,URL surl)
+static int file_normal(URL *durl,URL surl)
 {
   return(ERR_NOTIMP);
 }
@@ -105,13 +105,18 @@ static int file_normal(URL durl,URL surl)
 
 static int file_compare(URL durlb,URL surlb)
 {
-  URLFILE durl = (URLFILE)durlb;
-  URLFILE surl = (URLFILE)surlb;
-  int     rc;
+  struct urlfile *durl;
+  struct urlfile *surl;
+  int             rc;
 
-  ddt(FILE_check(durl));
-  ddt(FILE_check(surl));
-  
+  durl = &durlb->file;
+  surl = &surlb->file;
+
+#ifdef DDT  
+  assert(FILE_check(durl));
+  assert(FILE_check(surl));
+#endif
+
   rc = strcmp(durl->protocol,surl->protocol);
   if (rc != 0) return(rc);
   return(strcmp(durl->file,surl->file));
@@ -119,29 +124,33 @@ static int file_compare(URL durlb,URL surlb)
 
 /**********************************************************************/
 
-static int file_makestring(URL urlb,char *d,size_t sd)
+static char *file_makestring(URL urlb)
 {
-  URLFILE         url = (URLFILE)urlb;
+  char *tmp = NULL;
+  
+  assert(urlb != NULL);
+#ifdef DDT
+  assert(FILE_check(&urlb->file));
+#endif
 
-  ddt(d      != NULL);
-  ddt(sd     >  0);
-  ddt(FILE_check(url));
-
-  formatstr(d,sd,"$","%a://localhost%a",url->protocol,url->file);
-  return(ERR_OKAY);
+  asprintf(&tmp,"file://localhost%s",urlb->file.file);
+  return tmp;
 }
 
 /**************************************************************************/
 
 static int file_free(URL url)
 {
-  URLFILE purl = (URLFILE)url;
+  struct urlfile *purl;
+  
+  purl = &url->file;
+  
+#ifdef DDT
+  assert(FILE_check(purl));
+#endif
 
-  ddt(FILE_check(purl));
-
-  purl->vector = NULL;  
-  MemFree(purl->protocol);
-  MemFree(purl->file);
+  free(purl->protocol);
+  free(purl->file);
   return(ERR_OKAY);
 }
 
@@ -150,10 +159,10 @@ static int file_free(URL url)
 #ifdef DDT
   static int FILE_check(struct urlfile *purl)
   {
-    if (purl == NULL) 				return(0);
-    if (purl->protocol == NULL) 		return(0);
+    if (purl                          == NULL) 	return(0);
+    if (purl->protocol                == NULL) 	return(0);
     if (strcmp(purl->protocol,"file") != 0)	return(0);
-    if (purl->file     == NULL)			return(0);
+    if (purl->file                    == NULL)	return(0);
     return(1);
   }
 #endif

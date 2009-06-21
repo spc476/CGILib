@@ -45,11 +45,6 @@ struct pair	*(PairListGetPair)	(List *,const char *);
 char		*(PairListGetValue)	(List *,const char *);
 void		 (PairListFree)		(List *);
 
-#ifdef SCREAM
-#  define PairClone(p)		PairCreate((p)->name,(p)->value)
-#  define PairListFirst(l)	(struct pair *)ListGetHead((l))
-#endif
-
 /***********************************************************************/
 
 #endif

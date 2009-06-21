@@ -24,15 +24,18 @@
 #define CGI_H
 
 #include <stddef.h>
-
-#include "types.h"
 #include "nodelist.h"
 #include "pair.h"
-#include "stream.h"
-#include "errors.h"
-#include "http.h"
 
 /*******************************************************************/
+
+enum
+{
+  GET,
+  POST,
+  HEAD,
+  PUT
+};
 
 typedef struct cgi
 {
@@ -46,11 +49,15 @@ typedef struct cgi
   int     method;
 } *Cgi;
 
-typedef struct cgi *Cookie;
+struct dstring
+{
+  const char *s1;
+  const char *s2;
+};
 
 /************************************************************************/
 
-int		 (CgiNew)		(Cgi *,void *);
+Cgi		 (CgiNew)		(void *);
 void		 (CgiGetRawData)	(const Cgi,char **,size_t *);
 void		 (CgiListMake)		(const Cgi);
 void		 (CgiOutText)		(const Cgi);
@@ -58,38 +65,13 @@ void		 (CgiOutHtml)		(const Cgi);
 void		 (CgiOutShtml)		(const Cgi);
 void		 (CgiOutLocation)	(const Cgi,const char *);
 int		 (CgiMethod)		(const Cgi);
-char		*(CgiEnvGet)		(const Cgi,const char *);
 struct pair	*(CgiNextValue)		(const Cgi);
 struct pair	*(CgiListFirst)		(const Cgi);
 struct pair	*(CgiListGetPair)	(const Cgi,const char *);
 char		*(CgiListGetValue)	(const Cgi,const char *);
 size_t	 	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
 int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
-int		 (CgiFree)		(Cgi *);
-
-int		 (CookieNew)		(Cookie *,const Cgi);
-void		 (CookieListMake)	(const Cookie);
-struct pair	*(CookieNextValue)	(const Cookie);
-struct pair	*(CookieListFirst)	(const Cookie);
-struct pair	*(CookieListGetPair)	(const Cookie,const char *);
-char		*(CookieListGetValue)	(const Cookie,const char *);
-int		 (CookieFree)		(Cookie *);
-  
-#  ifdef SCREAM
-#    define CgiGetRawData(c,pp,ps)	*(pp) = (c)->buffer ; 	\
-					*(ps) = (c)->bufsize
-#    define CgiOutText(c)		CgiOutHtml((c))
-#    define CgiMethod(c)		(c)->method
-#    define CgiOutLocation(c,s)		BufferFormatWrite((c)->buffer,"$","Location: %a\n\n",(s))
-#    define CgiListFirst(c)		PairListFirst(&(c)->vars)
-#    define CgiListGetPair(c,n)		PairListGetPair(&(c)->vars,(n))
-#    define CgiListGetValue(c,n)	PairListGetValue(&(c)->vars,(n))
-#    define CookieNextValue(c)		CgiNextValue(((Cgi)c))
-#    define CookieListMake(c)		CgiListMake(((Cgi)c))
-#    define CookieListFirst(c)		PairListFirst(&(c)->vars)
-#    define CookieListGetPair(c)	PairListGetPair(&(c)->vars,(n))
-#    define CookieListGetValue(c)	PairListGetValue(&(c)->vars,(n))
-#  endif
+int		 (CgiFree)		(Cgi);
 
 #endif
 

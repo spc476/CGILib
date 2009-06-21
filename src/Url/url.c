@@ -20,31 +20,31 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
-#define URL_C
 #include "../url.h"
-#include "../memory.h"
 #include "../errors.h"
 #include "../util.h"
-#include "../ddt.h"
 
 /**********************************************************************/
 
-extern struct urlvector httpvec;
-extern struct urlvector filevec;
+extern const struct urlvector httpvec;
+extern const struct urlvector filevec;
 
 static const struct urlrelation
 {
-  char		   *const proto;
-  int		    type;
-  struct urlvector *const puv;
-  size_t	    size;
+  char		         *const proto;
+  UrlType	                type;
+  const struct urlvector *const puv;
+  size_t	                size;
 } protos[] =
 {
   { "http"      , URL_HTTP      , &httpvec      , sizeof(struct urlhttp)     },
@@ -72,10 +72,10 @@ size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
   char	     *rd;
   char	      c;
 
-  ddt(d      != NULL);
-  ddt(sd     >	0);
-  ddt(ppurl  != NULL);
-  ddt(*ppurl != NULL);
+  assert(d      != NULL);
+  assert(sd     >	0);
+  assert(ppurl  != NULL);
+  assert(*ppurl != NULL);
 
   rd = d;
   s  = *ppurl;
@@ -83,10 +83,9 @@ size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
   {
     size_t sz = strlen(s) - 2;
     if ((s[sz] < ' ') || (s[sz] > 0x7e))
-      ddt(0);
+      assert(0);
   }
 #endif
-  D(ddtlog(ddtstream,"$","b: [%a] ",s);)
   while(((c = *s++) != 0) && (--sd))
   {
     if (c == ':') break;
@@ -94,7 +93,6 @@ size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
   }
   *d	 = '\0';
   *ppurl = s;
-  D(ddtlog(ddtstream,"$ $","a: [%a] p: [%b]",s,rd);)
   return((size_t)(d - rd));
 }
 
@@ -106,10 +104,10 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
   char       *rd;
   char	      c;
 
-  ddt(d      != NULL);
-  ddt(sd     >	0);
-  ddt(ppurl  != NULL);
-  ddt(*ppurl != NULL);
+  assert(d      != NULL);
+  assert(sd     >	0);
+  assert(ppurl  != NULL);
+  assert(*ppurl != NULL);
 
   rd = d;
   s  = *ppurl;
@@ -138,10 +136,10 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
   char       *rd;
   char	      c;
 
-  ddt(d      != NULL);
-  ddt(sd     >	0);
-  ddt(ppurl  != NULL);
-  ddt(*ppurl != NULL);
+  assert(d      != NULL);
+  assert(sd     >	0);
+  assert(ppurl  != NULL);
+  assert(*ppurl != NULL);
 
   rd = d;
   s  = *ppurl;
@@ -168,10 +166,10 @@ size_t UrlGetFile(char *d,size_t sd,const char **ppurl)
   char       *rd;
   char	      c;
 
-  ddt(d      != NULL);
-  ddt(sd     >	0);
-  ddt(ppurl  != NULL);
-  ddt(*ppurl != NULL);
+  assert(d      != NULL);
+  assert(sd     >	0);
+  assert(ppurl  != NULL);
+  assert(*ppurl != NULL);
 
   rd = d;
   s  = *ppurl;
@@ -189,16 +187,15 @@ size_t UrlGetFile(char *d,size_t sd,const char **ppurl)
 
 /********************************************************************/
 
-int UrlNew(URL *ppurl,const char *url)
+URL UrlNew(const char *url)
 {
-  size_t  i;
+  size_t      i;
   const char *turl = url;
-  char	  tmpbuf[BUFSIZ];
-  URL	  purl;
-  int	  rc;
+  char	      tmpbuf[BUFSIZ];
+  URL	      purl;
+  int	      rc;
 
-  ddt(ppurl != NULL);
-  ddt(url  != NULL);
+  assert(url != NULL);
 
   UrlGetProto(tmpbuf,BUFSIZ,&turl);
 
@@ -206,109 +203,97 @@ int UrlNew(URL *ppurl,const char *url)
   {
     if (strcmp(tmpbuf,protos[i].proto) == 0)
     {
-      purl	     = MemAlloc(protos[i].size);
+      purl = malloc(protos[i].size);
       memset(purl,0,protos[i].size);
-      purl->size     = protos[i].size;
-      purl->vector   = protos[i].puv;
-      purl->type     = protos[i].type;
-      purl->protocol = dup_string(tmpbuf);
-      rc	     = (*purl->vector->new)(purl,turl);
+      purl->url.type     = protos[i].type;
+      purl->url.size     = protos[i].size;
+      purl->url.vector   = protos[i].puv;
+      purl->url.protocol = strdup(tmpbuf);
+      
+      rc = (*purl->url.vector->new)(purl,turl);
       if (rc == ERR_OKAY)
-	*ppurl	     = purl;
+        return purl;
       else
       {
-	MemFree(purl->protocol);
-	MemFree(purl);
-	*ppurl	     = NULL;
+	free(purl->url.protocol);
+	free(purl);
+	return NULL;
       }
-      return(rc);
     }
   }
-  return(ERR_ERR);
+  return NULL;
 }
 
 /*******************************************************************/
 
-int UrlType(URL url)
+UrlType UrlGetType(URL url)
 {
-  ddt(url != NULL);
+  assert(url != NULL);
 
   return(url->type);
 }
 
 /*******************************************************************/
 
-int UrlNormal(URL *nurl,URL url)
+URL UrlNormal(URL url)
 {
-  int rc;
+  URL new;
 
-  ddt(nurl != NULL);
-  ddt(url  != NULL);
+  assert(url  != NULL);
 
-  *nurl = MemAlloc(url->size);
-  rc	= (*url->vector->normal)(*nurl,url);
-  if (rc != ERR_OKAY)
+  new = malloc(url->url.size);
+  if ((*url->url.vector->normal)(&new,url) != ERR_OKAY)
   {
-    MemFree(*nurl);
-    *nurl = NULL;
+    free(new);
+    new = NULL;
   }
-  return(rc);
+  return new;
 }
 
 /**********************************************************************/
 
 int UrlCompare(URL durl,URL surl)
 {
-  ddt(durl != NULL);
-  ddt(surl != NULL);
+  assert(durl != NULL);
+  assert(surl != NULL);
 
-  return((*surl->vector->compare)(durl,surl));
+  return((*surl->url.vector->compare)(durl,surl));
 }
 
 /************************************************************************/
 
-int UrlMakeString(URL url,char *d,size_t sd)
+char *UrlMakeString(URL url)
 {
-  ddt(url != NULL);
-  ddt(d   != NULL);
-  ddt(sd  >  0);
+  assert(url != NULL);
 
-  return((*url->vector->makestring)(url,d,sd));
+  return (*url->url.vector->makestring)(url);
 }
 
 /************************************************************************/
 
-int UrlDup(URL *purl,URL url)
+URL UrlDup(URL url)
 {
-  char tmpbuf[BUFSIZ];
-  int  rc;
+  URL   dup;
+  char *tmp;
 
-  rc = UrlMakeString(url,tmpbuf,BUFSIZ);
-  if (rc != ERR_OKAY)
-    return(rc);
-  rc = UrlNew(purl,tmpbuf);
-  if (rc != ERR_OKAY)
-    return(rc);
-  return(ERR_OKAY);
+  tmp = UrlMakeString(url);
+  dup = UrlNew(tmp);
+  free(tmp);
+  return dup;
 }
 
 /************************************************************************/
 
-int UrlFree(URL *purl)
+int UrlFree(URL url)
 {
-  URL url;
   int rc;
 
-  ddt(purl != NULL);
-  ddt(*purl != NULL);
+  assert(url != NULL);
 
-  url = *purl;
-  rc = (*url->vector->free)(url);
+  rc = (*url->url.vector->free)(url);
   if (rc == ERR_OKAY)
-  {
-    MemFree(url);
-    *purl = NULL;
-  }
+    free(url);
+
   return(rc);
 }
 
@@ -320,20 +305,17 @@ char *UrlEncodeString(const char *src)
   char	 *dest;
   char	 *p;
 
-  ddt(src != NULL);
+  assert(src != NULL);
 
   nsize = strlen(src) * 3 + 1;
-  dest	= MemAlloc(nsize);
+  dest	= malloc(nsize);
 
   for ( p = dest ; *src ; src++)
-  {
     p = UrlEncodeChar(p,*src);
-  }
 
   *p = 0;
-  p  = dup_string(dest);
-  MemFree(dest);
-  return(p);
+  
+  return dest;
 }
 
 /*********************************************************************/
@@ -342,7 +324,7 @@ char *UrlEncodeChar(char *dest,char c)
 {
   div_t sdiv;
 
-  ddt(dest != NULL);
+  assert(dest != NULL);
 
   if (ispunct(c) || iscntrl(c))
   {
@@ -358,7 +340,6 @@ char *UrlEncodeChar(char *dest,char c)
   else if (c == ' ')
     c = '+';
   *dest++ = c;
-  /**dest   = 0;*/
   return(dest);
 }
 
@@ -369,13 +350,11 @@ char *UrlDecodeString(char *src)
   char *r;
   char *t;
 
-  ddt(src != NULL);
+  assert(src != NULL);
 
-  /*for ( r = src ; *src ; src++)*/
   for ( r = src , t = src ; *src ; t++)
-  {
     *t = UrlDecodeChar(&src);
-  }
+
   *t = '\0';
   return(r);
 }
@@ -387,8 +366,8 @@ char UrlDecodeChar(char **psrc)
   char *src;
   int	c;
 
-  ddt(psrc  != NULL);
-  ddt(*psrc != NULL);
+  assert(psrc  != NULL);
+  assert(*psrc != NULL);
 
   src = *psrc;
   c   = *src++;
@@ -396,8 +375,8 @@ char UrlDecodeChar(char **psrc)
     c = ' ';
   else if (c == '%')
   {
-    ddt(isxdigit(*src));
-    ddt(isxdigit(*(src+1)));
+    assert(isxdigit(*src));
+    assert(isxdigit(*(src+1)));
     c	 = ctohex(*src) * 16 + ctohex(*(src+1));
     src += 2;
   }

@@ -20,75 +20,85 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
-#include "types.h"
 #include "nodelist.h"
-#include "cgi.h"
-#include "memory.h"
-#include "stream.h"
 #include "errors.h"
-#include "util.h"
-#include "ddt.h"
 #include "htmltok.h"
-
-#define S_TAGIGNORE	-2
-#define S_EOF		-1
-#define S_STRING	 0
-#define S_TAG		 1
-#define S_COMMENT	 2
+#include "util.h"
 
 /************************************************************************/
 
-static int	 ht_nexteof		(HtmlToken);
-static int	 ht_nextstr		(HtmlToken);
-static int	 ht_nexttag		(HtmlToken);
-static int	 ht_nextcom		(HtmlToken);
-static void	 ht_makepair		(HtmlToken,char *,char *);
-static void	 entify_char		(char *,size_t,char *s,char e,const char *);
+enum
+{
+  S_EOF,
+  S_STRING,
+  S_TAG,
+  S_COMMENT,
+  S_TAGIGNORE
+};
+
+/**********************************************************************/
+
+static HToken	 ht_nexteof	(HtmlToken);
+static HToken	 ht_nextstr	(HtmlToken);
+static HToken	 ht_nexttag	(HtmlToken);
+static HToken	 ht_nextcom	(HtmlToken);
+static void	 ht_makepair	(HtmlToken,char *,char *);
+static void	 ht_acc		(HtmlToken,int);
+static char	*ht_accdup	(HtmlToken);
+static char	*entify_char	(char *);
 
 /*************************************************************************/
 
-int (HtmlParseNew)(HtmlToken *phtoken,Stream input)
+HtmlToken (HtmlParseNew)(FILE *input)
 {
   HtmlToken pht;
   
-  ddt(phtoken != NULL);
-  ddt(input   != NULL);
+  assert(input != NULL);
   
-  pht         = MemAlloc(sizeof(struct htmltoken));
+  pht         = malloc(sizeof(struct htmltoken));
   pht->token  = T_STRING;
   pht->value  = NULL;	/* dup_string(""); */ /* am i perpetuating a hack? */
   pht->state  = S_STRING;
   pht->input  = input;
-  pht->acc    = StringStreamWrite();
+  pht->data   = NULL;
+  pht->max    = 0;
+  pht->idx    = 0;
+  
   ListInit(&pht->pairs);
-  *phtoken    = pht;
-  return(ERR_OKAY);
+  return pht;
 }
 
 /***********************************************************************/
 
-int (HtmlParseClone)(HtmlToken *pnew,HtmlToken token)
+HtmlToken (HtmlParseClone)(HtmlToken token)
 {
-  /* XXX do I really need this call? */
   HtmlToken    pht;
   struct pair *pair;
   struct pair *pairp;
 
+  assert(token != NULL);
+
+  /*----------------------------------
+  ; do I really need this call?
+  ;-----------------------------------*/
   
-  ddt(pnew != NULL);
-  ddt(token != NULL);
-  
-  pht         = MemAlloc(sizeof(struct htmltoken));
+  pht         = malloc(sizeof(struct htmltoken));
   pht->token  = token->token;
   pht->state  = token->state;
-  pht->value  = dup_string(token->value);
+  pht->value  = strdup(token->value);
   pht->input  = token->input;
-  pht->acc    = StringStreamWrite();
+  pht->data   = NULL;
+  pht->max    = 0;
+  pht->idx    = 0;
+  
   ListInit(&pht->pairs);
   
   for (
@@ -101,52 +111,48 @@ int (HtmlParseClone)(HtmlToken *pnew,HtmlToken token)
     ListAddTail(&pht->pairs,&pairp->node);
   }
   
-  *pnew = pht;
-  return(ERR_OKAY);
+  return(pht);
 }
 
 /**********************************************************************/
 
 int (HtmlParseNext)(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
 
   if(token->value) 
-  {
-    D(ddtlog(ddtstream,"$","about to free %a",token->value);)
-    MemFree(token->value);
-  }
+    free(token->value);
   
   token->value = NULL;
   PairListFree(&token->pairs);
-  StreamFlush(token->acc);
+  token->idx = 0;
   
   switch(token->state)
   {
-    case S_EOF:		return(ht_nexteof(token));
-    case S_STRING:	return(ht_nextstr(token));
-    case S_TAG:		return(ht_nexttag(token));
-    case S_COMMENT:	return(ht_nextcom(token));
+    case T_EOF:		return(ht_nexteof(token));
+    case T_STRING:	return(ht_nextstr(token));
+    case T_TAG:		return(ht_nexttag(token));
+    case T_COMMENT:	return(ht_nextcom(token));
     default:
-         ddt(0);	/* this shouldn't happen */
+         assert(0);	/* this shouldn't happen */
   }
-  ddt(0);		/* and this shouldn't happen either */
-  return(S_EOF);	/* shut up -Wall -pedantic -ansi options to gcc */
+  assert(0);		/* and this shouldn't happen either */
+  return(T_EOF);	/* shut up -Wall -pedantic -ansi options to gcc */
 }
 
 /********************************************************************/
 
 char *(HtmlParseValue)(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
   return(token->value);
 }
 
 /*******************************************************************/
 
-int (HtmlParseToken)(HtmlToken token)
+HToken (HtmlParseToken)(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
   return(token->token);
 }
 
@@ -154,7 +160,7 @@ int (HtmlParseToken)(HtmlToken token)
 
 struct pair *(HtmlParseFirstOption)(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
   return(PairListFirst(&token->pairs));
 }
 
@@ -162,8 +168,8 @@ struct pair *(HtmlParseFirstOption)(HtmlToken token)
 
 void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
 {
-  ddt(token != NULL);
-  ddt(p     != NULL);
+  assert(token != NULL);
+  assert(p     != NULL);
   
   ListAddTail(&token->pairs,&p->node);
 }
@@ -172,8 +178,8 @@ void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
 
 struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
 {
-  ddt(token != NULL);
-  ddt(name  != NULL);
+  assert(token != NULL);
+  assert(name  != NULL);
   return(PairListGetPair(&token->pairs,name));
 }
 
@@ -181,19 +187,19 @@ struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
 
 char *(HtmlParseGetValue)(HtmlToken token,char *name)
 {
-  ddt(token != NULL);
-  ddt(name  != NULL);
+  assert(token != NULL);
+  assert(name  != NULL);
   
   return(PairListGetValue(&token->pairs,name));
 }
 
 /*******************************************************************/
 
-void (HtmlParsePrintTag)(HtmlToken token,Stream out)
+void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
 {
   struct pair *pp;
   
-  LineSFormat(out,"$","<%a",HtmlParseValue(token));
+  fprintf(out,"<%s",HtmlParseValue(token));
   
   for
   (
@@ -202,110 +208,85 @@ void (HtmlParsePrintTag)(HtmlToken token,Stream out)
     pp = (struct pair *)NodeNext(&pp->node)
   )
   {
-    char *sq;
-    char *dq;
-    char  q;
-    char *value;
-    char  tvalue[BUFSIZ];
-    
-    value = pp->value;
-    sq    = strchr(value,'\'');
-    dq    = strchr(value,'"');
-    
-    if (dq == NULL)
-      q = '"';
-    else if ((sq == NULL) && (dq != NULL))
-      q = '\'';
-    else
-    {
-      entify_char(tvalue,BUFSIZ,value,'"',"&quot;");
-      value = tvalue;
-      q     = '"';
-    }
-    
     if (!emptynull_string(pp->name))
-      LineSFormat(out,"$"," %a",pp->name);
-    if (!emptynull_string(pp->value))
-      LineSFormat(out,"c $","=%a%b%a",q,pp->value);
-    else
-      LineSFormat(out,"c","=%a%a",q);
+    {
+      fprintf(out," %s=",pp->name);
+      if (emptynull_string(pp->value))
+        fprintf(out,"\"%s\"",pp->name);
+      else
+      {
+        char *value;
+        
+        value = entify_char(pp->value);
+        fprintf(out,"\"%s\"",value);
+        free(value);
+      }
+    }
   }
   
-  StreamWrite(out,'>');
+  fputc('>',out);
 }
 
 /***********************************************************************/
 
-int (HtmlParseFree)(HtmlToken *ptoken)
+int (HtmlParseFree)(HtmlToken token)
 {
-  HtmlToken token;
+  assert(token != NULL);
   
-  ddt(ptoken  != NULL);
-  ddt(*ptoken != NULL);
-
-  token = *ptoken;
-  
-  if (token->value != NULL)
-  {
-    ddt(token->value != NULL);
-    MemFree(token->value);
-  }
-
-  StreamFree(token->acc);
   PairListFree(&token->pairs);
-  MemFree(token);
-  *ptoken = NULL;
+  free(token->data);
+  free(token->value);
+  free(token);
   return(ERR_OKAY);
 }  
 
 /***********************************************************************/
   
-static int ht_nexteof(HtmlToken token)
+static HToken ht_nexteof(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
   
   token->token = T_EOF;
-  return(T_EOF);
+  return T_EOF;
 }
 
 /*******************************************************************/
 
-static int ht_nextstr(HtmlToken token)
+static HToken ht_nextstr(HtmlToken token)
 {
   int c;
   int st = S_EOF;
     
-  ddt(token != NULL);
+  assert(token != NULL);
 
-  /* while ((c = StreamRead(token->input)) != IEOF) */
-  while(!StreamEOF(token->input))
+  while(!feof(token->input))
   {
-    c = StreamRead(token->input);
-    if (c == IEOF) break;
+    c = fgetc(token->input);
+    if (c == EOF) break;
     if (c == '<')
     {
       st = S_TAG;
       break;
     }
     else
-      StreamWrite(token->acc,c);
+      ht_acc(token,c);
   }
 
-  token->value = StringFromStream(token->acc);
+  token->value = ht_accdup(token);
   token->token = T_STRING;
   token->state = st;
-  return(T_STRING);
+  return T_STRING;
 }
 
 /********************************************************************/
 
-static int ht_nexttag(HtmlToken token)
+static HToken ht_nexttag(HtmlToken token)
 {
   int   c;
   char *t;
   int   level;
     
-  ddt(token != NULL);  
+  assert(token != NULL);  
   
   /*-----------------------------------------------------------
   ; but parsing HTML has proven to be a real bitch to program,
@@ -320,39 +301,35 @@ static int ht_nexttag(HtmlToken token)
   	; any white space till we hit the tag
   	;--------------------------------------------------*/
  
-htnt_alpha:	c = StreamRead(token->input);
-		if (c == IEOF)  goto htnt_error;
+htnt_alpha:	c = fgetc(token->input);
+		if (c == EOF)   goto htnt_error;
 		if (isspace(c)) goto htnt_alpha;
 		if (c == '>' ) 	goto htnt_alpha10;	/* done - return tag */
 		if (c == '!' ) 	goto htnt_comment;
 		goto htnt_gottag;
 
-htnt_alpha10:	token->value = up_string(StringFromStream(token->acc));
-                StreamFlush(token->acc);
-		D(ddtlog(ddtstream,"$","just got %a",token->value);)
+htnt_alpha10:	token->value = up_string(ht_accdup(token));
 		goto htnt_done;
 
 	/*-----------------------------------------------
 	; STAGE BETA - read the tag and save
 	;----------------------------------------------*/
 	
-htnt_gottag:	StreamWrite(token->acc,c);
-		c = StreamRead(token->input);
-		if (c == IEOF) 	goto htnt_error;
+htnt_gottag:	ht_acc(token,c);
+		c = fgetc(token->input);
+		if (c == EOF) 	goto htnt_error;
 		if (c == '=' ) 	goto htnt_error;
 		if (c == '>' ) 	goto htnt_alpha10;	/* done - return tag */
 		if (!isspace(c)) goto htnt_gottag;
 
-		token->value = up_string(StringFromStream(token->acc));
-		StreamFlush(token->acc);
-		D(ddtlog(ddtstream,"$","parsed %a",token->value);)
+		token->value = up_string(ht_accdup(token));
 		
 	/*-------------------------------------------------
 	; STAGE GAMMA - skip space to options
 	;------------------------------------------------*/
 	
-htnt_bopts:	c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_bopts:	c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (isspace(c))	goto htnt_bopts;
 		if (c == '>')	goto htnt_done;
 		if (c == '=')	goto htnt_error;
@@ -361,16 +338,15 @@ htnt_bopts:	c = StreamRead(token->input);
 	; STAGE DELTA - read in option
 	;-----------------------------------------------*/
 	
-htnt_gotopt:	StreamWrite(token->acc,c);
-		c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_gotopt:	ht_acc(token,c);
+		c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (isspace(c))	goto htnt_boptval;
 		if (c == '>')	goto htnt_gotoptd;
 		if (c == '=')	goto htnt_voptval;
 		goto htnt_gotopt;
 
-htnt_gotoptd:	ht_makepair(token,up_string(StringFromStream(token->acc)),dup_string(""));
-		StreamFlush(token->acc);
+htnt_gotoptd:	ht_makepair(token,up_string(ht_accdup(token)),strdup(""));
 		goto htnt_done;
 
 	/*------------------------------------------------
@@ -378,14 +354,13 @@ htnt_gotoptd:	ht_makepair(token,up_string(StringFromStream(token->acc)),dup_stri
 	; value - or another option
 	;-------------------------------------------------*/
 
-htnt_boptval:	c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_boptval:	c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (isspace(c))	goto htnt_boptval;
 		if (c == '>')	goto htnt_gotoptd;
 		if (c == '=')	goto htnt_voptval;
 		
-		ht_makepair(token,up_string(StringFromStream(token->acc)),dup_string(""));
-		StreamFlush(token->acc);
+		ht_makepair(token,up_string(ht_accdup(token)),strdup(""));
 		goto htnt_gotopt;
 
 	/*-------------------------------------------------
@@ -395,11 +370,10 @@ htnt_boptval:	c = StreamRead(token->input);
 	; [1]	- local rock radio station in Lower Sheol
 	;--------------------------------------------------*/
 	
-htnt_voptval:	t = up_string(StringFromStream(token->acc));
-		StreamFlush(token->acc);
+htnt_voptval:	t = up_string(ht_accdup(token));
 
-htnt_voptval10:	c = StreamRead(token->input);
-		if (c == IEOF)  goto htnt_error;
+htnt_voptval10:	c = fgetc(token->input);
+		if (c == EOF)   goto htnt_error;
 		if (isspace(c))	goto htnt_voptval10;
 		if (c == '>')	goto htnt_error;
 		if (c == '\'')	goto htnt_valsq;
@@ -409,43 +383,39 @@ htnt_voptval10:	c = StreamRead(token->input);
 	; STAGE ETA - read in non-quoted value
 	;-------------------------------------------------*/
 	
-htnt_nqval:	StreamWrite(token->acc,c);
-		c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_nqval:	ht_acc(token,c);
+		c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (c == '>')	goto htnt_nqvald;
 		if (!isspace(c)) goto htnt_nqval;
-		ht_makepair(token,t,StringFromStream(token->acc));
-		StreamFlush(token->acc);
+		ht_makepair(token,t,ht_accdup(token));
 		goto htnt_bopts;
 		
-htnt_nqvald:	ht_makepair(token,t,StringFromStream(token->acc));
-		StreamFlush(token->acc);
+htnt_nqvald:	ht_makepair(token,t,ht_accdup(token));
 		goto htnt_done;
 		
 	/*------------------------------------------------
 	; STAGE THETA - read in single quoted value
 	;------------------------------------------------*/
 
-htnt_valsq10:	StreamWrite(token->acc,c);
-htnt_valsq:	c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_valsq10:	ht_acc(token,c);
+htnt_valsq:	c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (iscntrl(c)) c = ' ';
 		if (c != '\'')	goto htnt_valsq10;
-		ht_makepair(token,t,StringFromStream(token->acc));
-		StreamFlush(token->acc);
+		ht_makepair(token,t,ht_accdup(token));
 		goto htnt_bopts;
 
 	/*------------------------------------------------
 	; STAGE IOTA - read in a double quoted value
 	;------------------------------------------------*/
 	
-htnt_valdq10:	StreamWrite(token->acc,c);
-htnt_valdq:	c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_valdq10:	ht_acc(token,c);
+htnt_valdq:	c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (iscntrl(c)) c = ' ';
 		if (c != '"')	goto htnt_valdq10;
-		ht_makepair(token,t,StringFromStream(token->acc));
-		StreamFlush(token->acc);
+		ht_makepair(token,t,ht_accdup(token));
 		goto htnt_bopts;
 		
 	/*-------------------------------------------------
@@ -453,22 +423,21 @@ htnt_valdq:	c = StreamRead(token->input);
 	;------------------------------------------------*/
 	
 htnt_comment:	level = 1;
-htnt_comm10:	c = StreamRead(token->input);
-		if (c == IEOF)	goto htnt_error;
+htnt_comm10:	c = fgetc(token->input);
+		if (c == EOF)	goto htnt_error;
 		if (c != '<')	goto htnt_comm20;
 		level++;
 		goto htnt_comm30;
 htnt_comm20:	if (c != '>')	goto htnt_comm30;
 		if (level == 1)	goto htnt_commdone;
 		level--;
-htnt_comm30:	StreamWrite(token->acc,c);
+htnt_comm30:	ht_acc(token,c);
 		goto htnt_comm10;
 		
-htnt_commdone:	token->value = StringFromStream(token->acc);
+htnt_commdone:	token->value = ht_accdup(token);
 		token->token = T_COMMENT;
 		token->state = S_STRING;
-		StreamFlush(token->acc);
-		return(T_COMMENT);
+		return T_COMMENT;
 		
 	/*--------------------------------------------------
 	; STAGE OMEGA - done - return
@@ -476,7 +445,7 @@ htnt_commdone:	token->value = StringFromStream(token->acc);
 	
 htnt_done:	token->token = T_TAG;
 		token->state = S_STRING;
-		return(T_TAG);
+		return T_TAG;
 		
 	/*-----------------------------------------------
 	; Abandon All Hope Ye Who Enter Here
@@ -484,19 +453,17 @@ htnt_done:	token->token = T_TAG;
 	
 htnt_error:	token->token = T_EOF;
 		token->state = S_EOF;
-		D(ddtlog(ddtstream,"","Received EOF in input");)
-		return(T_EOF);
-		
+		return T_EOF;
 }
 		
 /**********************************************************************/
 
-static int ht_nextcom(HtmlToken token)
+static HToken ht_nextcom(HtmlToken token)
 {
-  ddt(token != NULL);
+  assert(token != NULL);
   
   token->state = S_EOF;
-  return(T_EOF);
+  return T_EOF;
 }
 
 /*********************************************************************/
@@ -505,9 +472,9 @@ static void ht_makepair(HtmlToken token,char *name,char *value)
 {
   struct pair *psp;
   
-  ddt(token != NULL);
-  ddt(name  != NULL);
-  ddt(value != NULL);
+  assert(token != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
   
   psp = PairCreate(name,value);
   ListAddTail(&token->pairs,&psp->node);
@@ -515,40 +482,66 @@ static void ht_makepair(HtmlToken token,char *name,char *value)
 
 /********************************************************************/
 
-static void entify_char(char *d,size_t ds,char *s,char e,const char *entity)
+static void ht_acc(HtmlToken token,int c)
 {
-  size_t se;
-
-  ddt(d      != NULL);
-  ddt(ds     >  0);
-  ddt(s      != NULL);
-  ddt(e      != '\0');
-  ddt(entity != NULL);
-
-  se = strlen(entity);
-
-  for ( ; (*s) && (ds > 0) ; )
+  assert(token != NULL);
+  assert(c     != EOF);
+  
+  if (token->idx == token->max)
   {
-    if (*s == e)
-    {
-      if (ds < se)
-      {
-        *d = '\0';
-	return;
-      }
+    token->max += 64;
+    token->data = realloc(token->data,token->max);
+  }
+  token->data[token->idx++] = c;
+}
 
-      memcpy(d,entity,se);
-      d  += se;
-      ds -= se;
-      s++;
-    }
-    else
+/*********************************************************************/
+
+static char *ht_accdup(HtmlToken token)
+{
+  char *text;
+  
+  assert(token != NULL);
+  
+  text = malloc(token->idx + 1);
+  memcpy(text,token->data,token->idx);
+  text[token->idx] = '\0';
+  token->idx = 0;
+
+  return text;
+}
+
+/**********************************************************************/
+
+
+
+
+static char *entify_char(char *s)
+{
+  FILE   *out;
+  char   *text;
+  size_t  size;
+
+  assert(s      != NULL);
+
+  out = open_memstream(&text,&size);
+
+  for ( ; *s ; s++)
+  {
+    switch(*s)
     {
-      *d++ = *s++;
-      ds--;
+      case '<':  fputs("&lt;",  out); break;
+      case '>':  fputs("&gt;",  out); break;
+      case '&':  fputs("&amp;", out); break;
+      case '"':  fputs("&quot;",out); break;
+      case '\'': fputs("&apos;",out); break;
+      default:   fputc(*s,out);       break;
     }
   }
-  *d = '\0';
+
+  fclose(out);
+  return text;
 }
 
 /***********************************************************************/
+

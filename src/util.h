@@ -23,17 +23,13 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <stddef.h>
-#include "stream.h"
+#include <stdbool.h>
+#include <stdio.h>
 
-char		*spc_getenv		(const char *);
 char		*up_string		(char *);
 char		*down_string		(char *);
-char		*dup_string		(const char *);
-char		*dup_stringn		(const char *,size_t);
-char		*concat_strings		(const char *, ... );
-int		 empty_string		(const char *);
-int		 emptynull_string	(const char *);
+bool		 empty_string		(const char *);
+bool		 emptynull_string	(const char *);
 char		*remove_ctrl		(char *);
 char		*remove_char		(char *,int (*)(int));
 char		*trim_lspace		(char *);
@@ -41,9 +37,7 @@ char		*trim_tspace		(char *);
 char		*trim_space		(char *);
 int		 ctohex			(char);
 char		 hextoc			(int);
-char		*cat_string		(char *,const char *);
-size_t		 formatstr		(char *,size_t,const char *,const char *, ... );
-void		 dump_memory		(Stream,const unsigned char *,size_t,size_t);
+void		 dump_memory		(FILE *,const void *,size_t,size_t);
 
 #endif
 

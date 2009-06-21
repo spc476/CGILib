@@ -25,178 +25,178 @@
 
 #include <limits.h>
 
-#include "types.h"
-#include "conf.h"
-#include "errors.h"
-#include "stream.h"
-
-/************************************************************************/
-
-#if (INT_MAX < 65535L)
-#  define PORTMAX	INT_MAX
-#else
-#  define PORTMAX	65535
-#endif
-
-#define URL_HTTP		0
-#define URL_FILE		1
-#define URL_FTP 		2
-#define URL_GOPHER		3
-#define URL_MAILTO		4
-#define URL_NEWS		5
-#define URL_NNTP		6
-#define URL_TELNET		7
-#define URL_WAIS		8
-#define URL_PROSPERO		9
-
-#define GS_HOST 		0
-#define GS_PORT 		1
-#define GS_USER 		2
-#define GS_PASS 		3
-
-#define CON_READ		0
-#define CON_WRITE		1
-#define CON_RW			2
+#define PORTMAX	65535u
 
 /***********************************************************************/
 
-typedef struct urlbase
+typedef enum urltype
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-} *URL;
+  URL_UNKNOWN,
+  URL_HTTP,
+  URL_FILE,
+  URL_FTP,
+  URL_GOPHER,
+  URL_MAILTO,
+  URL_NEWS,
+  URL_NNTP,
+  URL_TELNET,
+  URL_WAIS,
+  URL_PROSPERO
+} UrlType;
+  
+struct urlbase
+{
+  UrlType                 type;
+  size_t	          size;
+  const struct urlvector *vector;
+  char	                 *protocol;
+};
 
-typedef struct urlhttp
+struct urlhttp
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *file;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *file;
   char             *params;
   char             *query;
-  char	     *fragment;
-} *URLHTTP;
+  char	           *fragment;
+};
 
-typedef struct urlfile
+struct urlfile
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *file;
-} *URLFILE;
+  UrlType                 type;
+  size_t	          size;
+  const struct urlvector *vector;
+  char	                 *protocol;
+  char	                 *file;
+};
 
-typedef struct urlftp
+struct urlftp
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *user;
-  char	     *password;
-  char	     *file;
-  int		      xmittype;
-} *URLFTP;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *user;
+  char	           *password;
+  char	           *file;
+  int		    xmittype;
+};
 
-typedef struct urlgopher
+struct urlgopher
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *select;
-  char	     *search;
-  char	     *gpsearch;
-} *URLGOPHER;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *select;
+  char	           *search;
+  char	           *gpsearch;
+};
 
-typedef struct urlmailto
+struct urlmailto
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *email;
-} *URLMAILTO;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *email;
+};
 
-typedef struct urlnews
+struct urlnews
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *newsgroup;
-} *URLNEWS;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *newsgroup;
+};
 
-typedef struct urlnntp
+struct urlnntp
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *newsgroup;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *newsgroup;
   unsigned long     article;
-} *URLNNTP;
+};
 
-typedef struct urltelnet
+struct urltelnet
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *user;
-  char	     *password;
-} *URLTELNET;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *user;
+  char	           *password;
+};
 
-typedef struct urlwais
+struct urlwais
 {
-  size_t	      size;
-  struct urlvector *vector;
-  char	     *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
-  char	     *database;
-  char	     *search;
-  char	     *waistype;
-  char	     *waispath;
-} *URLWAIS;
+  UrlType           type;
+  size_t	    size;
+  const struct urlvector *vector;
+  char	           *protocol;
+  char	           *host;
+  int		    port;
+  char	           *database;
+  char	           *search;
+  char	           *waistype;
+  char	           *waispath;
+};
 
-typedef struct urlprospero
+struct urlprospero
 {
+  UrlType           type;
   size_t            size;
-  struct urlvector *vector;
+  const struct urlvector *vector;
   char             *protocol;
-  int		      type;
-  char	     *host;
-  int		      port;
+  char	           *host;
+  int		    port;
   char             *hsoname;
   char             *field;
-  char	     *value;
-} *URLPROSPERO;
+  char	           *value;
+};
 
+typedef union url
+{
+  UrlType            type;
+  struct urlbase     url;
+  struct urlhttp     http;
+  struct urlfile     file;
+  struct urlftp      ftp;
+  struct urlgopher   gopher;
+  struct urlmailto   mailto;
+  struct urlnews     news;
+  struct urlnntp     nntp;
+  struct urltelnet   telnet;
+  struct urlwais     wais;
+  struct urlprospero prospero;
+} *URL;
+  
 struct urlvector
 {
-  int (*new)		(URL,const char *);
-  int (*normal) 	(URL,URL);
-  int (*compare)	(URL,URL);
-  int (*makestring)	(URL,char *,size_t);
-  int (*free)		(URL);
-  int (*getinfo)	(URL,int,void *,size_t);
-  int (*setinfo)	(URL,int,void *,size_t);
-  int (*connect)	(URL,Stream *,int);
+  int   (*new)		(URL,const char *);
+  int   (*normal) 	(URL *,URL);
+  int   (*compare)	(URL,URL);
+  char *(*makestring)	(URL);
+  int   (*free)		(URL);
+  int   (*getinfo)	(URL,int,void *,size_t);
+  int   (*setinfo)	(URL,int,void *,size_t);
+  int   (*connect)	(URL,FILE *,int);
 };
 
 /********************************************************************/
@@ -206,20 +206,20 @@ size_t	 UrlGetHost		(char *,size_t,const char **);
 size_t	 UrlGetPort		(char *,size_t,const char **);
 size_t	 UrlGetFile		(char *,size_t,const char **);
 
-int		 UrlNew 		(URL *,const char *);
-int		 UrlType		(URL);
-int		 UrlNormal		(URL *,URL);
+URL		 UrlNew 		(const char *);
+UrlType		 UrlGetType		(URL);
+URL		 UrlNormal		(URL);
 int		 UrlCompare		(URL,URL);
-int		 UrlMakeString		(URL,char *,size_t);
-int		 UrlDup 		(URL *,URL);
+char		*UrlMakeString		(URL);
+URL		 UrlDup 		(URL);
 int		 UrlGetInfo		(URL,int,void *,size_t);
 int		 UrlSetInfo		(URL,int,void *,size_t);
-int		 UrlOpen		(URL,Stream *,int);
-int		 UrlFree		(URL *);
+int		 UrlOpen		(URL,FILE *,int);
+int		 UrlFree		(URL);
 
-char		*(UrlHttpRequest)	(URLHTTP);
-char		*(UrlHttpHost)		(URLHTTP);
-char		*(UrlHttpHostPort)	(URLHTTP);
+char		*(UrlHttpRequest)	(struct urlhttp *);
+char		*(UrlHttpHost)		(struct urlhttp *);
+char		*(UrlHttpHostPort)	(struct urlhttp *);
   
 char		*UrlEncodeChar		(char *,char);
 char		 UrlDecodeChar		(char **);

@@ -20,16 +20,16 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1
+
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 
-#include "types.h"
-#include "nodelist.h"
-#include "memory.h"
 #include "pair.h"
-#include "stream.h"
-#include "util.h"
-#include "ddt.h"
+
+#define SIZET_MAX	((size_t)-1)
 
 /**********************************************************************/
 
@@ -42,21 +42,21 @@ struct pair *(PairNew)(char **psrc,char delim,char eos)
   size_t       sname;
   size_t       svalue;
   
-  ddt(psrc  != NULL);
-  ddt(*psrc != NULL);
-  ddt(delim != eos);
+  assert(psrc  != NULL);
+  assert(*psrc != NULL);
+  assert(delim != eos);
   
   src    = *psrc;
   peos   = memchr(src,eos,SIZET_MAX);	/* doesn't work on DEC Alpha */
-  ddt(peos   != NULL);
+  assert(peos   != NULL);
   pdelim = memchr(src,delim,peos-src);
-  ddt(pdelim != NULL);
+  assert(pdelim != NULL);
   
   sname      = pdelim - src;
   svalue     = peos   - pdelim - 1;
-  psp        = MemAlloc(sizeof(struct pair));
-  psp->name  = MemAlloc(sname + 1);
-  psp->value = MemAlloc(svalue + 1);
+  psp        = malloc(sizeof(struct pair));
+  psp->name  = malloc(sname + 1);
+  psp->value = malloc(svalue + 1);
   memcpy(psp->name,src,sname);
   memcpy(psp->value,pdelim+1,svalue);
   psp->name[sname]   = '\0';
@@ -71,12 +71,12 @@ struct pair *(PairCreate)(const char *name,const char *value)
 {
   struct pair *psp;
   
-  ddt(name  != NULL);
-  ddt(value != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
   
-  psp         = MemAlloc(sizeof(struct pair));
-  psp->name   = dup_string(name);
-  psp->value  = dup_string(value);
+  psp         = malloc(sizeof(struct pair));
+  psp->name   = strdup(name);
+  psp->value  = strdup(value);
   return(psp);
 }
 
@@ -84,7 +84,7 @@ struct pair *(PairCreate)(const char *name,const char *value)
 
 struct pair *(PairClone)(struct pair *pair)
 {
-  ddt(pair != NULL);
+  assert(pair != NULL);
   
   return(PairCreate(pair->name,pair->value));
 }
@@ -93,12 +93,12 @@ struct pair *(PairClone)(struct pair *pair)
 
 void (PairFree)(struct pair *psp)
 {
-  ddt(psp != NULL);
-  ddt(NodeValid(&psp->node));
+  assert(psp != NULL);
+  assert(NodeValid(&psp->node));
   
-  MemFree(psp->name);
-  MemFree(psp->value);
-  MemFree(psp);
+  free(psp->name);
+  free(psp->value);
+  free(psp);
 }
 
 /*************************************************************************/
@@ -107,10 +107,10 @@ void (PairListAdd)(List *plist,char **psrc,char delim,char eos)
 {
   struct pair *psp;
   
-  ddt(plist != NULL);
-  ddt(psrc  != NULL);
-  ddt(*psrc != NULL);
-  ddt(delim != eos);
+  assert(plist != NULL);
+  assert(psrc  != NULL);
+  assert(*psrc != NULL);
+  assert(delim != eos);
   
   psp = PairNew(psrc,delim,eos);
   ListAddTail(plist,&psp->node);
@@ -120,7 +120,7 @@ void (PairListAdd)(List *plist,char **psrc,char delim,char eos)
 
 struct pair *(PairListFirst)(List *plist)
 {
-  ddt(plist != NULL);
+  assert(plist != NULL);
   return((struct pair *)ListGetHead(plist));
 }
 
@@ -130,8 +130,8 @@ struct pair *(PairListGetPair)(List *plist,const char *name)
 {
   struct pair *psp;
   
-  ddt(plist != NULL);  
-  ddt(name  != NULL);
+  assert(plist != NULL);  
+  assert(name  != NULL);
   
   psp = (struct pair *)ListGetHead(plist);
   while(NodeValid(&psp->node))
@@ -148,8 +148,8 @@ char *(PairListGetValue)(List *plist,const char *name)
 {
   struct pair *psp;
 
-  ddt(plist != NULL);  
-  ddt(name  != NULL);
+  assert(plist != NULL);  
+  assert(name  != NULL);
   
   psp = PairListGetPair(plist,name);
   if (psp != NULL)
@@ -164,7 +164,7 @@ void (PairListFree)(List *plist)
 {
   struct pair *psp;
   
-  ddt(plist != NULL);
+  assert(plist != NULL);
   
   while(1)
   {

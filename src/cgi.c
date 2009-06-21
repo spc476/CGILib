@@ -27,17 +27,12 @@
 #include <errno.h>
 #include <limits.h>
 #include <ctype.h>
+#include <assert.h>
 
-#include "../util.h"
-#include "../pair.h"
-#include "../cgi.h"
-#include "../stream.h"
-#include "../nodelist.h"
-#include "../errors.h"
-#include "../types.h"
-#include "../ddt.h"
-#include "../memory.h"
-#include "../http.h"
+#include "util.h"
+#include "cgi.h"
+#include "errors.h"
+#include "url.h"
 
 /**************************************************************************/
 
@@ -46,59 +41,56 @@ static int		 cgi_new_get	(const Cgi);
 static int		 cgi_new_post	(const Cgi);
 static int		 cgi_new_head	(const Cgi);
 static int		 cgi_new_put	(const Cgi);
-static void		 cgicookie_new	(const Cgi,const char *,size_t);
+static void              cgicookie_new  (const Cgi,const char *,size_t);
 
 /*************************************************************************/
 
-int (CgiNew)(Cgi *pcgi,void *data)
+Cgi (CgiNew)(void *data)
 {
   char *request_method;
+  Cgi   cgi;
   int   rc;
   
-  ddt(pcgi != NULL);
+  request_method = getenv("REQUEST_METHOD");
   
-  if ((rc = cgi_create(pcgi,data)) != ERR_OKAY)
-    return(rc);
+  if (request_method == NULL)
+    return NULL;
   
-  request_method = CgiEnvGet(*pcgi,"REQUEST_METHOD");
-   
+  if ((rc = cgi_create(&cgi,data)) != ERR_OKAY)
+    return NULL;
+  
   if (strcmp(request_method,"GET") == 0)
-    rc = cgi_new_get(*pcgi);
+    rc = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
-    rc = cgi_new_post(*pcgi);
+    rc = cgi_new_post(cgi);
   else if (strcmp(request_method,"HEAD") == 0)
-    rc = cgi_new_head(*pcgi);
+    rc = cgi_new_head(cgi);
   else if (strcmp(request_method,"PUT") == 0)
-    rc = cgi_new_put(*pcgi);
+    rc = cgi_new_put(cgi);
   else
   {
-    MemFree(*pcgi);
-    *pcgi = NULL;
-    return(ERR_ERR);
+    free(cgi);
+    return NULL;
   }
 
-  return(rc);
+  return cgi;
 }
 
 /*******************************************************************/
 
-#ifdef STDCGI
-#  if defined(__unix__) || defined(__MACH__)
-     static int cgi_create(Cgi *pcgi,void *data)
-     {
-       struct cgi *cgi;
+static int cgi_create(Cgi *pcgi,void *data)
+{
+  struct cgi *cgi;
+
+  assert(pcgi != NULL);
        
-       ddt(pcgi != NULL);
-       
-       cgi       = MemAlloc(sizeof(struct cgi));
-       cgi->data = data;
-       *pcgi     = cgi;
-       
-       ListInit(&cgi->vars);
-       return(ERR_OKAY);
-     }
-#  endif
-#endif
+  cgi       = malloc(sizeof(struct cgi));
+  cgi->data = data;
+  *pcgi     = cgi;
+
+  ListInit(&cgi->vars);
+  return(ERR_OKAY);
+}
 
 /******************************************************************/
 
@@ -107,41 +99,19 @@ static int cgi_new_get(const Cgi cgi)
   char   *query_string;
   size_t  qs;
 
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   
-  query_string = CgiEnvGet(cgi,"QUERY_STRING");
-  qs           = strlen(query_string);
+  query_string = getenv("QUERY_STRING");
+  if (query_string == NULL)
+    return (ERR_ERR);
+    
+  qs = strlen(query_string);
   cgicookie_new(cgi,query_string,qs);
   cgi->method = GET;
   return(ERR_OKAY);
 }
 
 /***************************************************************/
-
-static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
-{
-  ddt(cgi  != NULL);
-  ddt(data != NULL);
-  
-  if (size)
-  {
-    cgi->buffer = MemAlloc(size + 2);
-    memcpy(cgi->buffer,data,size);
-    cgi->buffer[size]     = '&';
-    cgi->buffer[size + 1] = '\0';
-    cgi->bufsize          = size + 1;
-  }
-  else
-  {
-    cgi->buffer    = MemAlloc(1);
-    cgi->buffer[0] = '\0';
-    cgi->bufsize   = 0;
-  }
-  cgi->pbuff   = cgi->buffer;
-  cgi->pbufend = &cgi->buffer[size + 1];
-}
-
-/*********************************************************************/
 
 static int cgi_new_post(const Cgi cgi)
 {
@@ -150,16 +120,19 @@ static int cgi_new_post(const Cgi cgi)
   char   *content_length;
   size_t  i;
   
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   
-  content_type   = CgiEnvGet(cgi,"CONTENT_TYPE");
-  content_length = CgiEnvGet(cgi,"CONTENT_LENGTH");
+  content_type   = getenv("CONTENT_TYPE");
+  content_length = getenv("CONTENT_LENGTH");
   
   /*-----------------------------------------------------------
   ; XXX - if we send the ACCEPT-CHARSET attribute of <FORM> then 
   ; this fails.  We need to check for this and do the intelligent
   ; thing.  
   ;-----------------------------------------------------------*/
+  
+  if ((content_type == NULL) || (content_length == NULL))
+    return ERR_ERR;
 
   if (strcmp(content_type,"application/x-www-form-urlencoded") != 0)
     return(ERR_ERR);
@@ -169,7 +142,7 @@ static int cgi_new_post(const Cgi cgi)
   if ((length == LONG_MAX) && (errno == ERANGE))
     return(ERR_ERR);
     
-  cgi->buffer = MemAlloc(length+2);
+  cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
   cgi->bufsize          = length+1;
   cgi->buffer[length+1] = '&';
@@ -177,8 +150,8 @@ static int cgi_new_post(const Cgi cgi)
   /* XXX --- need a better way of doing this */
 
   for ( i = 0 ; i < length ; i++)
-    cgi->buffer[i] = StreamRead(StdinStream);
-    
+    cgi->buffer[i] = fgetc(stdin);
+
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
   cgi->method  = POST;
@@ -189,7 +162,7 @@ static int cgi_new_post(const Cgi cgi)
 
 static int cgi_new_head(const Cgi cgi)
 {
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   
   cgi->method = HEAD;
   return(ERR_OKAY);
@@ -202,16 +175,19 @@ static int cgi_new_put(const Cgi cgi)
   char   *content_length;
   size_t  length;
 
-  content_length = CgiEnvGet(cgi,"CONTENT_LENGTH");
-  errno          = 0;
-  length         = strtoul(content_length,NULL,10);
-  MemFree(content_length);
+  content_length = getenv("CONTENT_LENGTH");
+
+  if (content_length == NULL)
+    return ERR_ERR;
+    
+  errno  = 0;
+  length = strtoul(content_length,NULL,10);
 
   if ((length == LONG_MAX) && (errno == ERANGE))
     return(ERR_ERR);
 
   cgi->bufsize  = length;
-  cgi->datatype = CgiEnvGet(cgi,"CONTENT_TYPE");
+  cgi->datatype = getenv("CONTENT_TYPE");
   cgi->method   = PUT;
 
   return(ERR_OKAY);
@@ -221,9 +197,9 @@ static int cgi_new_put(const Cgi cgi)
     
 void (CgiGetRawData)(const Cgi cgi,char **pdest,size_t *psize)
 {
-  ddt(cgi   != NULL);
-  ddt(pdest != NULL);
-  ddt(psize != NULL);
+  assert(cgi   != NULL);
+  assert(pdest != NULL);
+  assert(psize != NULL);
   
   *pdest = cgi->buffer;
   *psize = cgi->bufsize;
@@ -235,9 +211,8 @@ void (CgiOutHtml)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/html\n\n";
   
-  ddt(cgi != NULL);
-
-  LineS(StdoutStream,msg);
+  assert(cgi != NULL);
+  fputs(msg,stdout);
 }
 
 /***********************************************************************/
@@ -246,9 +221,8 @@ void (CgiOutText)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/plain\n\n";
 
-  ddt(cgi != NULL);
-
-  LineS(StdoutStream,msg);
+  assert(cgi != NULL);  
+  fputs(msg,stdout);
 }
 
 /************************************************************************/
@@ -257,44 +231,29 @@ void (CgiOutShtml)(const Cgi cgi)
 {
   static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
   
-  ddt(cgi != NULL);
-
-  LineS(StdoutStream,msg);  
+  assert(cgi != NULL);
+  fputs(msg,stdout);
 }
 
 /**************************************************************************/
 
 void (CgiOutLocation)(const Cgi cgi,const char *location)
 {
-  ddt(cgi      != NULL);
-  ddt(location != NULL);
-
-  LineSFormat(StdoutStream,"$","Location: %a\n\n",location);  
+  assert(cgi      != NULL);
+  assert(location != NULL);
+  
+  fprintf(stdout,"Location: %s\n\n",location);
 }
 
 /*******************************************************************/
 
 int (CgiMethod)(const Cgi cgi)
 {
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   return(cgi->method);
 }
 
 /********************************************************************/
-
-#ifdef STDCGI
-#  ifdef __unix__
-     char *(CgiEnvGet)(const Cgi cgi,const char *name)
-       {
-         ddt(cgi  != NULL);
-         ddt(name != NULL);
-
-         return(spc_getenv(name));
-       }
-#  endif
-#endif
-
-/*********************************************************************/
 
 struct pair *(CgiNextValue)(const Cgi cgi)
 {
@@ -302,7 +261,7 @@ struct pair *(CgiNextValue)(const Cgi cgi)
   char        *s;
   char        *d;
   
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   
   if (cgi->pbuff >= cgi->pbufend)
     return(NULL);
@@ -327,7 +286,7 @@ void (CgiListMake)(const Cgi cgi)
 {
   struct pair *psp;
   
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   
   while((psp = CgiNextValue(cgi)) != NULL)
     ListAddTail(&cgi->vars,&psp->node);
@@ -337,7 +296,7 @@ void (CgiListMake)(const Cgi cgi)
 
 struct pair *(CgiListFirst)(const Cgi cgi)
 {
-  ddt(cgi != NULL);
+  assert(cgi != NULL);
   return(PairListFirst(&cgi->vars));
 }
 
@@ -345,8 +304,8 @@ struct pair *(CgiListFirst)(const Cgi cgi)
 
 struct pair *(CgiListGetPair)(const Cgi cgi,const char *name)
 {
-  ddt(cgi  != NULL);
-  ddt(name != NULL);
+  assert(cgi  != NULL);
+  assert(name != NULL);
   return(PairListGetPair(&cgi->vars,name));
 }
 
@@ -354,8 +313,8 @@ struct pair *(CgiListGetPair)(const Cgi cgi,const char *name)
       
 char *(CgiListGetValue)(const Cgi cgi,const char *name)
 {
-  ddt(cgi  != NULL);
-  ddt(name != NULL);
+  assert(cgi  != NULL);
+  assert(name != NULL);
   return(PairListGetValue(&cgi->vars,name));
 }
 
@@ -368,8 +327,8 @@ size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
   char        **store = NULL;
   struct pair  *pair;
 
-  ddt(darray != NULL);
-  ddt(name   != NULL);
+  assert(darray != NULL);
+  assert(name   != NULL);
 
   pair = CgiListGetPair(cgi,name);
   if (pair == NULL)
@@ -384,7 +343,7 @@ size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
     {
       if (idx == size)
       {
-        store = MemResize(store,size+256);
+        store = realloc(store,size+256);
 	size  += 256;
       }
       store[idx++] = pair->value;
@@ -401,9 +360,9 @@ int (CgiListRequired)(const Cgi cgi,struct dstring *table,size_t size)
 {
   int cnt = 0;
   
-  ddt(cgi   != NULL);
-  ddt(table != NULL);
-  ddt(size  >  0);
+  assert(cgi   != NULL);
+  assert(table != NULL);
+  assert(size  >  0);
   
   while(size)
   {
@@ -418,99 +377,38 @@ int (CgiListRequired)(const Cgi cgi,struct dstring *table,size_t size)
 
 /**********************************************************************/
 
-int (CgiFree)(Cgi *pcgi)
+int (CgiFree)(Cgi cgi)
 {
-  Cgi cgi;
+  assert(cgi  != NULL);
   
-  ddt(pcgi  != NULL);
-  ddt(*pcgi != NULL);
-  
-  cgi = *pcgi;
-  MemFree(cgi->buffer);
+  free(cgi->buffer);
   PairListFree(&cgi->vars);
-  MemFree(cgi);
-  *pcgi = NULL;
+  free(cgi);
   return(ERR_OKAY);
 }
 
 /***********************************************************************/
 
-int (CookieNew)(Cookie *pmonster,const Cgi cgi)
+static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
 {
-  Cookie  monster;
-  char   *http_cookie;
-  size_t  cs;
-  
-  ddt(pmonster != NULL);
-  ddt(cgi      != NULL);
-  
-  monster     = MemAlloc(sizeof(struct cgi));
-  http_cookie = CgiEnvGet(cgi,"HTTP_COOKIE");
-  cs          = strlen(http_cookie);
-  *pmonster   = monster;
-  ListInit(&monster->vars);
-  cgicookie_new((Cgi)monster,http_cookie,cs);
-  return(ERR_OKAY);
+  assert(cgi  != NULL);
+  assert(data != NULL);
+
+  if (size)
+  {
+    cgi->buffer = malloc(size + 2);
+    memcpy(cgi->buffer,data,size);
+    cgi->buffer[size]     = '&';
+    cgi->buffer[size + 1] = '\0';
+    cgi->bufsize          = size + 1;
+  }
+  else
+  {
+    cgi->buffer    = malloc(1);
+    cgi->buffer[0] = '\0';
+    cgi->bufsize   = 0;
+  }
+  cgi->pbuff   = cgi->buffer;
+  cgi->pbufend = &cgi->buffer[size + 1];
 }
-
-/***********************************************************************/
-
-struct pair *(CookieNextValue)(const Cookie monster)
-{
-  ddt(monster != NULL);  
-  return(CgiNextValue((Cgi)monster));
-}
-
-/*************************************************************************/
-
-void (CookieListMake)(const Cookie monster)
-{
-  ddt(monster != NULL);
-  CgiListMake((Cgi)monster);
-}
-
-/**********************************************************************/
-
-struct pair *(CookieListFirst)(const Cookie monster)
-{
-  ddt(monster != NULL);
-  return(PairListFirst(&monster->vars));
-}
-
-/*************************************************************************/
-
-struct pair *(CookieListGetPair)(const Cookie monster,const char *name)
-{
-  ddt(monster != NULL);
-  ddt(name    != NULL);
-  return(PairListGetPair(&monster->vars,name));
-}
-
-/***********************************************************************/
-
-char *(CookieListGetValue)(const Cookie monster,const char *name)
-{
-  ddt(monster != NULL);
-  ddt(name    != NULL);
-  return(PairListGetValue(&monster->vars,name));
-}
-
-/*********************************************************************/
-
-int (CookieFree)(Cookie *pmonster)
-{
-  Cookie monster;
-  
-  ddt(pmonster  != NULL);
-  ddt(*pmonster != NULL);
-  
-  monster = *pmonster;
-  PairListFree(&monster->vars);
-  MemFree(monster->buffer);
-  MemFree(monster);
-  *pmonster = NULL;
-  return(ERR_OKAY);
-}
-
-/***********************************************************************/
 
