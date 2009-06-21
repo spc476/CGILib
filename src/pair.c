@@ -82,15 +82,6 @@ struct pair *(PairCreate)(const char *name,const char *value)
 
 /***********************************************************************/
 
-struct pair *(PairClone)(struct pair *pair)
-{
-  assert(pair != NULL);
-  
-  return(PairCreate(pair->name,pair->value));
-}
-
-/************************************************************************/
-
 void (PairFree)(struct pair *psp)
 {
   assert(psp != NULL);
@@ -102,29 +93,6 @@ void (PairFree)(struct pair *psp)
 }
 
 /*************************************************************************/
-
-void (PairListAdd)(List *plist,char **psrc,char delim,char eos)
-{
-  struct pair *psp;
-  
-  assert(plist != NULL);
-  assert(psrc  != NULL);
-  assert(*psrc != NULL);
-  assert(delim != eos);
-  
-  psp = PairNew(psrc,delim,eos);
-  ListAddTail(plist,&psp->node);
-}
-
-/**********************************************************************/
-
-struct pair *(PairListFirst)(List *plist)
-{
-  assert(plist != NULL);
-  return((struct pair *)ListGetHead(plist));
-}
-
-/**********************************************************************/
 
 struct pair *(PairListGetPair)(List *plist,const char *name)
 {

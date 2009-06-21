@@ -13,14 +13,12 @@ SHELL=/bin/sh
 CC=gcc -Wall -pedantic -std=c99
 #CFLAGS=-Wpointer-arith -Wshadow -Wwrite-strings -Wmissing-prototypes -Wcast-qual -Wmissing-declarations -Wnested-externs -Winline -W
 #CFLAGS=-Wtraditional -Wpointer-arith -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Waggregate-return -Wmissing-declarations -Wnested-externs -Winline -W
-#CFLAGS=-O4 -fomit-frame-pointer -DSCREAM
-#CFLAGS=-O4 -DSCREAM -pg -g
-#CFLAGS=-O4 -fomit-frame-pointer -DSCREAM
-#CFLAGS=-O3 -fomit-frame-pointer -DSCREAM
+#CFLAGS=-O4 -pg -g
+#CFLAGS=-O4 -fomit-frame-pointer 
 #CFLAGS=-O3 -fomit-frame-pointer
-#CFLAGS=-march=pentium3 -O3 -fomit-frame-pointer -DSCREAM
-#CFLAGS=-pg -g -DSCREAM -O4
-#CFLAGS=-g -DDDT
+#CFLAGS=-march=pentium4 -O3 -fomit-frame-pointer
+#CFLAGS=-march=pentium4 -Os -fomit-frame-pointer
+#CFLAGS=-Os -fomit-frame-pointer -DNDEBUG
 CFLAGS=-g
 #CFLAGS=-g -pg
 AR=ar cr

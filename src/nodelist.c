@@ -38,46 +38,6 @@ void (ListInit)(List *const pl)
 
 /*********************************************************************/
 
-void (ListAddHead)(List *const pl,Node *const pn)
-{
-  assert(pl != NULL);
-  assert(pn != NULL);
-
-  NodeInsert((Node *)&pl->lh_Head,pn);
-}
-
-/**********************************************************************/
-
-void (ListAddTail)(List *const pl,Node *const pn)
-{
-  assert(pl != NULL);
-  assert(pn != NULL);
-
-  NodeInsert(pl->lh_TailPred,pn);
-}
-
-/*********************************************************************/
-
-Node *(ListGetHead)(List *const pl)
-{
-  assert(pl          != NULL);
-  assert(pl->lh_Head != NULL);
-
-  return(pl->lh_Head);
-}
-
-/**********************************************************************/
-
-Node *(ListGetTail)(List *const pl)
-{
-  assert(pl              != NULL);
-  assert(pl->lh_TailPred != NULL);
-
-  return(pl->lh_TailPred);
-}
-
-/********************************************************************/
-
 Node *(ListRemHead)(List *const pl)
 {
   Node *pn;
@@ -107,14 +67,6 @@ Node *(ListRemTail)(List *const pl)
 }
 
 /**********************************************************************/
-
-bool (ListEmpty)(List *const pl)
-{
-  assert(pl != NULL);
-  return(pl->lh_Head == (Node *)&pl->lh_Tail);
-}
-
-/***********************************************************************/
 
 void (NodeInsert)(Node *const pn,Node *const pntoa)
 {
@@ -171,15 +123,4 @@ Node *(NodePrev)(Node *pn)
 }
 
 /********************************************************************/
-
-bool (NodeValid)(Node *const pn)
-{
-  assert(pn != NULL);
-
-  if (pn->ln_Succ == NULL) return(0);
-  if (pn->ln_Pred == NULL) return(0);
-  return(1);
-}
-
-/**********************************************************************/
 

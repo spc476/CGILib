@@ -61,17 +61,63 @@ typedef struct htmltoken
 HtmlToken		 (HtmlParseNew)		(FILE *);
 HtmlToken		 (HtmlParseClone)	(HtmlToken);
 int			 (HtmlParseNext)	(HtmlToken);
-char			*(HtmlParseValue)	(HtmlToken);
-HToken			 (HtmlParseToken)	(HtmlToken);
-void			 (HtmlParseAddPair)	(HtmlToken,struct pair *);
-struct pair		*(HtmlParseFirstOption)	(HtmlToken);
-struct pair		*(HtmlParseGetPair)	(HtmlToken,const char *);
-struct pair		*(HtmlParseNextValue)	(HtmlToken);
-char			*(HtmlParseGetValue)	(HtmlToken,char *);
 void			 (HtmlParsePrintTag)	(HtmlToken,FILE *);
 int			 (HtmlParseFree)	(HtmlToken);
 
 /**********************************************************************/
+
+static inline char *(HtmlParseValue)(HtmlToken token)
+{
+  assert(token != NULL);
+  return token->value;
+}
+
+/*----------------------------------------------------------------*/
+
+static inline HToken (HtmlParseToken)(HtmlToken token)
+{
+  assert(token != NULL);
+  return(token->token);
+}
+
+/*------------------------------------------------------------------*/
+
+static inline struct pair *(HtmlParseFirstOption)(HtmlToken token)
+{
+  assert(token != NULL);
+  return PairListFirst(&token->pairs);
+}
+
+/*-----------------------------------------------------------------*/
+
+static inline void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
+{
+  assert(token != NULL);
+  assert(p     != NULL);
+  
+  ListAddTail(&token->pairs,&p->node);
+}
+
+/*------------------------------------------------------------------*/
+
+static inline struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
+{
+  assert(token != NULL);
+  assert(name  != NULL);
+  return(PairListGetPair(&token->pairs,name));
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline char *(HtmlParseGetValue)(HtmlToken token,char *name)
+{
+  assert(token != NULL);
+  assert(name  != NULL);
+  
+  return(PairListGetValue(&token->pairs,name));
+}
+
+/*------------------------------------------------------------------*/
 
 #endif
 

@@ -24,6 +24,7 @@
 #define NODELIST_H
 
 #include <stdbool.h>
+#include <assert.h>
 
 /*********************************************************************/
 
@@ -43,21 +44,74 @@ typedef struct list
 /***********************************************************************/
 
 void		(ListInit)		(List *const);
-void		(ListAddHead)		(List *const,Node *const);
-void		(ListAddTail)		(List *const,Node *const);
-Node           *(ListGetHead)		(List *const);
-Node           *(ListGetTail)		(List *const);
 Node           *(ListRemHead)		(List *const);
 Node           *(ListRemTail)		(List *const);
-bool		(ListEmpty)		(List *const);
 
 void		(NodeInsert)		(Node *const,Node *const);
 void		(NodeRemove)		(Node *const);
 Node           *(NodeNext)		(Node *);
 Node           *(NodePrev)		(Node *);
-bool		(NodeValid)		(Node *const);
 
 /************************************************************************/
+
+static inline void ListAddHead(List *const pl,Node *const pn)
+{
+  assert(pl != NULL);
+  assert(pn != NULL);
+  
+  NodeInsert((Node *)&pl->lh_Head,pn);
+}
+
+/*-----------------------------------------------------------------------*/
+
+static inline void (ListAddTail)(List *const pl,Node *const pn)
+{
+  assert(pl != NULL);
+  assert(pn != NULL);
+
+  NodeInsert(pl->lh_TailPred,pn);
+}
+
+/*-----------------------------------------------------------------------*/
+
+static inline Node *(ListGetHead)(List *const pl)
+{
+  assert(pl          != NULL);
+  assert(pl->lh_Head != NULL);
+
+  return(pl->lh_Head);
+}
+
+/*------------------------------------------------------------------------*/
+
+static inline Node *(ListGetTail)(List *const pl)
+{
+  assert(pl              != NULL);
+  assert(pl->lh_TailPred != NULL);
+
+  return(pl->lh_TailPred);
+}
+
+/*------------------------------------------------------------------------*/
+
+static inline bool (ListEmpty)(List *const pl)
+{
+  assert(pl != NULL);
+  return(pl->lh_Head == (Node *)&pl->lh_Tail);
+}
+
+/*-----------------------------------------------------------------------*/
+
+static inline bool (NodeValid)(Node *const pn)
+{
+  assert(pn != NULL);
+
+  if (pn->ln_Succ == NULL) return(0);
+  if (pn->ln_Pred == NULL) return(0);
+  return(1);
+}
+
+/*----------------------------------------------------------------------*/
 
 #endif
 

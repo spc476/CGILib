@@ -67,23 +67,6 @@ bool empty_string(const char *s)
 
 /*************************************************************************/
 
-bool emptynull_string(const char *s)
-{
-  if (s == NULL) return true;
-  return empty_string(s);
-}
-
-/************************************************************************/
-
-char *remove_ctrl(char *s)
-{
-  assert(s != NULL);
-  
-  return (remove_char(s,iscntrl));
-}
-
-/*************************************************************************/
-
 char *remove_char(char *s,int (*tstchar)(int))
 {
   char *ret = s;
@@ -128,14 +111,6 @@ char *trim_tspace(char *s)
 }
 
 /**************************************************************************/
-
-char *trim_space(char *s)
-{
-  assert(s != NULL);
-  return trim_tspace(trim_lspace(s));
-}
-
-/***************************************************************************/
 
 int ctohex(char c)
 {

@@ -193,66 +193,6 @@ static int cgi_new_put(const Cgi cgi)
 }
 
 /*************************************************************/
-    
-void (CgiGetRawData)(const Cgi cgi,char **pdest,size_t *psize)
-{
-  assert(cgi   != NULL);
-  assert(pdest != NULL);
-  assert(psize != NULL);
-  
-  *pdest = cgi->buffer;
-  *psize = cgi->bufsize;
-}
-
-/************************************************************************/
-
-void (CgiOutHtml)(const Cgi cgi)
-{
-  static const char msg[] = "Content-type: text/html\n\n";
-  
-  assert(cgi != NULL);
-  fputs(msg,stdout);
-}
-
-/***********************************************************************/
-
-void (CgiOutText)(const Cgi cgi)
-{
-  static const char msg[] = "Content-type: text/plain\n\n";
-
-  assert(cgi != NULL);  
-  fputs(msg,stdout);
-}
-
-/************************************************************************/
-
-void (CgiOutShtml)(const Cgi cgi)
-{
-  static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
-  
-  assert(cgi != NULL);
-  fputs(msg,stdout);
-}
-
-/**************************************************************************/
-
-void (CgiOutLocation)(const Cgi cgi,const char *location)
-{
-  assert(cgi      != NULL);
-  assert(location != NULL);
-  
-  fprintf(stdout,"Location: %s\n\n",location);
-}
-
-/*******************************************************************/
-
-int (CgiMethod)(const Cgi cgi)
-{
-  assert(cgi != NULL);
-  return(cgi->method);
-}
-
-/********************************************************************/
 
 struct pair *(CgiNextValue)(const Cgi cgi)
 {
@@ -292,32 +232,6 @@ void (CgiListMake)(const Cgi cgi)
 }
 
 /*************************************************************************/
-
-struct pair *(CgiListFirst)(const Cgi cgi)
-{
-  assert(cgi != NULL);
-  return(PairListFirst(&cgi->vars));
-}
-
-/*************************************************************************/
-
-struct pair *(CgiListGetPair)(const Cgi cgi,const char *name)
-{
-  assert(cgi  != NULL);
-  assert(name != NULL);
-  return(PairListGetPair(&cgi->vars,name));
-}
-
-/***********************************************************************/
-      
-char *(CgiListGetValue)(const Cgi cgi,const char *name)
-{
-  assert(cgi  != NULL);
-  assert(name != NULL);
-  return(PairListGetValue(&cgi->vars,name));
-}
-
-/*********************************************************************/
 
 size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
 {

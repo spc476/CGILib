@@ -46,7 +46,6 @@ enum
 
 /**********************************************************************/
 
-static HToken	 ht_nexteof	(HtmlToken);
 static HToken	 ht_nextstr	(HtmlToken);
 static HToken	 ht_nexttag	(HtmlToken);
 static HToken	 ht_nextcom	(HtmlToken);
@@ -56,6 +55,40 @@ static char	*ht_accdup	(HtmlToken);
 static char	*entify_char	(char *);
 
 /*************************************************************************/
+
+static inline HToken ht_nexteof(HtmlToken token)
+{
+  assert(token != NULL);
+  
+  token->token = T_EOF;
+  return T_EOF;
+}
+
+/**********************************************************************/
+
+static inline HToken ht_nextcom(HtmlToken token)
+{
+  assert(token != NULL);
+  
+  token->state = S_EOF;
+  return T_EOF;
+}
+
+/*********************************************************************/
+
+static inline void ht_makepair(HtmlToken token,char *name,char *value)
+{
+  struct pair *psp;
+  
+  assert(token != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
+  
+  psp = PairCreate(name,value);
+  ListAddTail(&token->pairs,&psp->node);
+}
+
+/******************************************************************/
 
 HtmlToken (HtmlParseNew)(FILE *input)
 {
@@ -142,59 +175,6 @@ int (HtmlParseNext)(HtmlToken token)
 
 /********************************************************************/
 
-char *(HtmlParseValue)(HtmlToken token)
-{
-  assert(token != NULL);
-  return(token->value);
-}
-
-/*******************************************************************/
-
-HToken (HtmlParseToken)(HtmlToken token)
-{
-  assert(token != NULL);
-  return(token->token);
-}
-
-/*******************************************************************/
-
-struct pair *(HtmlParseFirstOption)(HtmlToken token)
-{
-  assert(token != NULL);
-  return(PairListFirst(&token->pairs));
-}
-
-/****************************************************************/
-
-void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
-{
-  assert(token != NULL);
-  assert(p     != NULL);
-  
-  ListAddTail(&token->pairs,&p->node);
-}
-
-/******************************************************************/
-
-struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
-{
-  assert(token != NULL);
-  assert(name  != NULL);
-  return(PairListGetPair(&token->pairs,name));
-}
-
-/********************************************************************/
-
-char *(HtmlParseGetValue)(HtmlToken token,char *name)
-{
-  assert(token != NULL);
-  assert(name  != NULL);
-  
-  return(PairListGetValue(&token->pairs,name));
-}
-
-/*******************************************************************/
-
 void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
 {
   struct pair *pp;
@@ -242,16 +222,6 @@ int (HtmlParseFree)(HtmlToken token)
 
 /***********************************************************************/
   
-static HToken ht_nexteof(HtmlToken token)
-{
-  assert(token != NULL);
-  
-  token->token = T_EOF;
-  return T_EOF;
-}
-
-/*******************************************************************/
-
 static HToken ht_nextstr(HtmlToken token)
 {
   int c;
@@ -458,30 +428,6 @@ htnt_error:	token->token = T_EOF;
 		
 /**********************************************************************/
 
-static HToken ht_nextcom(HtmlToken token)
-{
-  assert(token != NULL);
-  
-  token->state = S_EOF;
-  return T_EOF;
-}
-
-/*********************************************************************/
-
-static void ht_makepair(HtmlToken token,char *name,char *value)
-{
-  struct pair *psp;
-  
-  assert(token != NULL);
-  assert(name  != NULL);
-  assert(value != NULL);
-  
-  psp = PairCreate(name,value);
-  ListAddTail(&token->pairs,&psp->node);
-}
-
-/********************************************************************/
-
 static void ht_acc(HtmlToken token,int c)
 {
   assert(token != NULL);
@@ -512,9 +458,6 @@ static char *ht_accdup(HtmlToken token)
 }
 
 /**********************************************************************/
-
-
-
 
 static char *entify_char(char *s)
 {

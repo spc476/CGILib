@@ -58,17 +58,8 @@ struct dstring
 /************************************************************************/
 
 Cgi		 (CgiNew)		(void *);
-void		 (CgiGetRawData)	(const Cgi,char **,size_t *);
 void		 (CgiListMake)		(const Cgi);
-void		 (CgiOutText)		(const Cgi);
-void		 (CgiOutHtml)		(const Cgi);
-void		 (CgiOutShtml)		(const Cgi);
-void		 (CgiOutLocation)	(const Cgi,const char *);
-int		 (CgiMethod)		(const Cgi);
 struct pair	*(CgiNextValue)		(const Cgi);
-struct pair	*(CgiListFirst)		(const Cgi);
-struct pair	*(CgiListGetPair)	(const Cgi,const char *);
-char		*(CgiListGetValue)	(const Cgi,const char *);
 size_t	 	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
 int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
 int		 (CgiFree)		(Cgi);
@@ -78,7 +69,94 @@ char		*(UrlEncodeChar)	(char *,char);
 char		*(UrlDecodeString)	(char *);
 char		 (UrlDecodeChar)	(char **);
 
+/********************************************************************/
+
+static inline void (CgiGetRawData)(const Cgi cgi,char **pdest,size_t *psize)
+{
+  assert(cgi   != NULL);
+  assert(pdest != NULL);
+  assert(psize != NULL);
+  
+  *pdest = cgi->buffer;
+  *psize = cgi->bufsize;
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutHtml)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/html\n\n";
+  
+  assert(cgi != NULL);
+  fputs(msg,stdout);
+}
+
+/*----------------------------------------------------------------------*/
+
+static inline void (CgiOutText)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/plain\n\n";
+
+  assert(cgi != NULL);  
+  fputs(msg,stdout);
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutShtml)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
+  
+  assert(cgi != NULL);
+  fputs(msg,stdout);
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutLocation)(const Cgi cgi,const char *location)
+{
+  assert(cgi      != NULL);
+  assert(location != NULL);
+  
+  fprintf(stdout,"Location: %s\n\n",location);
+}
+
+/*--------------------------------------------------------------------*/
+
+int (CgiMethod)(const Cgi cgi)
+{
+  assert(cgi != NULL);
+  return(cgi->method);
+}
+
+/*------------------------------------------------------------------*/
+
+static inline struct pair *(CgiListFirst)(const Cgi cgi)
+{
+  assert(cgi != NULL);
+  return(PairListFirst(&cgi->vars));
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline struct pair *(CgiListGetPair)(const Cgi cgi,const char *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return(PairListGetPair(&cgi->vars,name));
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline char *(CgiListGetValue)(const Cgi cgi,const char *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return(PairListGetValue(&cgi->vars,name));
+}
+
+/***********************************************************************/
+
 #endif
 
-/*******************************************************************/
 

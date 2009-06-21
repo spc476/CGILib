@@ -36,16 +36,44 @@ struct pair
 
 struct pair	*(PairNew)		(char **,char,char);
 struct pair	*(PairCreate)		(const char *,const char *);
-struct pair	*(PairClone)		(struct pair *);
 void		 (PairFree)		(struct pair *);
 
-void		 (PairListAdd)		(List *,char **,char,char);
-struct pair	*(PairListFirst)	(List *);
 struct pair	*(PairListGetPair)	(List *,const char *);
 char		*(PairListGetValue)	(List *,const char *);
 void		 (PairListFree)		(List *);
 
 /***********************************************************************/
+
+static inline struct pair *PairClone(struct pair *pair)
+{
+  assert(pair != NULL);
+  return PairCreate(pair->name,pair->value);
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline void PairListAdd(List *plist,char **psrc,char delim,char eos)
+{
+  struct pair *psp;
+  
+  assert(plist != NULL);
+  assert(psrc  != NULL);
+  assert(*psrc != NULL);
+  assert(delim != eos);
+  
+  psp = PairNew(psrc,delim,eos);
+  ListAddTail(plist,&psp->node);
+}
+
+/*---------------------------------------------------------------------*/
+
+static inline struct pair *(PairListFirst)(List *plist)
+{
+  assert(plist != NULL);
+  return (struct pair *)ListGetHead(plist);
+}
+
+/*----------------------------------------------------------------------*/
 
 #endif
 

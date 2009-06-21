@@ -25,19 +25,43 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <assert.h>
 
 char		*up_string		(char *);
 char		*down_string		(char *);
 bool		 empty_string		(const char *);
-bool		 emptynull_string	(const char *);
-char		*remove_ctrl		(char *);
 char		*remove_char		(char *,int (*)(int));
 char		*trim_lspace		(char *);
 char		*trim_tspace		(char *);
-char		*trim_space		(char *);
 int		 ctohex			(char);
 char		 hextoc			(int);
 void		 dump_memory		(FILE *,const void *,size_t,size_t);
+
+/****************************************************************/
+
+static inline bool emptynull_string(const char *s)
+{
+  return ((s == NULL) || empty_string(s));
+}
+
+/*--------------------------------------------------------------*/
+
+static inline char *remove_ctrl(char *s)
+{
+  assert(s != NULL);
+  return remove_char(s,(iscntrl));
+}
+
+/*--------------------------------------------------------------*/
+
+static inline char *trim_space(char *s)
+{
+  assert(s != NULL);
+  return trim_tspace(trim_lspace(s));
+}
+
+/*--------------------------------------------------------------*/
 
 #endif
 
