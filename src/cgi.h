@@ -73,6 +73,11 @@ size_t	 	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
 int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
 int		 (CgiFree)		(Cgi);
 
+char		*(UrlEncodeString)	(const char *);
+char		*(UrlEncodeChar)	(char *,char);
+char		*(UrlDecodeString)	(char *);
+char		 (UrlDecodeChar)	(char **);
+
 #endif
 
 /*******************************************************************/

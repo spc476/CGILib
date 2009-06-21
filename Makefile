@@ -35,9 +35,6 @@ OFILES=build/nodelist.o 		\
 	build/rfc822.o			\
 	build/htmltok.o			\
 	build/mail.o			\
-	build/url.o			\
-	build/url.file.o		\
-	build/url.http.o		\
 	build/chunk.o
 
 $(TARGET) : $(OFILES)
@@ -53,15 +50,6 @@ build/nodelist.o : src/nodelist.c src/nodelist.h
 
 build/util.o : src/util.c src/util.h
 	$(CC) $(CFLAGS) -c -o $@ src/util.c
-
-build/url.o : src/Url/url.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ src/Url/url.c
-
-build/url.file.o : src/Url/file.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ src/Url/file.c
-
-build/url.http.o : src/Url/http.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ src/Url/http.c
 
 build/cgi.o : src/cgi.c src/cgi.h
 	$(CC) $(CFLAGS) -c -o $@ src/cgi.c

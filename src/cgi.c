@@ -32,7 +32,6 @@
 #include "util.h"
 #include "cgi.h"
 #include "errors.h"
-#include "url.h"
 
 /**************************************************************************/
 
@@ -411,4 +410,93 @@ static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[size + 1];
 }
+
+/*********************************************************************/
+
+char *UrlEncodeString(const char *src)
+{
+  size_t  nsize;
+  char	 *dest;
+  char	 *p;
+
+  assert(src != NULL);
+
+  nsize = strlen(src) * 3 + 1;
+  dest	= malloc(nsize);
+
+  for ( p = dest ; *src ; src++)
+    p = UrlEncodeChar(p,*src);
+
+  *p = 0;
+  
+  return dest;
+}
+
+/*********************************************************************/
+
+char *UrlEncodeChar(char *dest,char c)
+{
+  div_t sdiv;
+
+  assert(dest != NULL);
+
+  if (ispunct(c) || iscntrl(c))
+  {
+    if ((c != '-') && (c != '@') && (c != '*') && (c != '_'))
+    {
+      *dest++ = '%';
+      sdiv    = div(c,16);
+      *dest++ = hextoc(sdiv.quot);
+      *dest++ = hextoc(sdiv.rem);
+      return(dest);
+    }
+  }
+  else if (c == ' ')
+    c = '+';
+  *dest++ = c;
+  return(dest);
+}
+
+/*************************************************************************/
+
+char *UrlDecodeString(char *src)
+{
+  char *r;
+  char *t;
+
+  assert(src != NULL);
+
+  for ( r = src , t = src ; *src ; t++)
+    *t = UrlDecodeChar(&src);
+
+  *t = '\0';
+  return(r);
+}
+
+/***********************************************************************/
+
+char UrlDecodeChar(char **psrc)
+{
+  char *src;
+  int	c;
+
+  assert(psrc  != NULL);
+  assert(*psrc != NULL);
+
+  src = *psrc;
+  c   = *src++;
+  if (c == '+')
+    c = ' ';
+  else if (c == '%')
+  {
+    assert(isxdigit(*src));
+    assert(isxdigit(*(src+1)));
+    c	 = ctohex(*src) * 16 + ctohex(*(src+1));
+    src += 2;
+  }
+  *psrc = src;
+  return(c);
+}
+
+/**************************************************************************/
 
