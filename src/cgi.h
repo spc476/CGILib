@@ -24,6 +24,7 @@
 #define CGI_H
 
 #include <stddef.h>
+#include <stdio.h>
 #include "nodelist.h"
 #include "pair.h"
 
@@ -123,7 +124,7 @@ static inline void (CgiOutLocation)(const Cgi cgi,const char *location)
 
 /*--------------------------------------------------------------------*/
 
-int (CgiMethod)(const Cgi cgi)
+static inline int (CgiMethod)(const Cgi cgi)
 {
   assert(cgi != NULL);
   return(cgi->method);
