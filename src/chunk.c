@@ -107,20 +107,16 @@ static void chunk_handle(
                         )
 {
   char  cmdbuf[BUFSIZ];
-  char *cmd;
-  char *p;
   
   assert(in    != NULL);
   assert(out   != NULL);
   assert(pcc   != NULL);
   assert(scc   >  0);
   
-  chunk_readcallback(in,cmdbuf,BUFSIZ);
+  memset(cmdbuf,0,sizeof(cmdbuf));
   
-  for (p = cmdbuf ; (cmd = strtok(p," \t\v\r\n")) != NULL ; p = NULL )
-  {
-    chunk_docallback(out,cmd,pcc,scc,data);
-  }
+  chunk_readcallback(in,cmdbuf,BUFSIZ);
+  chunk_docallback(out,cmdbuf,pcc,scc,data);  
 }
 
 /**************************************************************************/
