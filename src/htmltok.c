@@ -52,7 +52,6 @@ static HToken	 ht_nextcom	(HtmlToken);
 static void	 ht_makepair	(HtmlToken,char *,char *);
 static void	 ht_acc		(HtmlToken,int);
 static char	*ht_accdup	(HtmlToken);
-static char	*entify_char	(char *);
 
 /*************************************************************************/
 
@@ -194,13 +193,7 @@ void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
       if (emptynull_string(pp->value))
         fprintf(out,"\"%s\"",pp->name);
       else
-      {
-        char *value;
-        
-        value = entify_char(pp->value);
-        fprintf(out,"\"%s\"",value);
-        free(value);
-      }
+        fprintf(out,"\"%s\"",pp->value);
     }
   }
   
@@ -254,6 +247,7 @@ static HToken ht_nexttag(HtmlToken token)
 {
   int   c;
   char *t;
+  char *tt;
   int   level;
     
   assert(token != NULL);  
@@ -316,7 +310,9 @@ htnt_gotopt:	ht_acc(token,c);
 		if (c == '=')	goto htnt_voptval;
 		goto htnt_gotopt;
 
-htnt_gotoptd:	ht_makepair(token,up_string(ht_accdup(token)),strdup(""));
+htnt_gotoptd:	t = up_string(ht_accdup(token));
+		ht_makepair(token,t,strdup(""));
+		free(t);
 		goto htnt_done;
 
 	/*------------------------------------------------
@@ -330,7 +326,9 @@ htnt_boptval:	c = fgetc(token->input);
 		if (c == '>')	goto htnt_gotoptd;
 		if (c == '=')	goto htnt_voptval;
 		
-		ht_makepair(token,up_string(ht_accdup(token)),strdup(""));
+		t = up_string(ht_accdup(token));
+		ht_makepair(token,t,strdup(""));
+		free(t);
 		goto htnt_gotopt;
 
 	/*-------------------------------------------------
@@ -358,10 +356,14 @@ htnt_nqval:	ht_acc(token,c);
 		if (c == EOF)	goto htnt_error;
 		if (c == '>')	goto htnt_nqvald;
 		if (!isspace(c)) goto htnt_nqval;
-		ht_makepair(token,t,ht_accdup(token));
+		tt = ht_accdup(token);
+		ht_makepair(token,t,tt);
+		free(tt);
+		free(t);
 		goto htnt_bopts;
 		
 htnt_nqvald:	ht_makepair(token,t,ht_accdup(token));
+		free(t);
 		goto htnt_done;
 		
 	/*------------------------------------------------
@@ -373,7 +375,10 @@ htnt_valsq:	c = fgetc(token->input);
 		if (c == EOF)	goto htnt_error;
 		if (iscntrl(c)) c = ' ';
 		if (c != '\'')	goto htnt_valsq10;
-		ht_makepair(token,t,ht_accdup(token));
+		tt = ht_accdup(token);
+		ht_makepair(token,t,tt);
+		free(tt);
+		free(t);
 		goto htnt_bopts;
 
 	/*------------------------------------------------
@@ -385,7 +390,10 @@ htnt_valdq:	c = fgetc(token->input);
 		if (c == EOF)	goto htnt_error;
 		if (iscntrl(c)) c = ' ';
 		if (c != '"')	goto htnt_valdq10;
-		ht_makepair(token,t,ht_accdup(token));
+		tt = ht_accdup(token);
+		ht_makepair(token,t,tt);
+		free(tt);
+		free(t);
 		goto htnt_bopts;
 		
 	/*-------------------------------------------------
@@ -438,6 +446,7 @@ static void ht_acc(HtmlToken token,int c)
     token->max += 64;
     token->data = realloc(token->data,token->max);
   }
+
   token->data[token->idx++] = c;
 }
 
@@ -458,33 +467,4 @@ static char *ht_accdup(HtmlToken token)
 }
 
 /**********************************************************************/
-
-static char *entify_char(char *s)
-{
-  FILE   *out;
-  char   *text;
-  size_t  size;
-
-  assert(s      != NULL);
-
-  out = open_memstream(&text,&size);
-
-  for ( ; *s ; s++)
-  {
-    switch(*s)
-    {
-      case '<':  fputs("&lt;",  out); break;
-      case '>':  fputs("&gt;",  out); break;
-      case '&':  fputs("&amp;", out); break;
-      case '"':  fputs("&quot;",out); break;
-      case '\'': fputs("&apos;",out); break;
-      default:   fputc(*s,out);       break;
-    }
-  }
-
-  fclose(out);
-  return text;
-}
-
-/***********************************************************************/
 
