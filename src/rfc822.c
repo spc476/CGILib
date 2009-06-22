@@ -49,9 +49,9 @@ char *(RFC822LineRead)(FILE *in)
   {
     if (c == '\n')
     {
-      c = fgetc(in);
-      if ((c == EOF) || (c == '\n') || !isspace(c))
-        ungetc(c,in);
+      int c1 = fgetc(in);
+      if ((c1 == EOF) || (c1 == '\n') || !isspace(c1))
+        ungetc(c1,in);
       else
         c = ' ';
     }
@@ -62,6 +62,7 @@ char *(RFC822LineRead)(FILE *in)
       line = realloc(line,max);
     }
     line[idx++] = c;
+    line[idx]   = '\0';
     
     if (c == '\n') break;
   }
