@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------
 
 DESTLIB=/usr/local/lib
-DESTHEADER=/usr/local/include/cgilib
+DESTHEADER=/usr/local/include/cgilib6
 
 SHELL=/bin/sh
 CC=gcc -Wall -pedantic -std=c99
