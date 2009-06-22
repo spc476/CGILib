@@ -35,14 +35,14 @@ struct chunk_callback
 
 typedef struct chunk
 {
-  char                  *name;
-  struct chunk_callback *cb;
-  size_t                 cbsize;
+  char                        *name;
+  const struct chunk_callback *cb;
+  size_t                       cbsize;
 } *Chunk;
   
 /*********************************************************************/
 
-Chunk	 (ChunkNew)		(const char *,struct chunk_callback *,size_t);
+Chunk	 (ChunkNew)		(const char *,const struct chunk_callback *,size_t);
 int	 (ChunkProcess)		(Chunk,const char *,FILE *,void *);
 int	 (ChunkProcessStream)	(Chunk,FILE *,FILE *,void *);
 int	 (ChunkFree)		(Chunk);

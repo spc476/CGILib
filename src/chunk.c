@@ -33,14 +33,16 @@
 
 /**********************************************************************/
 
-static void chunk_readcallback(FILE *in,char *buff,size_t size)
+static void chunk_readcallback(FILE *in,char *obuff,size_t size)
 {
-  int c;
+  char *buff;
+  int   c;
   
-  assert(in   != NULL);
-  assert(buff != NULL);
-  assert(size >  0);
+  assert(in    != NULL);
+  assert(obuff != NULL);
+  assert(size  >  0);
   
+  buff  = obuff;
   *buff = '\0';
   
   while(size)
@@ -60,6 +62,8 @@ static void chunk_readcallback(FILE *in,char *buff,size_t size)
     *buff   = '\0';
     size--;
   }
+  
+  assert((size_t)(buff - obuff) < size);
   return;
 }
 
@@ -68,7 +72,7 @@ static void chunk_readcallback(FILE *in,char *buff,size_t size)
 static void chunk_docallback(
                               FILE                  *out,
                               char                  *cmd,
-                              struct chunk_callback *pcc,
+                              const struct chunk_callback *pcc,
                               size_t                 scc,
                               void                  *data
                             )
@@ -97,7 +101,7 @@ static void chunk_docallback(
 static void chunk_handle(
 			  FILE                  *in,
 			  FILE                  *out,
-                          struct chunk_callback *pcc,
+                          const struct chunk_callback *pcc,
                           size_t                 scc,
                           void                  *data
                         )
@@ -121,7 +125,7 @@ static void chunk_handle(
 
 /**************************************************************************/
 
-Chunk (ChunkNew)(const char *cname,struct chunk_callback *pcc,size_t scc)
+Chunk (ChunkNew)(const char *cname,const struct chunk_callback *pcc,size_t scc)
 {
   Chunk chunk;
 
