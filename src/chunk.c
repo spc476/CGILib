@@ -82,30 +82,6 @@ static int chunk_search_cmp(const void *needle,const void *haystack)
 
 /*********************************************************************/
 
-static void chunk_docallback(
-                              FILE                  *out,
-                              char                  *cmd,
-                              const struct chunk_callback *pcc,
-                              size_t                 scc,
-                              void                  *data
-                            )
-{
-  const struct chunk_callback *res;
-  
-  assert(out   != NULL);
-  assert(cmd   != NULL);
-  assert(pcc   != NULL);
-  assert(scc   >  0);
-
-  res = bsearch(cmd,pcc,scc,sizeof(struct chunk_callback),chunk_search_cmp);
-  if (res)
-    (*res->callback)(out,data);
-  else
-    fprintf(stderr,"%%{processing error - can't find '%s'}%%",cmd);    
-}
-
-/************************************************************************/
-
 static void chunk_handle(
 			  FILE                  *in,
 			  FILE                  *out,
@@ -114,7 +90,9 @@ static void chunk_handle(
                           void                  *data
                         )
 {
-  char  cmdbuf[BUFSIZ];
+  const struct chunk_callback *res;
+  char                         cmdbuf[BUFSIZ];
+  
   
   assert(in    != NULL);
   assert(out   != NULL);
@@ -122,9 +100,14 @@ static void chunk_handle(
   assert(scc   >  0);
   
   memset(cmdbuf,0,sizeof(cmdbuf));
-  
   chunk_readcallback(in,cmdbuf,BUFSIZ);
-  chunk_docallback(out,cmdbuf,pcc,scc,data);  
+
+  res = bsearch(cmdbuf,pcc,scc,sizeof(struct chunk_callback),chunk_search_cmp);
+
+  if (res)
+    (*res->callback)(out,data);
+  else
+    fprintf(stderr,"%%{processing error - can't find '%s'}%%",cmdbuf);
 }
 
 /**************************************************************************/
