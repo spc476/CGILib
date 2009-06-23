@@ -32,8 +32,6 @@
 #include "rfc822.h"
 #include "pair.h"
 
-#define STRING_DELTA	1024
-
 /***************************************************************************/
 
 char *(RFC822LineRead)(FILE *in)
