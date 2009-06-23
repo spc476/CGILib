@@ -20,38 +20,40 @@
 *
 **********************************************/
 
+#define _GNU_SOURCE 1
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
-#include "ddt.h"
-#include "memory.h"
-#include "stream.h"
-#include "util.h"
 #include "chunk.h"
+#include "errors.h"
 
 /**********************************************************************/
 
-static void chunk_readcallback(Stream in,char *buff,size_t size)
+static void chunk_readcallback(FILE *in,char *obuff,size_t size)
 {
-  int c;
+  char *buff;
+  int   c;
   
-  ddt(in   != NULL);
-  ddt(buff != NULL);
-  ddt(size >  0);
+  assert(in    != NULL);
+  assert(obuff != NULL);
+  assert(size  >  0);
   
+  buff  = obuff;
   *buff = '\0';
   
   while(size)
   {
-    c = StreamRead(in);
-    if (c == IEOF) return;
+    c = fgetc(in);
+    if (c == EOF) return;
     
     if (c == '}')
     {
-      c = StreamRead(in);
-      if (c == IEOF) return;
+      c = fgetc(in);
+      if (c == EOF) return;
       if (c == '%')  return;
       *buff++ = '}';
     }
@@ -60,25 +62,27 @@ static void chunk_readcallback(Stream in,char *buff,size_t size)
     *buff   = '\0';
     size--;
   }
+  
+  assert((size_t)(buff - obuff) < size);
   return;
 }
 
 /**************************************************************************/
 
 static void chunk_docallback(
-                              Stream                 out,
+                              FILE                  *out,
                               char                  *cmd,
-                              struct chunk_callback *pcc,
+                              const struct chunk_callback *pcc,
                               size_t                 scc,
                               void                  *data
                             )
 {
   int i;
 
-  ddt(out   != NULL);
-  ddt(cmd   != NULL);
-  ddt(pcc   != NULL);
-  ddt(scc   >  0);
+  assert(out   != NULL);
+  assert(cmd   != NULL);
+  assert(pcc   != NULL);
+  assert(scc   >  0);
   
   for (i = 0 ; i < scc ; i++)
   {
@@ -88,107 +92,100 @@ static void chunk_docallback(
       return;
     }
   }
-  LineSFormat(out,"$","%%{processing error - can't find [%a] }%%",cmd);
+
+  fprintf(stderr,"%%{processing error - can't find '%s'}%%",cmd);
 }
 
 /************************************************************************/
 
 static void chunk_handle(
-			  Stream                 in,
-			  Stream                 out,
-                          struct chunk_callback *pcc,
+			  FILE                  *in,
+			  FILE                  *out,
+                          const struct chunk_callback *pcc,
                           size_t                 scc,
                           void                  *data
                         )
 {
   char  cmdbuf[BUFSIZ];
-  char *cmd;
-  char *p;
   
-  ddt(in    != NULL);
-  ddt(out   != NULL);
-  ddt(pcc   != NULL);
-  ddt(scc   >  0);
+  assert(in    != NULL);
+  assert(out   != NULL);
+  assert(pcc   != NULL);
+  assert(scc   >  0);
+  
+  memset(cmdbuf,0,sizeof(cmdbuf));
   
   chunk_readcallback(in,cmdbuf,BUFSIZ);
-  
-  for (p = cmdbuf ; (cmd = strtok(p," \t\v\r\n")) != NULL ; p = NULL )
-  {
-    chunk_docallback(out,cmd,pcc,scc,data);
-  }
+  chunk_docallback(out,cmdbuf,pcc,scc,data);  
 }
 
 /**************************************************************************/
 
-int (ChunkNew)(Chunk *pch,const char *cname,struct chunk_callback *pcc,size_t scc)
+Chunk (ChunkNew)(const char *cname,const struct chunk_callback *pcc,size_t scc)
 {
   Chunk chunk;
 
-  ddt(pch   != NULL);
-  ddt(cname != NULL);
-  ddt(pcc   != NULL);
-  ddt(scc   >  0);
+  assert(cname != NULL);
+  assert(pcc   != NULL);
+  assert(scc   >  0);
   
-  chunk         = MemAlloc(sizeof(struct chunk));
-  chunk->name   = dup_string(cname);
+  chunk         = malloc(sizeof(struct chunk));
+  chunk->name   = strdup(cname);
   chunk->cb     = pcc;
   chunk->cbsize = scc;  
-  *pch          = chunk;
   
-  return(ERR_OKAY);
+  return chunk;
 }
 
 /***********************************************************************/
 
-int (ChunkProcess)(Chunk chunk,const char *name,Stream out,void *data)
+int (ChunkProcess)(Chunk chunk,const char *name,FILE *out,void *data)
 {
-  char   fname[FILENAME_LEN];
-  Stream in;
+  char   fname[FILENAME_MAX];
+  FILE  *in;
 
-  ddt(chunk != NULL);
-  ddt(name  != NULL);
-  ddt(out   != NULL);
+  assert(chunk != NULL);
+  assert(name  != NULL);
+  assert(out   != NULL);
     
   sprintf(fname,"%s/%s",chunk->name,name);
   
-  in = FileStreamRead(fname);
+  in = fopen(fname,"r");
   if (in == NULL)
     return(ERR_ERR);
 
   ChunkProcessStream(chunk,in,out,data);
   
-  StreamFree(in);
+  fclose(in);
   return(ERR_OKAY);
 }
 
 /*********************************************************************/
 
-int (ChunkProcessStream)(Chunk chunk,Stream in,Stream out,void *data)
+int (ChunkProcessStream)(Chunk chunk,FILE *in,FILE *out,void *data)
 {
   int c;
   
-  ddt(chunk != NULL);
-  ddt(in    != NULL);
-  ddt(out   != NULL);
+  assert(chunk != NULL);
+  assert(in    != NULL);
+  assert(out   != NULL);
 
-  while(!StreamEOF(in))
+  while(!feof(in))
   {
-    c = StreamRead(in);
-    if (c == IEOF) break;
+    c = fgetc(in);
+    if (c == EOF) break;
     if (c == '%')
     {
-      c = StreamRead(in);
+      c = fgetc(in);
       if (c == '{')
       {
         chunk_handle(in,out,chunk->cb,chunk->cbsize,data);
         continue;
       }
-
-      StreamWrite(out,'%');
-    }
-    StreamWrite(out,c);    
+      fputc('%',out);
+    }    
+    fputc(c,out);
   }
-  
   return(ERR_OKAY);
 }
 
@@ -196,10 +193,10 @@ int (ChunkProcessStream)(Chunk chunk,Stream in,Stream out,void *data)
 
 int (ChunkFree)(Chunk chunk)
 {
-  ddt(chunk != NULL);
+  assert(chunk != NULL);
   
-  MemFree(chunk->name);
-  MemFree(chunk);
+  free(chunk->name);
+  free(chunk);
   return(ERR_OKAY);
 }
 

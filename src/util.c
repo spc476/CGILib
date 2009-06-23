@@ -23,38 +23,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <stdarg.h>
+#include <assert.h>
 
-#include "types.h"
 #include "util.h"
-#include "memory.h"
-#include "rawfmt.h"
-#include "ddt.h"
 
 /***************************************************************************/
-
-char *spc_getenv(const char *env)
-{
-  const char *p;
-  char       *ret;
-  
-  ddt(env != NULL);
-  
-  p = getenv(env);
-  if (p == NULL)
-    p = "";
-
-  ret = dup_string(p);  
-  return(ret);
-}
-
-/************************************************************************/
 
 char *up_string(char *s)
 {
   char *r = s;
   
-  ddt(s != NULL);
+  assert(s != NULL);
   
   for ( ; *s ; s++)
     *s = toupper(*s);
@@ -67,7 +46,7 @@ char *down_string(char *s)
 {
   char *r = s;
   
-  ddt(s != NULL);
+  assert(s != NULL);
   
   for ( ; *s ; s++)
     *s = tolower(*s);
@@ -76,92 +55,14 @@ char *down_string(char *s)
 
 /*************************************************************************/
 
-char *dup_string(const char *s)
+bool empty_string(const char *s)
 {
-  char   *r;
-  size_t  sz;
-  
-  ddt(s != NULL);
-
-  sz = strlen(s) + 1;
-  r  = MemAlloc(sz);
-  memcpy(r,s,sz);
-  return(r);  
-}
-
-/***************************************************************************/
-
-char *dup_stringn(const char *s,size_t n)
-{
-  char *r;
-  
-  r = MemAlloc(n + 1);
-  memcpy(r,s,n);
-  r[n - 1] = '\0';
-  return(r);
-}
-
-/*************************************************************************/
-
-char *concat_strings(const char *str1, ... )
-{
-  va_list     parms;
-  char       *str;
-  const char *s;
-  char       *nstr;
-  size_t      sz;
-  size_t      nsz;
-            
-  ddt(str1 != NULL);
-              
-  va_start(parms,str1);
-
-  for (
-        str = NULL , s = str1 , sz = 0 ;
-        s != (char *)NULL ;
-        s = va_arg(parms,char *)
-      )
-  {
-    nsz  = strlen(s);
-    nstr = MemResize(str,sz + nsz + 1);
-    memcpy(&nstr[sz],s,nsz);
-    sz       += nsz;
-    nstr[sz]  = '\0';
-    str       = nstr;
-  }
-  
-  va_end(parms);
-  return(str);
-}
-
-/**************************************************************************/
-
-int empty_string(const char *s)
-{
-  ddt(s != NULL);
+  assert(s != NULL);
   
   for ( ; *s ; s++)
-  {
-    if (!isspace(*s)) return(FALSE);
-  }
-  return(TRUE);
-}
+    if (!isspace(*s)) return false;
 
-/*************************************************************************/
-
-int emptynull_string(const char *s)
-{
-  if (s == NULL) return(TRUE);
-  return(empty_string(s));
-}
-
-/************************************************************************/
-
-char *remove_ctrl(char *s)
-{
-  ddt(s != NULL);
-  
-  return (remove_char(s,iscntrl));
+  return true;
 }
 
 /*************************************************************************/
@@ -171,13 +72,12 @@ char *remove_char(char *s,int (*tstchar)(int))
   char *ret = s;
   char *d   = s;
   
-  ddt(s != NULL);
-  ddt(tstchar);		/* can function pointers be compared to NULL? */
+  assert(s != NULL);
+  assert(tstchar);		/* can function pointers be compared to NULL? */
   
   for ( ; *s ; s++)
-  {
     if (!(*tstchar)(*s)) *d++ = *s;
-  }
+
   *d = '\0';
   return(ret);
 }
@@ -188,12 +88,12 @@ char *trim_lspace(char *s)
 {
   char *p;
 
-  ddt(s != NULL);  
+  assert(s != NULL);  
 
   for ( p = s ; (*p) && (isspace(*p)) ; p++)
     ;
   memmove(s,p,strlen(p) + 1);
-  return(s);
+  return s;
 }
 
 /*************************************************************************/
@@ -202,34 +102,26 @@ char *trim_tspace(char *s)
 {
   char *p;
   
-  ddt(s != NULL);
+  assert(s != NULL);
   
   for (p = s + strlen(s) - 1 ; (p > s) && (isspace(*p)) ; p--)
     ;
   *(p+1) = '\0';
-  return(s);
+  return s;
 }
 
 /**************************************************************************/
 
-char *trim_space(char *s)
-{
-  ddt(s != NULL);
-  return(trim_tspace(trim_lspace(s)));
-}
-
-/***************************************************************************/
-
 int ctohex(char c)
 {
-  ddt(isxdigit(c));
+  assert(isxdigit(c));
  
   c = toupper(c); 
   c -= '0';
   if (c > 9) c -= 7;
-  ddt(c >= 0);	/* warning on AIX - apparently chars are unsigned */
-  ddt(c <  16);
-  return(c);
+  assert(c >= 0);	/* warning on AIX - apparently chars are unsigned */
+  assert(c <  16);
+  return c;
 }
 
 /***************************************************************************/
@@ -238,94 +130,43 @@ char hextoc(int i)
 {
   char c;
   
-  ddt(i >= 0);
-  ddt(i <  16);
+  assert(i >= 0);
+  assert(i <  16);
   
   c = i+'0';
   if (c > '9') c += 7;
-  ddt(isxdigit(c));
-  return(c);
+  assert(isxdigit(c));
+  return c;
 }
 
 /**************************************************************************/
 
-char *cat_string(char *dest,const char *src)
-{
-  ddt(dest  != NULL);
-  ddt(src   != NULL);
-  ddt(*dest == '\0');
-
-  for ( ; (*dest = *src) ; dest++ , src++ )
-    ;
-  return(dest);
-}
-
-/**********************************************************************/
-
-struct mystring
-{
-  size_t size;
-  char   *p;
-};
-
-static void fcallback(char c,void *d)
-{
-  ddt(d != NULL);
-  
-  if (((struct mystring *)d)->size)
-  {
-    *(((struct mystring *)d)->p++) = c;
-    *(((struct mystring *)d)->p)   = '\0'; 
-     (((struct mystring *)d)->size)--;
-  }
-}
-
-size_t formatstr(char *dest,size_t dsize,const char *fmt,const char *msg, ... )
-{
-  va_list         list;
-  struct mystring data;
-  size_t          size;
-  
-  ddt(dest  != NULL);
-  ddt(dsize >  0);
-  ddt(fmt   != NULL);
-  ddt(msg   != NULL);
-  
-  va_start(list,msg);
-  data.size = dsize;
-  data.p    = dest;
-  size      = RawDoFmtv(fmt,msg,fcallback,&data,list);
-  va_end(list);
-  return(size);
-}
-
-/************************************************************************/
-
 #define LINESIZE	16
 
-void dump_memory(Stream out,const unsigned char *block,size_t size,size_t offset)
+void dump_memory(FILE *out,const void *data,size_t size,size_t offset)
 {
-  char ascii[LINESIZE + 1];
-  int  skip;
-  int  j;
+  const unsigned char *block = data;
+  char                 ascii[LINESIZE + 1];
+  int                  skip;
+  int                  j;
   
-  ddt(out   != NULL);
-  ddt(block != NULL);
-  ddt(size  >  0);
+  assert(out   != NULL);
+  assert(block != NULL);
+  assert(size  >  0);
   
   while(size > 0)
   {
-    LineSFormat(out,"x8.8l0","%a: ",(unsigned long)offset);
+    fprintf(out,"%08lX: ",(unsigned long)offset);
     
     for (skip = offset % LINESIZE , j = 0 ; skip ; j++ , skip--)
     {
-      LineS(out,"   ");
+      fputs("   ",out);
       ascii[j] = ' ';
     }
     
     do
     {
-      LineSFormat(out,"x2.2l0","%a ",(unsigned long)*block);
+      fprintf(out,"%02x ",*block);
       if (isprint(*block))
         ascii[j] = *block;
       else
@@ -338,14 +179,15 @@ void dump_memory(Stream out,const unsigned char *block,size_t size,size_t offset
     } while((j < LINESIZE) && (size > 0));
     
     ascii[j] = '\0';
+
     if (j < LINESIZE)
     {
       int i;
       
       for (i = j ; i < LINESIZE ; i++)
-        LineS(out,"   ");
+        fputs("   ",out);
     }
-    LineSFormat(out,"$","%a\n",ascii);
+    fprintf(out,"%s\n",ascii);
   }
 }
 

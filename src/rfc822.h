@@ -1,6 +1,6 @@
 /************************************************************************
 *
-* Copyright 2001 by Sean Conner.  All Rights Reserved.
+* Copyright 2009 by Sean Conner.  All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -23,12 +23,11 @@
 #ifndef RFC822_H
 #define RFC822_H
 
-#include "stream.h"
 #include "nodelist.h"
 
-char		*(RFC822LineRead)	(const Stream);
-void		 (RFC822HeadersRead)	(const Stream,const List *);
-size_t		 (RFC822HeadersWrite)	(const Stream,const List *);
-size_t		 (RFC822HeaderWrite)	(const Stream,const char *,const char *);
+char		*(RFC822LineRead)	(FILE *);
+void		 (RFC822HeadersRead)	(FILE *,const List *);
+size_t		 (RFC822HeadersWrite)	(FILE *,const List *);
+size_t		 (RFC822HeaderWrite)	(FILE *,const char *,const char *);
 
 #endif

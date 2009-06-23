@@ -23,6 +23,9 @@
 #ifndef NODELIST_H
 #define NODELIST_H
 
+#include <stdbool.h>
+#include <assert.h>
+
 /*********************************************************************/
 
 typedef struct node
@@ -41,37 +44,74 @@ typedef struct list
 /***********************************************************************/
 
 void		(ListInit)		(List *const);
-void		(ListAddHead)		(List *const,Node *const);
-void		(ListAddTail)		(List *const,Node *const);
-Node           *(ListGetHead)		(List *const);
-Node           *(ListGetTail)		(List *const);
 Node           *(ListRemHead)		(List *const);
 Node           *(ListRemTail)		(List *const);
-int		(ListEmpty)		(List *const);
 
 void		(NodeInsert)		(Node *const,Node *const);
 void		(NodeRemove)		(Node *const);
 Node           *(NodeNext)		(Node *);
 Node           *(NodePrev)		(Node *);
-Node           *(NodeNextW)		(Node *);
-Node           *(NodePrevW)		(Node *);
-int		(NodeValid)		(Node *const);
 
 /************************************************************************/
 
-#ifdef SCREAM
+static inline void ListAddHead(List *const pl,Node *const pn)
+{
+  assert(pl != NULL);
+  assert(pn != NULL);
+  
+  NodeInsert((Node *)&pl->lh_Head,pn);
+}
 
-#  define NodeValid(n)	(n)->ln_Succ ? (n)->ln_Pred ? 1 : 0 : 0 
-#  define NodeNext(n)	((n)->ln_Succ ? (n)->ln_Pred ? (n)->ln_Succ : (n):(n))
-#  define NodePrev(n)	((n)->ln_Succ ? (n)->ln_Pred ? (n)->ln_Pred : (n):(n))
+/*-----------------------------------------------------------------------*/
 
-#  define ListAddHead(l,n)	NodeInsert((Node *)&(l)->lh_Head,(n))
-#  define ListAddTail(l,n)	NodeInsert((l)->lh_TailPred,(n))
-#  define ListGetHead(l)	(l)->lh_Head
-#  define ListGetTail(l)	(l)->lh_TailPred
-#  define ListEmpty(l)		((l)->lh_Head == (Node *)&(l)->lh_Tail)
+static inline void (ListAddTail)(List *const pl,Node *const pn)
+{
+  assert(pl != NULL);
+  assert(pn != NULL);
 
-#endif
-	
+  NodeInsert(pl->lh_TailPred,pn);
+}
+
+/*-----------------------------------------------------------------------*/
+
+static inline Node *(ListGetHead)(List *const pl)
+{
+  assert(pl          != NULL);
+  assert(pl->lh_Head != NULL);
+
+  return(pl->lh_Head);
+}
+
+/*------------------------------------------------------------------------*/
+
+static inline Node *(ListGetTail)(List *const pl)
+{
+  assert(pl              != NULL);
+  assert(pl->lh_TailPred != NULL);
+
+  return(pl->lh_TailPred);
+}
+
+/*------------------------------------------------------------------------*/
+
+static inline bool (ListEmpty)(List *const pl)
+{
+  assert(pl != NULL);
+  return(pl->lh_Head == (Node *)&pl->lh_Tail);
+}
+
+/*-----------------------------------------------------------------------*/
+
+static inline bool (NodeValid)(Node *const pn)
+{
+  assert(pn != NULL);
+
+  if (pn->ln_Succ == NULL) return(0);
+  if (pn->ln_Pred == NULL) return(0);
+  return(1);
+}
+
+/*----------------------------------------------------------------------*/
+
 #endif
 

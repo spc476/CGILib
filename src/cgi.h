@@ -24,15 +24,19 @@
 #define CGI_H
 
 #include <stddef.h>
-
-#include "types.h"
+#include <stdio.h>
 #include "nodelist.h"
 #include "pair.h"
-#include "stream.h"
-#include "errors.h"
-#include "http.h"
 
 /*******************************************************************/
+
+enum
+{
+  GET,
+  POST,
+  HEAD,
+  PUT
+};
 
 typedef struct cgi
 {
@@ -46,52 +50,114 @@ typedef struct cgi
   int     method;
 } *Cgi;
 
-typedef struct cgi *Cookie;
+struct dstring
+{
+  const char *s1;
+  const char *s2;
+};
 
 /************************************************************************/
 
-int		 (CgiNew)		(Cgi *,void *);
-void		 (CgiGetRawData)	(const Cgi,char **,size_t *);
+Cgi		 (CgiNew)		(void *);
 void		 (CgiListMake)		(const Cgi);
-void		 (CgiOutText)		(const Cgi);
-void		 (CgiOutHtml)		(const Cgi);
-void		 (CgiOutShtml)		(const Cgi);
-void		 (CgiOutLocation)	(const Cgi,const char *);
-int		 (CgiMethod)		(const Cgi);
-char		*(CgiEnvGet)		(const Cgi,const char *);
 struct pair	*(CgiNextValue)		(const Cgi);
-struct pair	*(CgiListFirst)		(const Cgi);
-struct pair	*(CgiListGetPair)	(const Cgi,const char *);
-char		*(CgiListGetValue)	(const Cgi,const char *);
 size_t	 	 (CgiListGetValues)	(const Cgi,char ***,const char *);	/* added */
 int		 (CgiListRequired)	(const Cgi,struct dstring *,size_t);
-int		 (CgiFree)		(Cgi *);
+int		 (CgiFree)		(Cgi);
 
-int		 (CookieNew)		(Cookie *,const Cgi);
-void		 (CookieListMake)	(const Cookie);
-struct pair	*(CookieNextValue)	(const Cookie);
-struct pair	*(CookieListFirst)	(const Cookie);
-struct pair	*(CookieListGetPair)	(const Cookie,const char *);
-char		*(CookieListGetValue)	(const Cookie,const char *);
-int		 (CookieFree)		(Cookie *);
+char		*(UrlEncodeString)	(const char *);
+char		*(UrlEncodeChar)	(char *,char);
+char		*(UrlDecodeString)	(char *);
+char		 (UrlDecodeChar)	(char **);
+
+/********************************************************************/
+
+static inline void (CgiGetRawData)(const Cgi cgi,char **pdest,size_t *psize)
+{
+  assert(cgi   != NULL);
+  assert(pdest != NULL);
+  assert(psize != NULL);
   
-#  ifdef SCREAM
-#    define CgiGetRawData(c,pp,ps)	*(pp) = (c)->buffer ; 	\
-					*(ps) = (c)->bufsize
-#    define CgiOutText(c)		CgiOutHtml((c))
-#    define CgiMethod(c)		(c)->method
-#    define CgiOutLocation(c,s)		BufferFormatWrite((c)->buffer,"$","Location: %a\n\n",(s))
-#    define CgiListFirst(c)		PairListFirst(&(c)->vars)
-#    define CgiListGetPair(c,n)		PairListGetPair(&(c)->vars,(n))
-#    define CgiListGetValue(c,n)	PairListGetValue(&(c)->vars,(n))
-#    define CookieNextValue(c)		CgiNextValue(((Cgi)c))
-#    define CookieListMake(c)		CgiListMake(((Cgi)c))
-#    define CookieListFirst(c)		PairListFirst(&(c)->vars)
-#    define CookieListGetPair(c)	PairListGetPair(&(c)->vars,(n))
-#    define CookieListGetValue(c)	PairListGetValue(&(c)->vars,(n))
-#  endif
+  *pdest = cgi->buffer;
+  *psize = cgi->bufsize;
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutHtml)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/html\n\n";
+  
+  assert(cgi != NULL);
+  fputs(msg,stdout);
+}
+
+/*----------------------------------------------------------------------*/
+
+static inline void (CgiOutText)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/plain\n\n";
+
+  assert(cgi != NULL);  
+  fputs(msg,stdout);
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutShtml)(const Cgi cgi)
+{
+  static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
+  
+  assert(cgi != NULL);
+  fputs(msg,stdout);
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline void (CgiOutLocation)(const Cgi cgi,const char *location)
+{
+  assert(cgi      != NULL);
+  assert(location != NULL);
+  
+  fprintf(stdout,"Location: %s\n\n",location);
+}
+
+/*--------------------------------------------------------------------*/
+
+static inline int (CgiMethod)(const Cgi cgi)
+{
+  assert(cgi != NULL);
+  return(cgi->method);
+}
+
+/*------------------------------------------------------------------*/
+
+static inline struct pair *(CgiListFirst)(const Cgi cgi)
+{
+  assert(cgi != NULL);
+  return(PairListFirst(&cgi->vars));
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline struct pair *(CgiListGetPair)(const Cgi cgi,const char *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return(PairListGetPair(&cgi->vars,name));
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline char *(CgiListGetValue)(const Cgi cgi,const char *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return(PairListGetValue(&cgi->vars,name));
+}
+
+/***********************************************************************/
 
 #endif
 
-/*******************************************************************/
 

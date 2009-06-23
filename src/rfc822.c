@@ -1,6 +1,6 @@
 /************************************************************************
 *
-* Copyright 2001 by Sean Conner.  All Rights Reserved.
+* Copyright 2009 by Sean Conner.  All Rights Reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -20,111 +20,72 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE 1
+
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "nodelist.h"
-#include "memory.h"
-#include "stream.h"
 #include "util.h"
 #include "rfc822.h"
 #include "pair.h"
-#include "ddt.h"
 
 #define STRING_DELTA	1024
 
 /***************************************************************************/
 
-char *(RFC822LineRead)(const Stream in)
+char *(RFC822LineRead)(FILE *in)
 {
-  size_t  tbuffsize = 0;
-  size_t  size      = 0;
-  char   *tbuff     = NULL;
-  char   *ret;
+  char   *line = NULL;
+  size_t  max  = 0;
+  size_t  idx  = 0;
   int     c;
   
-  ddt(in != NULL);
+  assert(in != NULL);
   
-  while(!StreamEOF(in))
+  while((c = fgetc(in)) != EOF)
   {
-    if (size == tbuffsize)
-    {
-      tbuffsize += STRING_DELTA;
-      tbuff      = MemResize(tbuff,tbuffsize);
-    }
-    
-    c = Line_ReadChar(in);
     if (c == '\n')
     {
-      c = Line_ReadChar(in);
-      
-      /*---------------------------------------
-      ; if it's another line feed or a non-space
-      ; character, we're done reading this line
-      ;----------------------------------------*/
-      
-      if ((c == '\n') || !isspace(c))
-      {
-        StreamUnRead(in,c);
-        break;
-      }
-
-      /* ----------------------------------
-      ; discard white space
-      ;-----------------------------------*/
-
-      /*---------------------------------------------
-      ; BUG is here---basically, if we hit a section of
-      ; a header formatted like:
-      ;
-      ;		Random-J-Header: blah blah blah
-      ;		_
-      ;		body of text ...
-      ;
-      ; (that is, the blank line after the headers contains just
-      ; white space, which, being white, is hard to see) then the lines
-      ; in the following body are sucked up as part of the Random-J-Header
-      ; line, which can cause problems later down the line.
-      ;
-      ; Need to fix this.
-      ;------------------------------------------------*/
-      
-      while(isspace(c))
-        c = Line_ReadChar(in);
-
-      /*-----------------------------------
-      ; save the first-nonspace character,
-      ; but continue with at least one space
-      ; character---in effect, turning the '\n'
-      ; into a space character.
-      ;-------------------------------------*/
-      
-      StreamUnRead(in,c);
-      c = ' ';
-    }    
-    tbuff[size++] = c;
-  }
-
-  if (tbuff == NULL)
-    return(NULL);
-  
-  tbuff[size] = '\0';
-  ret         = (!empty_string(tbuff)) ? dup_string(tbuff) : NULL ;
+      int c1 = fgetc(in);
+      if ((c1 == EOF) || (c1 == '\n') || !isspace(c1))
+        ungetc(c1,in);
+      else
+        c = ' ';
+    }
     
-  MemFree(tbuff);
-  return(ret);
+    if (idx == max)
+    {
+      max += 80;
+      line = realloc(line,max);
+    }
+    line[idx++] = c;
+    line[idx]   = '\0';
+    
+    if (c == '\n') break;
+  }
+  
+  if ((line != NULL) && (*line == '\n'))
+  {
+    free(line);
+    line = NULL;
+  }
+  
+  return line;
 }
 
 /***************************************************************************/
 
-void (RFC822HeadersRead)(const Stream in,const List *list)
+void (RFC822HeadersRead)(FILE *in,const List *list)
 {
   char        *line;
   char        *t;
   struct pair *ppair;
   
-  ddt(in   != NULL);
-  ddt(list != NULL);
+  assert(in   != NULL);
+  assert(list != NULL);
   
   while((line = RFC822LineRead(in)) != NULL)
   {
@@ -134,19 +95,19 @@ void (RFC822HeadersRead)(const Stream in,const List *list)
     ppair->value = trim_space(ppair->value);
     up_string(ppair->name);
     ListAddTail((List *)list,&ppair->node);
-    MemFree(line);
+    free(line);
   }  
 }
 
 /*************************************************************************/
 
-size_t (RFC822HeadersWrite)(const Stream out,const List *list)
+size_t (RFC822HeadersWrite)(FILE *out,const List *list)
 {
   struct pair *ppair;
   size_t       size;
 
-  ddt(out  != NULL);
-  ddt(list != NULL);
+  assert(out  != NULL);
+  assert(list != NULL);
   
   for
   (
@@ -162,26 +123,26 @@ size_t (RFC822HeadersWrite)(const Stream out,const List *list)
 
 /*************************************************************************/
 
-size_t (RFC822HeaderWrite)(const Stream out,const char *name,const char *value)
+size_t (RFC822HeaderWrite)(FILE *out,const char *name,const char *value)
 {
-  int    (*conv)(int);
-  size_t   size;
-  char    *n;
-  char    *t;
+  int        (*conv)(int);
+  size_t       size;
+  char         n[strlen(name) + 1];
+  const char  *s;
+  char        *d;
   
-  ddt(out   != NULL);
-  ddt(name  != NULL);
-  ddt(value != NULL);
+  assert(out   != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
   
-  n = dup_string(name);
-  for (conv = (toupper) , t = n ; *t ; t++)
+  for (conv = (toupper) , s = name , d = n ; ; s++ , d++)
   {
-    *t = (*conv)(*t);
-    conv = isalpha(*t) ? (tolower) : (toupper);
+    *d   = (*conv)(*s);
+    conv = isalpha(*d) ? (tolower) : (toupper);
+    if (*d == '\0') break;
   }
   
-  size = LineSFormat(out,"$ $","%a: %b\n",n,value);
-  MemFree(n);
+  size = fprintf(out,"%s: %s\n",n,value);
   return(size);
 }
 

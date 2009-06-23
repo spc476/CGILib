@@ -21,15 +21,15 @@
 *************************************************************************/
 
 #include <stddef.h>
-#include <stdlib.h>
+#include <assert.h>
+
 #include "nodelist.h"
-#include "ddt.h"
 
 /*********************************************************************/
 
 void (ListInit)(List *const pl)
 {
-  ddt(pl != NULL);
+  assert(pl != NULL);
 
   pl->lh_Head	  = (Node *)&pl->lh_Tail;
   pl->lh_Tail	  = NULL;
@@ -38,54 +38,14 @@ void (ListInit)(List *const pl)
 
 /*********************************************************************/
 
-void (ListAddHead)(List *const pl,Node *const pn)
-{
-  ddt(pl != NULL);
-  ddt(pn != NULL);
-
-  NodeInsert((Node *)&pl->lh_Head,pn);
-}
-
-/**********************************************************************/
-
-void (ListAddTail)(List *const pl,Node *const pn)
-{
-  ddt(pl != NULL);
-  ddt(pn != NULL);
-
-  NodeInsert(pl->lh_TailPred,pn);
-}
-
-/*********************************************************************/
-
-Node *(ListGetHead)(List *const pl)
-{
-  ddt(pl          != NULL);
-  ddt(pl->lh_Head != NULL);
-
-  return(pl->lh_Head);
-}
-
-/**********************************************************************/
-
-Node *(ListGetTail)(List *const pl)
-{
-  ddt(pl              != NULL);
-  ddt(pl->lh_TailPred != NULL);
-
-  return(pl->lh_TailPred);
-}
-
-/********************************************************************/
-
 Node *(ListRemHead)(List *const pl)
 {
   Node *pn;
 
-  ddt(pl != NULL);
+  assert(pl != NULL);
 
   pn = ListGetHead(pl);
-  ddt(pn != NULL);
+  assert(pn != NULL);
   if (NodeValid(pn)) 
     NodeRemove(pn);
   return(pn);
@@ -97,10 +57,10 @@ Node *(ListRemTail)(List *const pl)
 {
   Node *pn;
 
-  ddt(pl != NULL);
+  assert(pl != NULL);
 
   pn = ListGetTail(pl);
-  ddt(pn != NULL);
+  assert(pn != NULL);
   if (NodeValid(pn))
     NodeRemove(pn);
   return(pn);
@@ -108,20 +68,12 @@ Node *(ListRemTail)(List *const pl)
 
 /**********************************************************************/
 
-int (ListEmpty)(List *const pl)
-{
-  ddt(pl != NULL);
-  return(pl->lh_Head == (Node *)&pl->lh_Tail);
-}
-
-/***********************************************************************/
-
 void (NodeInsert)(Node *const pn,Node *const pntoa)
 {
   Node *pnn;
 
-  ddt(pn    != NULL);
-  ddt(pntoa != NULL);
+  assert(pn    != NULL);
+  assert(pntoa != NULL);
 
   pnn            = pn->ln_Succ;
   pntoa->ln_Succ = pnn;
@@ -137,9 +89,9 @@ void (NodeRemove)(Node *const pn)
   Node *pns;
   Node *pnp;
 
-  ddt(pn          != NULL);
-  ddt(pn->ln_Succ != NULL);
-  ddt(pn->ln_Pred != NULL);
+  assert(pn          != NULL);
+  assert(pn->ln_Succ != NULL);
+  assert(pn->ln_Pred != NULL);
 
   pns = pn->ln_Succ;
   pnp = pn->ln_Pred;
@@ -152,7 +104,7 @@ void (NodeRemove)(Node *const pn)
 
 Node *(NodeNext)(Node *pn)
 {
-  ddt(pn != NULL);
+  assert(pn != NULL);
 
   if (NodeValid(pn))
     pn = pn->ln_Succ;
@@ -163,7 +115,7 @@ Node *(NodeNext)(Node *pn)
 
 Node *(NodePrev)(Node *pn)
 {
-  ddt(pn != NULL);
+  assert(pn != NULL);
 
   if (NodeValid(pn))
     pn = pn->ln_Pred;
@@ -171,49 +123,4 @@ Node *(NodePrev)(Node *pn)
 }
 
 /********************************************************************/
-
-Node *(NodeNextW)(Node *pn)
-{
-  ddt(pn != NULL);
-
-  if (NodeValid(pn))
-  {
-    pn = pn->ln_Succ;
-    if (!NodeValid(pn))
-    {
-      pn = *((Node **)(pn) - 1);
-    }
-  }
-  return(pn);
-}
-
-/********************************************************************/
-
-Node *(NodePrevW)(Node *pn)
-{
-  ddt(pn != NULL);
-
-  if (NodeValid(pn))
-  {
-    pn = pn->ln_Pred;
-    if (!NodeValid(pn))
-    {
-      pn = *((Node **)(pn + 1));
-    }
-  }
-  return(pn);
-}
-
-/*********************************************************************/
-
-int (NodeValid)(Node *const pn)
-{
-  ddt(pn != NULL);
-
-  if (pn->ln_Succ == NULL) return(0);
-  if (pn->ln_Pred == NULL) return(0);
-  return(1);
-}
-
-/**********************************************************************/
 

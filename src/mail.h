@@ -25,7 +25,6 @@
 
 #include <stdio.h>
 
-#include "stream.h"
 #include "nodelist.h"
 
 typedef struct email
@@ -34,10 +33,11 @@ typedef struct email
   const char *to;
   const char *replyto;
   const char *subject;
+  char       *tbody;
+  size_t      bsize;
   time_t      timestamp;
   List        headers;
-  Stream      body;
-  FILE       *pipe;
+  FILE       *body;
 } *Email;
 
 /********************************************************************/
