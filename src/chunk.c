@@ -69,6 +69,19 @@ static void chunk_readcallback(FILE *in,char *obuff,size_t size)
 
 /**************************************************************************/
 
+static int chunk_search_cmp(const void *needle,const void *haystack)
+{
+  const char                  *key  = needle;
+  const struct chunk_callback *hole = haystack;
+  
+  assert(needle   != NULL);
+  assert(haystack != NULL);
+  
+  return strcmp(key,hole->name);
+}
+
+/*********************************************************************/
+
 static void chunk_docallback(
                               FILE                  *out,
                               char                  *cmd,
@@ -77,23 +90,18 @@ static void chunk_docallback(
                               void                  *data
                             )
 {
-  int i;
-
+  const struct chunk_callback *res;
+  
   assert(out   != NULL);
   assert(cmd   != NULL);
   assert(pcc   != NULL);
   assert(scc   >  0);
-  
-  for (i = 0 ; i < scc ; i++)
-  {
-    if (strcmp(cmd,pcc[i].name) == 0)
-    {
-      (*pcc[i].callback)(out,data);
-      return;
-    }
-  }
 
-  fprintf(stderr,"%%{processing error - can't find '%s'}%%",cmd);
+  res = bsearch(cmd,pcc,scc,sizeof(struct chunk_callback),chunk_search_cmp);
+  if (res)
+    (*res->callback)(out,data);
+  else
+    fprintf(stderr,"%%{processing error - can't find '%s'}%%",cmd);    
 }
 
 /************************************************************************/
