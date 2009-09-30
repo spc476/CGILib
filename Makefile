@@ -10,7 +10,7 @@ DESTLIB=/usr/local/lib
 DESTHEADER=/usr/local/include/cgilib6
 
 SHELL=/bin/sh
-CC=gcc -Wall -pedantic -std=c99
+CC=gcc -Wall -pedantic -std=c99 -Wextra
 #CFLAGS=-Wpointer-arith -Wshadow -Wwrite-strings -Wmissing-prototypes -Wcast-qual -Wmissing-declarations -Wnested-externs -Winline -W
 #CFLAGS=-Wtraditional -Wpointer-arith -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Waggregate-return -Wmissing-declarations -Wnested-externs -Winline -W
 #CFLAGS=-O4 -pg -g
