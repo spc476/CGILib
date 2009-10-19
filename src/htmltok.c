@@ -191,7 +191,12 @@ void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
     {
       fprintf(out," %s=",pp->name);
       if (emptynull_string(pp->value))
-        fprintf(out,"\"%s\"",pp->name);
+      {
+        if (strcmp(pp->name,"ALT") != 0)
+          fprintf(out,"\"%s\"",pp->name);
+        else
+          fprintf(out,"\"\"");
+      }
       else
         fprintf(out,"\"%s\"",pp->value);
     }
