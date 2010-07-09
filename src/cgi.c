@@ -134,14 +134,14 @@ static int cgi_new_post(const Cgi cgi)
   if ((content_type == NULL) || (content_length == NULL))
     return ERR_ERR;
 
-  if (strcmp(content_type,"application/x-www-form-urlencoded") != 0)
+  if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
     return(ERR_ERR);
-    
+  
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
     return(ERR_ERR);
-    
+  
   cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
   cgi->bufsize          = length+1;
