@@ -83,7 +83,8 @@ static int cgi_create(Cgi *pcgi,void *data)
 
   assert(pcgi != NULL);
        
-  cgi       = malloc(sizeof(struct cgi));
+  cgi = malloc(sizeof(struct cgi));
+  memset(cgi,0,sizeof(struct cgi));
   cgi->data = data;
   *pcgi     = cgi;
 
