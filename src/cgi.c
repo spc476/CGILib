@@ -118,18 +118,11 @@ static int cgi_new_post(const Cgi cgi)
   size_t  length;
   char   *content_type;
   char   *content_length;
-  size_t  i;
   
   assert(cgi != NULL);
   
   content_type   = getenv("CONTENT_TYPE");
   content_length = getenv("CONTENT_LENGTH");
-  
-  /*-----------------------------------------------------------
-  ; XXX - if we send the ACCEPT-CHARSET attribute of <FORM> then 
-  ; this fails.  We need to check for this and do the intelligent
-  ; thing.  
-  ;-----------------------------------------------------------*/
   
   if ((content_type == NULL) || (content_length == NULL))
     return ERR_ERR;
@@ -147,10 +140,7 @@ static int cgi_new_post(const Cgi cgi)
   cgi->bufsize          = length+1;
   cgi->buffer[length+1] = '&';
 
-  /* XXX --- need a better way of doing this */
-
-  for ( i = 0 ; i < length ; i++)
-    cgi->buffer[i] = fgetc(stdin);
+  fread(cgi->buffer,1,length,stdin);
 
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
