@@ -158,9 +158,8 @@ static llrbnode__t *rotate_right(llrbnode__t *n)
 
 static llrbnode__t *move_red_left(llrbnode__t *n)
 {
-  assert(n               != NULL);
-  assert(n->right        != NULL);
-  assert(n->right->right != NULL);
+  assert(n        != NULL);
+  assert(n->right != NULL);
   
   color_flip(n);
   if (is_red(n->right->left))
