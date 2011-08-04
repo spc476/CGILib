@@ -119,7 +119,7 @@ bool LLRBTreeFind(llrbtree__t *const tree,all__t key,all__t *pvalue)
 void LLRBTreeDelete(llrbtree__t *const tree,all__t key)
 {
   tree->left = delete(tree->left,key,tree->cmp);
-  tree->left->red = false;
+  if (tree->left) tree->left->red = false;
 }
 
 /**************************************************************************/
