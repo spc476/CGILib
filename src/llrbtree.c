@@ -146,7 +146,7 @@ static llrbnode__t *rotate_right(llrbnode__t *n)
   
   assert(n != NULL);
   
-  x             = n->right;
+  x             = n->left;
   n->left       = x->right;
   x->right      = n;
   x->red        = x->right->red;
