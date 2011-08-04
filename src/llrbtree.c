@@ -8,6 +8,7 @@
 
 /**************************************************************************/
 
+static inline bool		 is_red		(const llrbnode__t *const);
 static inline void 		 color_flip	(llrbnode__t *) __attribute__((nonnull,nothrow));
 static inline llrbnode__t	*get_min	(llrbnode__t *) __attribute__((nonnull,nothrow));
 
@@ -39,6 +40,65 @@ static inline void color_flip(llrbnode__t *n)
   n->red        = !n->red;
   n->left->red  = !n->left->red;
   n->right->red = !n->right->red;
+}
+
+/**************************************************************************/
+
+static inline llrbnode__t *get_min(llrbnode__t *n)
+{
+  assert(n != NULL);
+  
+  while(n->left)
+    n = n->left;
+  
+  return n;
+}
+
+/************************************************************************/
+
+void LLRBTreeInsert(llrbtree__t *const tree,all__t key,all__t value)
+{
+  tree->left      = insert(tree->left,key,value,tree->cmp);
+  tree->left->red = false;
+}
+
+/**************************************************************************/
+
+bool LLRBTreeFind(llrbtree__t *const tree,all__t key,all__t *pvalue)
+{
+  llrbnode__t *node;
+  
+  assert(tree   != NULL);
+  assert(pvalue != NULL);
+  
+  node = tree->left;
+  
+  while(node != NULL)
+  {
+    int rc ;
+    
+    rc = (*tree->cmp)(key,node->key);
+    
+    if (rc == 0)
+    {
+      *pvalue = node->value;
+      return true;
+    }
+    else if (rc < 0)
+      node = node->left;
+    else
+      node = node->right;
+  }
+  
+  return false;
+}
+
+/**************************************************************************/
+
+void LLRBTreeDelete(llrbtree__t *const tree,all__t key)
+{
+  tree->left = delete(tree->left,key,tree->cmp);
+  tree->left->red = false;
 }
 
 /**************************************************************************/
@@ -129,14 +189,6 @@ static llrbnode__t *fix_up(llrbnode__t *n)
 
 /**************************************************************************/
 
-void LLRBTreeInsert(llrbtree__t *const tree,all__t key,all__t value)
-{
-  tree->left      = insert(tree->left,key,value,tree->cmp);
-  tree->left->red = false;
-}
-
-/**************************************************************************/
-
 static llrbnode__t *insert(
 	llrbnode__t  *h,
 	all__t        key,
@@ -183,37 +235,6 @@ static llrbnode__t *insert(
 
 /**************************************************************************/
 
-bool LLRBTreeFind(llrbtree__t *const tree,all__t key,all__t *pvalue)
-{
-  llrbnode__t *node;
-  
-  assert(tree   != NULL);
-  assert(pvalue != NULL);
-  
-  node = tree->left;
-  
-  while(node != NULL)
-  {
-    int rc ;
-    
-    rc = (*tree->cmp)(key,node->key);
-    
-    if (rc == 0)
-    {
-      *pvalue = node->value;
-      return true;
-    }
-    else if (rc < 0)
-      node = node->left;
-    else
-      node = node->right;
-  }
-  
-  return false;
-}
-
-/**************************************************************************/
-
 static llrbnode__t *delete_min(llrbnode__t *h)
 {
   assert(h != NULL);
@@ -232,26 +253,6 @@ static llrbnode__t *delete_min(llrbnode__t *h)
 }
 
 /**************************************************************************/
-
-void LLRBTreeDelete(llrbtree__t *const tree,all__t key)
-{
-  tree->left = delete(tree->left,key,tree->cmp);
-  tree->left->red = false;
-}
-
-/**************************************************************************/
-
-static inline llrbnode__t *get_min(llrbnode__t *n)
-{
-  assert(n != NULL);
-  
-  while(n->left)
-    n = n->left;
-  
-  return n;
-}
-
-/************************************************************************/
 
 static llrbnode__t *delete(
 	llrbnode__t  *h,
