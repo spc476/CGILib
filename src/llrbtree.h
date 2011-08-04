@@ -13,7 +13,7 @@ typedef union all
   unsigned long      ul;
   long               l;
   unsigned long long ull;
-  long long          l;
+  long long          ll;
   void              *p;
 } all__t;
 

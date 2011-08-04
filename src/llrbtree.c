@@ -1,5 +1,6 @@
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
 
@@ -15,16 +16,16 @@ static llrbnode__t	*rotate_right	(llrbnode__t *) __attribute__((nonnull,nothrow)
 static llrbnode__t	*move_red_left	(llrbnode__t *) __attribute__((nonnull,nothrow));
 static llrbnode__t	*move_red_right	(llrbnode__t *) __attribute__((nonnull,nothrow));
 static llrbnode__t	*fix_up		(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*insert		(llrbbode__t *,all__t,all__t,int (*)(all__t,all__t)) __attribute__((nonnull(4),nothrow));
+static llrbnode__t	*insert		(llrbnode__t *,all__t,all__t,int (*)(all__t,all__t)) __attribute__((nonnull(4),nothrow));
 static llrbnode__t	*delete_min	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*delete		(llrbnode__t *,all__t,int (*)(all__t,all__t)) __attribute__((nonnull(4),nothrow));
+static llrbnode__t	*delete		(llrbnode__t *,all__t,int (*)(all__t,all__t)) __attribute__((nonnull(3),nothrow));
 
 /**************************************************************************/
 
 static inline bool is_red(const llrbnode__t *const n)
 {
   if (n == NULL) return false;
-  return n.red;
+  return n->red;
 }
 
 /**************************************************************************/
@@ -58,7 +59,7 @@ static llrbnode__t *rotate_left(llrbnode__t *n)
 
 /**************************************************************************/
 
-static llrbnode__t *rotate_right(llrbnode__ t *n)
+static llrbnode__t *rotate_right(llrbnode__t *n)
 {
   llrbnode__t *x;
   
@@ -160,8 +161,8 @@ static llrbnode__t *insert(
     return h;
   }
   
-  if (is_red(h->left) and is_red(h->right))
-    colorflip(h);
+  if (is_red(h->left) && is_red(h->right))
+    color_flip(h);
   
   int rc = (*cmp)(key,h->key);
   if (rc < 0)
@@ -193,7 +194,10 @@ bool LLRBTreeFind(llrbtree__t *const tree,all__t key,all__t *pvalue)
   
   while(node != NULL)
   {
+    int rc ;
+    
     rc = (*tree->cmp)(key,node->key);
+    
     if (rc == 0)
     {
       *pvalue = node->value;
