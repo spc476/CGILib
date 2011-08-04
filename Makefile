@@ -33,7 +33,8 @@ OFILES=build/nodelist.o 		\
 	build/rfc822.o			\
 	build/htmltok.o			\
 	build/mail.o			\
-	build/chunk.o
+	build/chunk.o			\
+	build/llrbtree.o
 
 $(TARGET) : $(OFILES)
 	$(AR) $(TARGET) $(OFILES)
@@ -66,6 +67,9 @@ build/mail.o : src/mail.c src/mail.h
 
 build/chunk.o : src/chunk.c src/chunk.h
 	$(CC) $(CFLAGS) -c -o $@ src/chunk.c
+
+build/llrbtree.o : src/llrbtree.c src/llrbtree.h
+	$(CC) $(CFLAGS) -c -o $@ src/llrbtree.c
 
 debug:
 	make -f make.debug
