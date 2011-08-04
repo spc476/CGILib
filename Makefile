@@ -18,6 +18,7 @@ CC=gcc -Wall -pedantic -std=c99 -Wextra
 #CFLAGS=-O3 -fomit-frame-pointer
 #CFLAGS=-march=pentium4 -O3 -fomit-frame-pointer
 #CFLAGS=-march=pentium4 -Os -fomit-frame-pointer
+#CFLAGS=-march=pentium4 -Os -fomit-frame-pointer -DNDEBUG
 #CFLAGS=-Os -fomit-frame-pointer -DNDEBUG
 CFLAGS=-g
 #CFLAGS=-g -pg
