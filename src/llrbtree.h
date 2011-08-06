@@ -51,6 +51,7 @@ typedef struct llrbtree
 {
   struct llrbnode  *left;
   int             (*cmp)(all__t,all__t);
+  void            (*del)(all__t,all__t);
 } llrbtree__t;
 
 /**************************************************************************/
