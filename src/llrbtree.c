@@ -29,22 +29,22 @@
 
 /**************************************************************************/
 
-static inline bool		 is_red		(const llrbnode__t *const);
-static inline void 		 color_flip	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static inline llrbnode__t	*get_min	(llrbnode__t *) __attribute__((nonnull,nothrow));
+static inline bool		 is_red		(llrbnode__t *);
+static inline void 		 color_flip	(llrbnode__t *);
+static inline llrbnode__t	*get_min	(llrbnode__t *);
 
-static llrbnode__t	*rotate_left	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*rotate_right	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*move_red_left	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*move_red_right	(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*fix_up		(llrbnode__t *) __attribute__((nonnull,nothrow));
-static llrbnode__t	*insert		(llrbnode__t *,all__t,all__t,int (*)(all__t,all__t)) __attribute__((nonnull(4),nothrow));
-static llrbnode__t	*delete_min	(llrbnode__t *,void (*)(all__t,all__t)) __attribute__((nonnull,nothrow));
-static llrbnode__t	*delete		(llrbnode__t *,all__t,int (*)(all__t,all__t),void (*)(all__t,all__t)) __attribute__((nonnull(3,4),nothrow));
+static llrbnode__t	*rotate_left	(llrbnode__t *);
+static llrbnode__t	*rotate_right	(llrbnode__t *);
+static llrbnode__t	*move_red_left	(llrbnode__t *);
+static llrbnode__t	*move_red_right	(llrbnode__t *);
+static llrbnode__t	*fix_up		(llrbnode__t *);
+static llrbnode__t	*insert		(llrbtree__t *,llrbnode__t *,void *,llrbnode__t *);
+static llrbnode__t	*delete_min	(llrbnode__t *,void (*)(void *));
+static llrbnode__t	*delete		(llrbtree__t *,llrbnode__t *,void *);
 
 /**************************************************************************/
 
-static inline bool is_red(const llrbnode__t *const n)
+static inline bool is_red(llrbnode__t *n)
 {
   if (n == NULL) return false;
   return n->red;
@@ -77,48 +77,60 @@ static inline llrbnode__t *get_min(llrbnode__t *n)
 
 /************************************************************************/
 
-void LLRBTreeInsert(llrbtree__t *const tree,all__t key,all__t value)
+void LLRBTreeInsert(
+	llrbtree__t *tree,
+	void        *key,
+	llrbnode__t *node
+)
 {
-  tree->left      = insert(tree->left,key,value,tree->cmp);
+  assert(tree != NULL);
+  assert(key  != NULL);
+  assert(node != NULL);
+  
+  tree->left      = insert(tree,tree->left,key,node);
   tree->left->red = false;
 }
 
 /**************************************************************************/
 
-bool LLRBTreeFind(llrbtree__t *const tree,all__t key,all__t *pvalue)
+void *LLRBTreeFind(
+	llrbtree__t *tree,
+	void        *key
+)
 {
   llrbnode__t *node;
   
-  assert(tree   != NULL);
-  assert(pvalue != NULL);
-  
+  assert(tree != NULL);
+  assert(key  != NULL);
+
   node = tree->left;
   
   while(node != NULL)
   {
-    int rc ;
+    int rc = (*tree->cmp)(key,node);
     
-    rc = (*tree->cmp)(key,node->key);
-    
-    if (rc == 0)
-    {
-      *pvalue = node->value;
-      return true;
-    }
-    else if (rc < 0)
+    if (rc < 0)
       node = node->left;
+    else if (rc == 0)
+      return node;
     else
       node = node->right;
   }
   
-  return false;
+  return NULL;
 }
 
 /**************************************************************************/
 
-void LLRBTreeDelete(llrbtree__t *const tree,all__t key)
+void LLRBTreeDelete(
+	llrbtree__t *tree,
+	void        *key
+)
 {
-  tree->left = delete(tree->left,key,tree->cmp,tree->del);
+  assert(tree != NULL);
+  assert(key  != NULL);
+  
+  tree->left = delete(tree,tree->left,key);
   if (tree->left) tree->left->red = false;
 }
 
@@ -210,39 +222,34 @@ static llrbnode__t *fix_up(llrbnode__t *n)
 /**************************************************************************/
 
 static llrbnode__t *insert(
-	llrbnode__t  *h,
-	all__t        key,
-	all__t        value,
-	int         (*cmp)(all__t,all__t)
+	llrbtree__t *tree,
+	llrbnode__t *h,
+	void        *key,
+	llrbnode__t *node
 )
 {
-  assert(cmp);
+  assert(tree != NULL);
+  assert(key  != NULL);
+  assert(node != NULL);
   
   if (h == NULL)
   {
-    h = malloc(sizeof(llrbnode__t));
-    if (h == NULL)
-      return NULL;
-    
-    h->left  = NULL;
-    h->right = NULL;
-    h->key   = key;
-    h->value = value;
-    h->red   = true;
-    
-    return h;
+    node->left  = NULL;
+    node->right = NULL;
+    node->red   = true;
+    return node;
   }
   
   if (is_red(h->left) && is_red(h->right))
     color_flip(h);
   
-  int rc = (*cmp)(key,h->key);
+  int rc = (*tree->cmp)(key,h);
   if (rc < 0)
-    h->left = insert(h->left,key,value,cmp);
+    h->left = insert(tree,h->left,key,node);
   else if (rc == 0)
-    h->value = value;
+    (*tree->upd)(h,key);
   else
-    h->right = insert(h->right,key,value,cmp);
+    h->right = insert(tree,h->right,key,node);
   
   if (is_red(h->right))
     h = rotate_left(h);
@@ -255,15 +262,15 @@ static llrbnode__t *insert(
 
 /**************************************************************************/
 
-static llrbnode__t *delete_min(llrbnode__t *h,void (*del)(all__t,all__t))
+static llrbnode__t *delete_min(llrbnode__t *h,void (*del)(void *))
 {
   assert(h != NULL);
   assert(del);
   
   if (h->left == NULL)
   {
-    (*del)(h->key,h->value);
-    free(h);
+    assert(h->right == NULL);
+    (*del)(h);
     return NULL;
   }
   
@@ -276,43 +283,40 @@ static llrbnode__t *delete_min(llrbnode__t *h,void (*del)(all__t,all__t))
 
 /**************************************************************************/
 
-static llrbnode__t *delete(
-	llrbnode__t  *h,
-	all__t        key,
-	int         (*cmp)(all__t,all__t),
-	void        (*del)(all__t,all__t)
-)
+static llrbnode__t *delete(llrbtree__t *tree,llrbnode__t *h,void *key)
 {
-  if ((*cmp)(key,h->key) < 0)
+  assert(tree != NULL);
+  assert(h    != NULL);
+  assert(key  != NULL);
+  
+  if ((*tree->cmp)(key,h) < 0)
   {
     if (!is_red(h->left) && !is_red(h->left->left))
       h = move_red_left(h);
-    h->left = delete(h->left,key,cmp,del);
+    h->left = delete(tree,h->left,key);
   }
   else
   {
     if (is_red(h->left))
       h = rotate_right(h);
     
-    if (((*cmp)(key,h->key) == 0) && (h->right == NULL))
+    if (((*tree->cmp)(key,h) == 0) && (h->right == NULL))
     {
-      (*del)(h->key,h->value);
-      free(h);
+      (*tree->del)(h);
       return NULL;
     }
     
     if (!is_red(h->right) && !is_red(h->right->left))
       h = move_red_right(h);
     
-    if ((*cmp)(key,h->key) == 0)
+    if ((*tree->cmp)(key,h) == 0)
     {
       llrbnode__t *m = get_min(h->right);
-      h->value = m->value;
-      h->key   = m->key;
-      h->right = delete_min(h->right,del);
+      (*tree->upd)(h,m);
+      h->right       = delete_min(h->right,tree->del);
     }
     else
-      h->right = delete(h->right,key,cmp,del);
+      h->right = delete(tree,h->right,key);
   }
   
   return fix_up(h);
