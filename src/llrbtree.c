@@ -304,7 +304,7 @@ static llrbnode__t *delete(
     if (!is_red(h->right) && !is_red(h->right->left))
       h = move_red_right(h);
     
-    if ((*cmp)(key,h->value) == 0)
+    if ((*cmp)(key,h->key) == 0)
     {
       llrbnode__t *m = get_min(h->right);
       h->value = m->value;
