@@ -190,7 +190,6 @@ static llrbnode__t *move_red_right(llrbnode__t *n)
 {
   assert(n             != NULL);
   assert(n->left       != NULL);
-  assert(n->left->left != NULL);
   
   color_flip(n);
   if (is_red(n->left->left))
