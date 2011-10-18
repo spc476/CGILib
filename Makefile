@@ -35,7 +35,10 @@ OFILES=build/nodelist.o 		\
 	build/htmltok.o			\
 	build/mail.o			\
 	build/chunk.o			\
-	build/bisearch.o
+	build/bisearch.o		\
+	build/url.o			\
+	build/url.http.o		\
+	build/url.file.o
 
 $(TARGET) : $(OFILES)
 	$(AR) $(TARGET) $(OFILES)
@@ -71,7 +74,16 @@ build/chunk.o : src/chunk.c src/chunk.h
 
 build/bisearch.o : src/bisearch.c src/bisearch.h
 	$(CC) $(CFLAGS) -c -o $@ src/bisearch.c
+
+build/url.o : src/Url/url.c src/url.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 	
+build/url.http.o : src/Url/http.c src/url.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/url.file.o : src/Url/file.c src/url.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 debug:
 	make -f make.debug
 
