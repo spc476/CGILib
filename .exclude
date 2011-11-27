@@ -5,4 +5,5 @@ CVS
 *.o
 *.a
 *~
+misc
 
