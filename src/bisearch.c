@@ -38,7 +38,6 @@ bisearch__t bisearch(
   size_t    len;
   
   assert(key  != NULL);
-  assert(base != NULL);
   assert(size >  0);
   
   first = 0;
@@ -50,6 +49,8 @@ bisearch__t bisearch(
     size_t      half;
     size_t      middle;
     int         q;
+    
+    assert(base != NULL);
     
     half   = len / 2;
     middle = first + half;
