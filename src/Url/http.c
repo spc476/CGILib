@@ -53,7 +53,6 @@ const struct urlvector g_httpvec =
 static int http_new(url__t *restrict url,const char *surl)
 {
   urlhttp__t *hurl = &url->http;
-  long        lport;
   char        tmpbuf[BUFSIZ];
   size_t      tmpsz;
   
@@ -89,6 +88,8 @@ static int http_new(url__t *restrict url,const char *surl)
   tmpsz = UrlGetPort(tmpbuf,BUFSIZ,&surl);
   if (tmpsz)
   {
+    long lport;
+
     errno = 0;
     lport = strtol(tmpbuf,NULL,10);
     if ((errno == ERANGE) && ((lport == LONG_MAX) || (lport == LONG_MIN)))

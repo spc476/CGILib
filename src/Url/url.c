@@ -75,7 +75,6 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
   char       *rd;
-  char	      c;
 
   assert(d      != NULL);
   assert(sd     >  0);
@@ -87,6 +86,8 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
 
   if ((*s == '/') && (*(s+1) == '/'))
   {
+    int c;
+
     s += 2;	/* point past // in URL */
     while(((c = *s) != 0) && (--sd))
     {
@@ -107,7 +108,6 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
   char       *rd;
-  char	      c;
 
   assert(d      != NULL);
   assert(sd     >  0);
@@ -120,7 +120,7 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
   if (*s == ':')
   {
     s++;
-    while(((c = *s) != 0) && (--sd))
+    while (*s && --sd)
     {
       if (!isdigit(*s)) break;
       *d++ = *s++;
