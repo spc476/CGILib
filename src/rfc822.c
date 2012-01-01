@@ -56,8 +56,16 @@ char *(RFC822LineRead)(FILE *in)
     
     if (idx == max)
     {
+      char *n;
+      
       max += 80;
-      line = realloc(line,max);
+      n    = realloc(line,max);
+      if (n == NULL)
+      {
+        free(line);
+        return NULL;
+      }
+      line = n;
     }
     line[idx++] = c;
     line[idx]   = '\0';
