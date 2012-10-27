@@ -6,39 +6,28 @@
 #
 #-------------------------------------------------------------------
 
-DESTLIB=/usr/local/lib
-DESTHEADER=/usr/local/include/cgilib6
+DESTLIB    = /usr/local/lib
+DESTHEADER = /usr/local/include/cgilib6
 
-SHELL=/bin/sh
-CC=gcc -Wall -pedantic -std=c99 -Wextra
-#CFLAGS=-Wpointer-arith -Wshadow -Wwrite-strings -Wmissing-prototypes -Wcast-qual -Wmissing-declarations -Wnested-externs -Winline -W
-#CFLAGS=-Wtraditional -Wpointer-arith -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Waggregate-return -Wmissing-declarations -Wnested-externs -Winline -W
-#CFLAGS=-O4 -pg -g
-#CFLAGS=-O4 -fomit-frame-pointer 
-#CFLAGS=-O3 -fomit-frame-pointer
-#CFLAGS=-march=pentium4 -O3 -fomit-frame-pointer
-#CFLAGS=-march=pentium4 -Os -fomit-frame-pointer
-#CFLAGS=-march=pentium4 -Os -fomit-frame-pointer -DNDEBUG
-#CFLAGS=-Os -fomit-frame-pointer -DNDEBUG
-CFLAGS=-g
-#CFLAGS=-g -pg
-AR=ar cr
-RANLIB=ranlib
+CC     = gcc -std=c99
+CFLAGS = -g -Wall -Wextra -pedantic
+AR     = ar cr
+RANLIB = ranlib
 
-TARGET=build/libcgi6.a
+TARGET = build/libcgi6.a
 
-OFILES=build/nodelist.o 		\
-	build/util.o			\
-	build/pair.o			\
-	build/cgi.o			\
-	build/rfc822.o			\
-	build/htmltok.o			\
-	build/mail.o			\
-	build/chunk.o			\
-	build/bisearch.o		\
-	build/url.o			\
-	build/url.http.o		\
-	build/url.file.o
+OFILES = build/nodelist.o 		\
+	 build/util.o			\
+	 build/pair.o			\
+	 build/cgi.o			\
+	 build/rfc822.o			\
+	 build/htmltok.o		\
+	 build/mail.o			\
+	 build/chunk.o			\
+	 build/bisearch.o		\
+	 build/url.o			\
+	 build/url.http.o		\
+	 build/url.file.o
 
 $(TARGET) : $(OFILES)
 	$(AR) $(TARGET) $(OFILES)
