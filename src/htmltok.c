@@ -29,7 +29,6 @@
 #include <assert.h>
 
 #include "nodelist.h"
-#include "errors.h"
 #include "htmltok.h"
 #include "util.h"
 
@@ -215,7 +214,7 @@ int (HtmlParseFree)(HtmlToken token)
   free(token->data);
   free(token->value);
   free(token);
-  return(ERR_OKAY);
+  return(0);
 }  
 
 /***********************************************************************/

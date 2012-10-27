@@ -29,7 +29,6 @@
 #include <assert.h>
 
 #include "../url.h"
-#include "../errors.h"
 
 /**********************************************************************/
 
@@ -93,9 +92,9 @@ static int http_new(url__t *restrict url,const char *surl)
     errno = 0;
     lport = strtol(tmpbuf,NULL,10);
     if ((errno == ERANGE) && ((lport == LONG_MAX) || (lport == LONG_MIN)))
-      return(ERR_ERR);
+      return(ERANGE);
     if ((lport < 0) || (lport > PORTMAX))
-      return(ERR_ERR);
+      return(EDOM);
     hurl->port = lport;
   }
   else
@@ -136,7 +135,7 @@ static int http_new(url__t *restrict url,const char *surl)
   else
     hurl->fragment = strdup("");
 
-  return(ERR_OKAY);
+  return(0);
 }
 
 /**********************************************************************/

@@ -26,10 +26,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <assert.h>
 
 #include "chunk.h"
-#include "errors.h"
 
 /**********************************************************************/
 
@@ -143,12 +143,12 @@ int (ChunkProcess)(Chunk chunk,const char *name,FILE *out,void *data)
   
   in = fopen(fname,"r");
   if (in == NULL)
-    return(ERR_ERR);
+    return(errno);
 
   ChunkProcessStream(chunk,in,out,data);
   
   fclose(in);
-  return(ERR_OKAY);
+  return(0);
 }
 
 /*********************************************************************/
@@ -177,7 +177,7 @@ int (ChunkProcessStream)(Chunk chunk,FILE *in,FILE *out,void *data)
     }    
     fputc(c,out);
   }
-  return(ERR_OKAY);
+  return(0);
 }
 
 /***********************************************************************/
@@ -188,7 +188,7 @@ int (ChunkFree)(Chunk chunk)
   
   free(chunk->name);
   free(chunk);
-  return(ERR_OKAY);
+  return(0);
 }
 
 /**********************************************************************/

@@ -31,7 +31,6 @@
 
 #include "util.h"
 #include "cgi.h"
-#include "errors.h"
 
 /**************************************************************************/
 
@@ -55,7 +54,7 @@ Cgi (CgiNew)(void *data)
   if (request_method == NULL)
     return NULL;
   
-  if ((rc = cgi_create(&cgi,data)) != ERR_OKAY)
+  if ((rc = cgi_create(&cgi,data)) != 0)
     return NULL;
   
   if (strcmp(request_method,"GET") == 0)
@@ -89,7 +88,7 @@ static int cgi_create(Cgi *pcgi,void *data)
   *pcgi     = cgi;
 
   ListInit(&cgi->vars);
-  return(ERR_OKAY);
+  return(0);
 }
 
 /******************************************************************/
@@ -103,12 +102,12 @@ static int cgi_new_get(const Cgi cgi)
   
   query_string = getenv("QUERY_STRING");
   if (query_string == NULL)
-    return (ERR_ERR);
+    return (ENOMSG);
     
   qs = strlen(query_string);
   cgicookie_new(cgi,query_string,qs);
   cgi->method = GET;
-  return(ERR_OKAY);
+  return(0);
 }
 
 /***************************************************************/
@@ -125,15 +124,15 @@ static int cgi_new_post(const Cgi cgi)
   content_length = getenv("CONTENT_LENGTH");
   
   if ((content_type == NULL) || (content_length == NULL))
-    return ERR_ERR;
+    return ENOMSG;
 
   if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
-    return(ERR_ERR);
+    return(ENOMSG);
   
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return(ERR_ERR);
+    return(ERANGE);
   
   cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
@@ -145,7 +144,7 @@ static int cgi_new_post(const Cgi cgi)
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
   cgi->method  = POST;
-  return(ERR_OKAY);
+  return(0);
 }
 
 /**********************************************************************/
@@ -155,7 +154,7 @@ static int cgi_new_head(const Cgi cgi)
   assert(cgi != NULL);
   
   cgi->method = HEAD;
-  return(ERR_OKAY);
+  return(0);
 }
 
 /***************************************************************/
@@ -168,19 +167,19 @@ static int cgi_new_put(const Cgi cgi)
   content_length = getenv("CONTENT_LENGTH");
 
   if (content_length == NULL)
-    return ERR_ERR;
+    return ENOMSG;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
 
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return(ERR_ERR);
+    return ERANGE;
 
   cgi->bufsize  = length;
   cgi->datatype = getenv("CONTENT_TYPE");
   cgi->method   = PUT;
 
-  return(ERR_OKAY);
+  return 0;
 }
 
 /*************************************************************/
@@ -288,7 +287,7 @@ int (CgiFree)(Cgi cgi)
   free(cgi->buffer);
   PairListFree(&cgi->vars);
   free(cgi);
-  return(ERR_OKAY);
+  return 0;
 }
 
 /***********************************************************************/

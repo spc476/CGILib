@@ -26,12 +26,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 
 #include "util.h"
 #include "rfc822.h"
 #include "pair.h"
 #include "mail.h"
-#include "errors.h"
 
 #define SENDMAIL	"/usr/sbin/sendmail"
 
@@ -74,7 +74,7 @@ int (EmailSend)(Email email)
   sprintf(cmd,SENDMAIL " %s",email->to);
 
   output = popen(cmd,"w");
-  if (output == NULL) return ERR_ERR;
+  if (output == NULL) return errno;
   
   ptm = localtime(&email->timestamp);
   strftime(date,BUFSIZ,"%a, %d %b %Y %H:%M:%S %Z",ptm);
@@ -98,7 +98,7 @@ int (EmailSend)(Email email)
   );
   
   fclose(output);
-  return(ERR_OKAY);  
+  return(0);  
 }
 
 /****************************************************************/
@@ -113,7 +113,7 @@ int (EmailFree)(Email email)
   if (email->to      != m_to)      free((void *)email->to);
   if (email->from    != m_from)    free((void *)email->from);
   free(email);
-  return(ERR_OKAY);
+  return(0);
 }
 
 /*****************************************************************/

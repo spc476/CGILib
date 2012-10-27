@@ -28,7 +28,6 @@
 #include <ctype.h>
 
 #include "../url.h"
-#include "../errors.h"
 
 /**********************************************************************/
 
@@ -178,7 +177,7 @@ url__t *UrlNew(const char *url)
       purl         = calloc(1,g_protos[i].size);
       purl->scheme = g_protos[i].scheme;
       
-      if ((*g_protos[i].puv->new)(purl,turl) == ERR_OKAY)
+      if ((*g_protos[i].puv->new)(purl,turl) == 0)
         return purl;
       
       free(purl);

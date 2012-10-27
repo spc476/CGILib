@@ -25,10 +25,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <assert.h>
 
 #include "../url.h"
-#include "../errors.h"
 
 /**********************************************************************/
 
@@ -67,7 +67,7 @@ static int file_new(url__t *restrict url,const char *surl)
   if (tmpsz)
   {
     if (strcmp(tmpbuf,"localhost") != 0)
-      return(ERR_ERR);
+      return(EINVAL);
   }
   
   /*------------------------------------------------------------
@@ -78,9 +78,9 @@ static int file_new(url__t *restrict url,const char *surl)
   if (tmpsz)
     url->file.path = strdup(tmpbuf);
   else
-    return(ERR_ERR);
+    return(ENOMEM);
     
-  return(ERR_OKAY);
+  return(0);
 }
 
 /**************************************************************************/
