@@ -47,24 +47,23 @@ Cgi (CgiNew)(void *data)
 {
   char *request_method;
   Cgi   cgi;
-  int   rc;
   
   request_method = getenv("REQUEST_METHOD");
   
   if (request_method == NULL)
     return NULL;
   
-  if ((rc = cgi_create(&cgi,data)) != 0)
+  if (cgi_create(&cgi,data) != 0)
     return NULL;
   
   if (strcmp(request_method,"GET") == 0)
-    rc = cgi_new_get(cgi);
+    cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
-    rc = cgi_new_post(cgi);
+    cgi_new_post(cgi);
   else if (strcmp(request_method,"HEAD") == 0)
-    rc = cgi_new_head(cgi);
+    cgi_new_head(cgi);
   else if (strcmp(request_method,"PUT") == 0)
-    rc = cgi_new_put(cgi);
+    cgi_new_put(cgi);
   else
   {
     free(cgi);
