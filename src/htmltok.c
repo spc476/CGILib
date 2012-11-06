@@ -224,7 +224,8 @@ static HToken ht_nextstr(HtmlToken token)
   int c;
   int st = S_EOF;
     
-  assert(token != NULL);
+  assert(token        != NULL);
+  assert(token->input != NULL);
 
   while(!feof(token->input))
   {
