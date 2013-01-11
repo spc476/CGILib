@@ -38,6 +38,7 @@ OFILES = build/nodelist.o 		\
 	 build/mail.o			\
 	 build/chunk.o			\
 	 build/bisearch.o		\
+	 build/crashreport.o		\
 	 build/url.o			\
 	 build/url.http.o		\
 	 build/url.file.o
@@ -76,6 +77,9 @@ build/chunk.o : src/chunk.c src/chunk.h
 
 build/bisearch.o : src/bisearch.c src/bisearch.h
 	$(CC) $(CFLAGS) -c -o $@ src/bisearch.c
+
+build/crashreport.o : src/crashreport.c src/crashreport.h
+	$(CC) $(CFLAGS) -c -o $@ src/crashreport.c
 
 build/url.o : src/Url/url.c src/url.h
 	$(CC) $(CFLAGS) -c -o $@ $<
