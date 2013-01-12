@@ -46,6 +46,7 @@ Cgi (CgiNew)(void *data)
 {
   char *request_method;
   Cgi   cgi;
+  int   rc;
   
   request_method = getenv("REQUEST_METHOD");
   
@@ -56,19 +57,25 @@ Cgi (CgiNew)(void *data)
     return NULL;
   
   if (strcmp(request_method,"GET") == 0)
-    cgi_new_get(cgi);
+    rc = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
-    cgi_new_post(cgi);
+    rc = cgi_new_post(cgi);
   else if (strcmp(request_method,"HEAD") == 0)
-    cgi_new_head(cgi);
+    rc = cgi_new_head(cgi);
   else if (strcmp(request_method,"PUT") == 0)
-    cgi_new_put(cgi);
+    rc = cgi_new_put(cgi);
   else
   {
     free(cgi);
     return NULL;
   }
 
+  if (rc != 0)
+  {
+    free(cgi);
+    return NULL;
+  }
+  
   return cgi;
 }
 
