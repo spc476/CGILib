@@ -398,6 +398,13 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
        cpu->uc_mcontext.gregs[REG_OLDMASK],
        cpu->uc_mcontext.gregs[REG_CR2]
      );
+     
+     crashreport_hexdump(
+     	(void *)cpu->uc_mcontext.gregs[REG_RSP],
+     	256,
+     	(size_t)cpu->uc_mcontext.gregs[REG_RSP]
+     );
+     
 #  endif
   crashreport_backtrace();
 #endif
