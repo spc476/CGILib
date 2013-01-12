@@ -61,7 +61,7 @@ static char **m_envp = NULL;
   ; to be careful about what functions we call.
   ;-------------------------------------------------------------------------*/
   
-  static void crashreport_backtrace(void)
+  static void crashreport_backtrace(unsigned long pid)
   {
     static char  buffer[BUFSIZ];
     static void *report[128];
@@ -75,7 +75,7 @@ static char **m_envp = NULL;
     count = backtrace(report,128);
     if (count == 0)
     {
-      syslog(LOG_ALERT,"CRASH: no backtrace available");
+      syslog(LOG_ALERT,"CRASH(%lu): no backtrace available",pid);
       return;
     }
     
@@ -83,7 +83,7 @@ static char **m_envp = NULL;
     fh = mkstemp(buffer);    
     if (fh < 0)
     {
-      syslog(LOG_ALERT,"CRASH: no backtrace safely available");
+      syslog(LOG_ALERT,"CRASH(%lu): no backtrace safely available",pid);
       return;
     }
     unlink(buffer);
@@ -100,11 +100,11 @@ static char **m_envp = NULL;
     bytes = lseek(fh,0,SEEK_CUR);
     lseek(fh,0,SEEK_SET);
     
-    syslog(LOG_ALERT,"CRASH: STACK TRACE");
+    syslog(LOG_ALERT,"CRASH(%lu): STACK TRACE",pid);
     
     if (read(fh,buffer,bytes) < 0)
     {
-      syslog(LOG_ALERT,"CRASH: can't generate backtrace");
+      syslog(LOG_ALERT,"CRASH(%lu): can't generate backtrace",pid);
       return;
     }
     
@@ -112,7 +112,7 @@ static char **m_envp = NULL;
     while((p = memchr(s,'\n',bytes)) != NULL)
     {
       *p++ = '\0';
-      syslog(LOG_ALERT,"CRASH:        %s",s);
+      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,s);
       len = (size_t)(p - s);
       bytes -= len;
       s = p;
@@ -126,7 +126,7 @@ static char **m_envp = NULL;
 
 #define LINESIZE	16
 
-static void crashreport_hexdump(void *data,size_t size,size_t offset)
+static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t offset)
 {
   const unsigned char *block = data;
   char                *p;
@@ -135,7 +135,7 @@ static void crashreport_hexdump(void *data,size_t size,size_t offset)
   int                  skip;
   int                  j;
   
-  syslog(LOG_ALERT,"CRASH: STACK DUMP");
+  syslog(LOG_ALERT,"CRASH(%lu): STACK DUMP",pid);
   
   while(size > 0)
   {
@@ -171,7 +171,7 @@ static void crashreport_hexdump(void *data,size_t size,size_t offset)
       for (i = j ; i < LINESIZE ; i++)
         p += sprintf(p,"   ");
     }
-    syslog(LOG_ALERT,"CRASH:        %s",line);
+    syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,line);
   } 
 }
 
@@ -274,25 +274,27 @@ static const char *crashreport_code(const int sig,const int code)
 
 static void crashreport_handler(int sig,siginfo_t *info,void *context __attribute__((unused)))
 {
-  syslog(LOG_ALERT,"CRASH: pid=%lu signal='%s'",(unsigned long)getpid(),strsignal(sig));
-  syslog(LOG_ALERT,"CRASH: reason='%s'",crashreport_code(info->si_signo,info->si_code));
+  unsigned long pid = getpid();
+  
+  syslog(LOG_ALERT,"CRASH(%lu): pid=%lu signal='%s'",pid,pid,strsignal(sig));
+  syslog(LOG_ALERT,"CRASH(%lu): reason='%s'",pid,crashreport_code(info->si_signo,info->si_code));
   
   if (info->si_signo != sig)
-    syslog(LOG_ALERT,"CRASH: reported sig %d doesn't match passed in signal %d",info->si_signo,sig);
+    syslog(LOG_ALERT,"CRASH(%lu): reported sig %d doesn't match passed in signal %d",pid,info->si_signo,sig);
   
   if (info->si_code == SI_USER)
-    syslog(LOG_ALERT,"CRASH: sending_process=%lu user=%lu",(unsigned long)info->si_pid,(unsigned long)info->si_uid);
+    syslog(LOG_ALERT,"CRASH(%lu): sending_process=%lu user=%lu",pid,(unsigned long)info->si_pid,(unsigned long)info->si_uid);
 
   switch(info->si_signo)
   {
     case SIGBUS:
     case SIGSEGV:
-         syslog(LOG_ALERT,"CRASH: address=%p",info->si_addr);
+         syslog(LOG_ALERT,"CRASH(%lu): address=%p",pid,info->si_addr);
          break;
          
     case SIGILL:
     case SIGFPE:
-         syslog(LOG_ALERT,"CRASH: pc=%p",info->si_addr);
+         syslog(LOG_ALERT,"CRASH(%lu): pc=%p",pid,info->si_addr);
          break;
   
     default:
@@ -311,7 +313,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #  ifdef __i386__
      syslog(
        LOG_ALERT,
-       "CRASH: CS=%04X DS=%04X ES=%04X FS=%04X GS=%04X",
+       "CRASH(%lu): CS=%04X DS=%04X ES=%04X FS=%04X GS=%04X",
+       pid,
        cpu->uc_mcontext.gregs[REG_CS],
        cpu->uc_mcontext.gregs[REG_DS],
        cpu->uc_mcontext.gregs[REG_ES],
@@ -321,7 +324,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
     
      syslog(
        LOG_ALERT,
-       "CRASH: EIP=%08X EFL=%08X ESP=%08X EBP=%08X ESI=%08X EDI=%08X",
+       "CRASH(%lu): EIP=%08X EFL=%08X ESP=%08X EBP=%08X ESI=%08X EDI=%08X",
+       pid,
        cpu->uc_mcontext.gregs[REG_EIP],
        cpu->uc_mcontext.gregs[REG_EFL],
        cpu->uc_mcontext.gregs[REG_ESP],
@@ -332,7 +336,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH: EAX=%08X EBX=%08X ECX=%08X EDX=%08X",
+       "CRASH(%lu): EAX=%08X EBX=%08X ECX=%08X EDX=%08X",
+       pid,
        cpu->uc_mcontext.gregs[REG_EAX],
        cpu->uc_mcontext.gregs[REG_EBX],
        cpu->uc_mcontext.gregs[REG_ECX],
@@ -341,13 +346,15 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH: UESP=%08X TRAPNO=%08X ERR=%08X",
+       "CRASH(%lu): UESP=%08X TRAPNO=%08X ERR=%08X",
+       pid,
        cpu->uc_mcontext.gregs[REG_UESP],
        cpu->uc_mcontext.gregs[REG_TRAPNO],
        cpu->uc_mcontext.gregs[REG_ERR]
     );
 
     crashreport_hexdump(
+    	pid,
     	(void *)cpu->uc_mcontext.gregs[REG_ESP],
     	256,
     	(size_t)cpu->uc_mcontext.gregs[REG_ESP]
@@ -358,7 +365,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #  ifdef __x86_64
      syslog(
        LOG_ALERT,
-       "CRASH: RIP=%016lX EFL=%016lX RSP=%016lX RBP=%016lX RSI=%016lX RDI=%016lX",
+       "CRASH(%lu): RIP=%016lX EFL=%016lX RSP=%016lX RBP=%016lX RSI=%016lX RDI=%016lX",
+       pid,
        cpu->uc_mcontext.gregs[REG_RIP],
        cpu->uc_mcontext.gregs[REG_EFL],
        cpu->uc_mcontext.gregs[REG_RSP],
@@ -369,7 +377,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH: RAX=%016lX RBX=%016lX RCX=%016lX RDX=%016lX",
+       "CRASH(%lu): RAX=%016lX RBX=%016lX RCX=%016lX RDX=%016lX",
+       pid,
        cpu->uc_mcontext.gregs[REG_RAX],
        cpu->uc_mcontext.gregs[REG_RBX],
        cpu->uc_mcontext.gregs[REG_RCX],
@@ -378,7 +387,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH:  R8=%016lX  R9=%016lX R10=%016lX R11=%016lX",
+       "CRASH(%lu):  R8=%016lX  R9=%016lX R10=%016lX R11=%016lX",
+       pid,
        cpu->uc_mcontext.gregs[REG_R8],
        cpu->uc_mcontext.gregs[REG_R9],
        cpu->uc_mcontext.gregs[REG_R10],
@@ -387,7 +397,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH: R12=%016lX R13=%016lX R14=%016lX R15=%016lX",
+       "CRASH(%lu): R12=%016lX R13=%016lX R14=%016lX R15=%016lX",
+       pid,
        cpu->uc_mcontext.gregs[REG_R12],
        cpu->uc_mcontext.gregs[REG_R13],
        cpu->uc_mcontext.gregs[REG_R14],
@@ -396,7 +407,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH: TRAPNO=%016lX ERR=%016lX OLDMASK=%016lX CR2=%016lX",
+       "CRASH(%lu): TRAPNO=%016lX ERR=%016lX OLDMASK=%016lX CR2=%016lX",
+       pid,
        cpu->uc_mcontext.gregs[REG_TRAPNO],
        cpu->uc_mcontext.gregs[REG_ERR],
        cpu->uc_mcontext.gregs[REG_OLDMASK],
@@ -404,13 +416,14 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      );
      
      crashreport_hexdump(
+        pid,
      	(void *)cpu->uc_mcontext.gregs[REG_RSP],
      	256,
      	(size_t)cpu->uc_mcontext.gregs[REG_RSP]
      );
      
 #  endif
-  crashreport_backtrace();
+  crashreport_backtrace(pid);
 #endif
 
 #ifdef __SunOS
@@ -422,16 +435,16 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
     
   if (m_argv != NULL)
   {
-    syslog(LOG_ALERT,"CRASH: COMMAND LINE");
+    syslog(LOG_ALERT,"CRASH(%lu): COMMAND LINE",pid);
     for (int i = 0 ; i < m_argc ; i++)
-      syslog(LOG_ALERT,"CRASH:        %s",m_argv[i]);
+      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,m_argv[i]);
   }
   
   if (m_envp != NULL)
   {
-    syslog(LOG_ALERT,"CRASH: ENVIRONMENT");
+    syslog(LOG_ALERT,"CRASH(%lu): ENVIRONMENT",pid);
     for (int i = 0 ; m_envp[i] != NULL ; i++)
-      syslog(LOG_ALERT,"CRASH:        %s",m_envp[i]);
+      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,m_envp[i]);
   }
   
   /*------------------------------------------------------------------------
