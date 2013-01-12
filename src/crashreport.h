@@ -23,5 +23,6 @@
 #define CRASHREPORT_H
 
 int	crashreport	(int);
+void	crashreport_with(int,char **,char **);
 
 #endif

@@ -46,6 +46,10 @@
 #  include <execinfo.h>
 #endif
 
+static int    m_argc = 0;
+static char **m_argv = NULL;
+static char **m_envp = NULL;
+
 /***************************************************************************/
 
 #ifdef __linux__
@@ -167,7 +171,7 @@ static void crashreport_hexdump(void *data,size_t size,size_t offset)
       for (i = j ; i < LINESIZE ; i++)
         p += sprintf(p,"   ");
     }
-    syslog(LOG_ALERT,"CRASH: %s",line);
+    syslog(LOG_ALERT,"CRASH:        %s",line);
   } 
 }
 
@@ -412,6 +416,24 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #ifdef __SunOS
 #endif
 
+  /*-----------------------------------------------------------
+  ; report any additional information, if it exists
+  ;-------------------------------------------------------------*/
+    
+  if (m_argv != NULL)
+  {
+    syslog(LOG_ALERT,"CRASH: COMMAND LINE");
+    for (int i = 0 ; i < m_argc ; i++)
+      syslog(LOG_ALERT,"CRASH:        %s",m_argv[i]);
+  }
+  
+  if (m_envp != NULL)
+  {
+    syslog(LOG_ALERT,"CRASH: ENVIRONMENT");
+    for (int i = 0 ; m_envp[i] != NULL ; i++)
+      syslog(LOG_ALERT,"CRASH:        %s",m_envp[i]);
+  }
+  
   /*------------------------------------------------------------------------
   ; The handler is a one-shot deal.  We did this because we can now re-raise
   ; the signal to set the parent process know how we died and possibly
@@ -462,3 +484,14 @@ int crashreport(int sig)
 
   return sigaction(sig,&sa,NULL);
 }
+
+/********************************************************************/
+
+void crashreport_with(int argc,char **argv,char **envp)
+{
+  m_argc = argc;
+  m_argv = argv;
+  m_envp = envp;
+}
+
+/********************************************************************/
