@@ -49,6 +49,7 @@
 static int    m_argc = 0;
 static char **m_argv = NULL;
 static char **m_envp = NULL;
+static int    m_cnt  = 0;
 
 /***************************************************************************/
 
@@ -75,7 +76,7 @@ static char **m_envp = NULL;
     count = backtrace(report,128);
     if (count == 0)
     {
-      syslog(LOG_ALERT,"CRASH(%lu): no backtrace available",pid);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d): no backtrace available",pid,m_cnt++);
       return;
     }
     
@@ -83,7 +84,7 @@ static char **m_envp = NULL;
     fh = mkstemp(buffer);    
     if (fh < 0)
     {
-      syslog(LOG_ALERT,"CRASH(%lu): no backtrace safely available",pid);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d): no backtrace safely available",pid,m_cnt++);
       return;
     }
     unlink(buffer);
@@ -100,11 +101,11 @@ static char **m_envp = NULL;
     bytes = lseek(fh,0,SEEK_CUR);
     lseek(fh,0,SEEK_SET);
     
-    syslog(LOG_ALERT,"CRASH(%lu): STACK TRACE",pid);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d): STACK TRACE",pid,m_cnt++);
     
     if (read(fh,buffer,bytes) < 0)
     {
-      syslog(LOG_ALERT,"CRASH(%lu): can't generate backtrace",pid);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d): can't generate backtrace",pid,m_cnt++);
       return;
     }
     
@@ -112,7 +113,7 @@ static char **m_envp = NULL;
     while((p = memchr(s,'\n',bytes)) != NULL)
     {
       *p++ = '\0';
-      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,s);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,s);
       len = (size_t)(p - s);
       bytes -= len;
       s = p;
@@ -135,7 +136,7 @@ static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t 
   int                  skip;
   int                  j;
   
-  syslog(LOG_ALERT,"CRASH(%lu): STACK DUMP",pid);
+  syslog(LOG_ALERT,"CRASH(%lu/%03d): STACK DUMP",pid,m_cnt++);
   
   while(size > 0)
   {
@@ -171,7 +172,7 @@ static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t 
       for (i = j ; i < LINESIZE ; i++)
         p += sprintf(p,"   ");
     }
-    syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,line);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,line);
   } 
 }
 
@@ -276,25 +277,25 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 {
   unsigned long pid = getpid();
   
-  syslog(LOG_ALERT,"CRASH(%lu): pid=%lu signal='%s'",pid,pid,strsignal(sig));
-  syslog(LOG_ALERT,"CRASH(%lu): reason='%s'",pid,crashreport_code(info->si_signo,info->si_code));
+  syslog(LOG_ALERT,"CRASH(%lu/%03d): pid=%lu signal='%s'",pid,m_cnt++,pid,strsignal(sig));
+  syslog(LOG_ALERT,"CRASH(%lu/%03d): reason='%s'",pid,m_cnt++,crashreport_code(info->si_signo,info->si_code));
   
   if (info->si_signo != sig)
-    syslog(LOG_ALERT,"CRASH(%lu): reported sig %d doesn't match passed in signal %d",pid,info->si_signo,sig);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d): reported sig %d doesn't match passed in signal %d",pid,m_cnt++,info->si_signo,sig);
   
   if (info->si_code == SI_USER)
-    syslog(LOG_ALERT,"CRASH(%lu): sending_process=%lu user=%lu",pid,(unsigned long)info->si_pid,(unsigned long)info->si_uid);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d): sending_process=%lu user=%lu",pid,m_cnt++,(unsigned long)info->si_pid,(unsigned long)info->si_uid);
 
   switch(info->si_signo)
   {
     case SIGBUS:
     case SIGSEGV:
-         syslog(LOG_ALERT,"CRASH(%lu): address=%p",pid,info->si_addr);
+         syslog(LOG_ALERT,"CRASH(%lu/%03d): address=%p",pid,m_cnt++,info->si_addr);
          break;
          
     case SIGILL:
     case SIGFPE:
-         syslog(LOG_ALERT,"CRASH(%lu): pc=%p",pid,info->si_addr);
+         syslog(LOG_ALERT,"CRASH(%lu/%03d): pc=%p",pid,m_cnt++,info->si_addr);
          break;
   
     default:
@@ -313,8 +314,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #  ifdef __i386__
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): CS=%04X DS=%04X ES=%04X FS=%04X GS=%04X",
+       "CRASH(%lu/%03d): CS=%04X DS=%04X ES=%04X FS=%04X GS=%04X",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_CS],
        cpu->uc_mcontext.gregs[REG_DS],
        cpu->uc_mcontext.gregs[REG_ES],
@@ -324,8 +326,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
     
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): EIP=%08X EFL=%08X ESP=%08X EBP=%08X ESI=%08X EDI=%08X",
+       "CRASH(%lu/%03d): EIP=%08X EFL=%08X ESP=%08X EBP=%08X ESI=%08X EDI=%08X",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_EIP],
        cpu->uc_mcontext.gregs[REG_EFL],
        cpu->uc_mcontext.gregs[REG_ESP],
@@ -336,8 +339,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): EAX=%08X EBX=%08X ECX=%08X EDX=%08X",
+       "CRASH(%lu/%03d): EAX=%08X EBX=%08X ECX=%08X EDX=%08X",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_EAX],
        cpu->uc_mcontext.gregs[REG_EBX],
        cpu->uc_mcontext.gregs[REG_ECX],
@@ -346,8 +350,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): UESP=%08X TRAPNO=%08X ERR=%08X",
+       "CRASH(%lu/%03d): UESP=%08X TRAPNO=%08X ERR=%08X",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_UESP],
        cpu->uc_mcontext.gregs[REG_TRAPNO],
        cpu->uc_mcontext.gregs[REG_ERR]
@@ -365,8 +370,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #  ifdef __x86_64
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): RIP=%016lX EFL=%016lX RSP=%016lX RBP=%016lX RSI=%016lX RDI=%016lX",
+       "CRASH(%lu/%03d): RIP=%016lX EFL=%016lX RSP=%016lX RBP=%016lX RSI=%016lX RDI=%016lX",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_RIP],
        cpu->uc_mcontext.gregs[REG_EFL],
        cpu->uc_mcontext.gregs[REG_RSP],
@@ -377,8 +383,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): RAX=%016lX RBX=%016lX RCX=%016lX RDX=%016lX",
+       "CRASH(%lu/%03d): RAX=%016lX RBX=%016lX RCX=%016lX RDX=%016lX",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_RAX],
        cpu->uc_mcontext.gregs[REG_RBX],
        cpu->uc_mcontext.gregs[REG_RCX],
@@ -387,8 +394,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu):  R8=%016lX  R9=%016lX R10=%016lX R11=%016lX",
+       "CRASH(%lu/%03d):  R8=%016lX  R9=%016lX R10=%016lX R11=%016lX",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_R8],
        cpu->uc_mcontext.gregs[REG_R9],
        cpu->uc_mcontext.gregs[REG_R10],
@@ -397,8 +405,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): R12=%016lX R13=%016lX R14=%016lX R15=%016lX",
+       "CRASH(%lu/%03d): R12=%016lX R13=%016lX R14=%016lX R15=%016lX",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_R12],
        cpu->uc_mcontext.gregs[REG_R13],
        cpu->uc_mcontext.gregs[REG_R14],
@@ -407,8 +416,9 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu): TRAPNO=%016lX ERR=%016lX OLDMASK=%016lX CR2=%016lX",
+       "CRASH(%lu/%03d): TRAPNO=%016lX ERR=%016lX OLDMASK=%016lX CR2=%016lX",
        pid,
+       m_cnt++,
        cpu->uc_mcontext.gregs[REG_TRAPNO],
        cpu->uc_mcontext.gregs[REG_ERR],
        cpu->uc_mcontext.gregs[REG_OLDMASK],
@@ -435,19 +445,19 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
     
   if (m_argv != NULL)
   {
-    syslog(LOG_ALERT,"CRASH(%lu): COMMAND LINE",pid);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d): COMMAND LINE",pid,m_cnt++);
     for (int i = 0 ; i < m_argc ; i++)
-      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,m_argv[i]);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,m_argv[i]);
   }
   
   if (m_envp != NULL)
   {
-    syslog(LOG_ALERT,"CRASH(%lu): ENVIRONMENT",pid);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d): ENVIRONMENT",pid,m_cnt++);
     for (int i = 0 ; m_envp[i] != NULL ; i++)
-      syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,m_envp[i]);
+      syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,m_envp[i]);
   }
   
-  syslog(LOG_ALERT,"CRASH(%lu): DONE",pid);
+  syslog(LOG_ALERT,"CRASH(%lu/%03d): DONE",pid,m_cnt++);
   
   /*------------------------------------------------------------------------
   ; The handler is a one-shot deal.  We did this because we can now re-raise
