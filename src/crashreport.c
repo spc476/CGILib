@@ -447,6 +447,8 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
       syslog(LOG_ALERT,"CRASH(%lu):        %s",pid,m_envp[i]);
   }
   
+  syslog(LOG_ALERT,"CRASH(%lu): DONE",pid);
+  
   /*------------------------------------------------------------------------
   ; The handler is a one-shot deal.  We did this because we can now re-raise
   ; the signal to set the parent process know how we died and possibly
