@@ -165,7 +165,7 @@ void dump_memory(FILE *out,const void *data,size_t size,size_t offset)
     
     do
     {
-      fprintf(out,"%02x ",*block);
+      fprintf(out,"%02X ",*block);
       if (isprint(*block))
         ascii[j] = *block;
       else
