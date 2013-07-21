@@ -42,7 +42,7 @@ static void              cgicookie_new  (const Cgi,const char *,size_t);
 
 /*************************************************************************/
 
-Cgi (CgiNew)(void *data)
+Cgi CgiNew(void *data)
 {
   char *request_method;
   Cgi   cgi;
@@ -189,7 +189,7 @@ static int cgi_new_put(const Cgi cgi)
 
 /*************************************************************/
 
-struct pair *(CgiNextValue)(const Cgi cgi)
+struct pair *CgiNextValue(const Cgi cgi)
 {
   struct pair *psp;
   char        *s;
@@ -216,7 +216,7 @@ struct pair *(CgiNextValue)(const Cgi cgi)
 
 /*************************************************************************/
 
-void (CgiListMake)(const Cgi cgi)
+void CgiListMake(const Cgi cgi)
 {
   struct pair *psp;
   
@@ -228,7 +228,7 @@ void (CgiListMake)(const Cgi cgi)
 
 /*************************************************************************/
 
-size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
+size_t CgiListGetValues(const Cgi cgi,char ***darray,const char *name)
 {
   size_t        size  = 0;
   size_t        idx   = 0;
@@ -264,7 +264,7 @@ size_t (CgiListGetValues)(const Cgi cgi,char ***darray,const char *name)
 
 /************************************************************************/
 
-int (CgiListRequired)(const Cgi cgi,struct dstring *table,size_t size)
+int CgiListRequired(const Cgi cgi,struct dstring *table,size_t size)
 {
   int cnt = 0;
   
@@ -285,7 +285,7 @@ int (CgiListRequired)(const Cgi cgi,struct dstring *table,size_t size)
 
 /**********************************************************************/
 
-int (CgiFree)(Cgi cgi)
+int CgiFree(Cgi cgi)
 {
   assert(cgi  != NULL);
   

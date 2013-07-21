@@ -43,7 +43,7 @@ const char m_subject[] = "I think Barney's up to no good";
 
 /*****************************************************************/
 
-Email (EmailNew)(void)
+Email EmailNew(void)
 {
   Email email;
   
@@ -62,7 +62,7 @@ Email (EmailNew)(void)
 
 /*****************************************************************/
 
-int (EmailSend)(Email email)
+int EmailSend(Email email)
 {
   FILE      *output;
   struct tm *ptm;
@@ -102,7 +102,7 @@ int (EmailSend)(Email email)
 
 /****************************************************************/
 
-int (EmailFree)(Email email)
+int EmailFree(Email email)
 {
   PairListFree(&email->headers);
   fclose(email->body);

@@ -26,7 +26,7 @@
 
 /*********************************************************************/
 
-void (ListInit)(List *const pl)
+void ListInit(List *const pl)
 {
   assert(pl != NULL);
 
@@ -37,7 +37,7 @@ void (ListInit)(List *const pl)
 
 /*********************************************************************/
 
-Node *(ListRemHead)(List *const pl)
+Node *ListRemHead(List *const pl)
 {
   Node *pn;
 
@@ -52,7 +52,7 @@ Node *(ListRemHead)(List *const pl)
 
 /*********************************************************************/
 
-Node *(ListRemTail)(List *const pl)
+Node *ListRemTail(List *const pl)
 {
   Node *pn;
 
@@ -67,7 +67,7 @@ Node *(ListRemTail)(List *const pl)
 
 /**********************************************************************/
 
-void (NodeInsert)(Node *const pn,Node *const pntoa)
+void NodeInsert(Node *const pn,Node *const pntoa)
 {
   Node *pnn;
 
@@ -83,7 +83,7 @@ void (NodeInsert)(Node *const pn,Node *const pntoa)
 
 /***********************************************************************/
 
-void (NodeRemove)(Node *const pn)
+void NodeRemove(Node *const pn)
 {
   Node *pns;
   Node *pnp;
@@ -101,7 +101,7 @@ void (NodeRemove)(Node *const pn)
 
 /*************************************************************************/
 
-Node *(NodeNext)(Node *pn)
+Node *NodeNext(Node *pn)
 {
   assert(pn != NULL);
 
@@ -112,7 +112,7 @@ Node *(NodeNext)(Node *pn)
 
 /*********************************************************************/
 
-Node *(NodePrev)(Node *pn)
+Node *NodePrev(Node *pn)
 {
   assert(pn != NULL);
 

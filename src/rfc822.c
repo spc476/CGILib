@@ -33,7 +33,7 @@
 
 /***************************************************************************/
 
-char *(RFC822LineRead)(FILE *in)
+char *RFC822LineRead(FILE *in)
 {
   char   *line = NULL;
   size_t  max  = 0;
@@ -83,7 +83,7 @@ char *(RFC822LineRead)(FILE *in)
 
 /***************************************************************************/
 
-void (RFC822HeadersRead)(FILE *in,const List *list)
+void RFC822HeadersRead(FILE *in,const List *list)
 {
   char        *line;
   char        *t;
@@ -106,7 +106,7 @@ void (RFC822HeadersRead)(FILE *in,const List *list)
 
 /*************************************************************************/
 
-size_t (RFC822HeadersWrite)(FILE *out,const List *list)
+size_t RFC822HeadersWrite(FILE *out,const List *list)
 {
   struct pair *ppair;
   size_t       size;
@@ -128,7 +128,7 @@ size_t (RFC822HeadersWrite)(FILE *out,const List *list)
 
 /*************************************************************************/
 
-size_t (RFC822HeaderWrite)(FILE *out,const char *name,const char *value)
+size_t RFC822HeaderWrite(FILE *out,const char *name,const char *value)
 {
   int        (*conv)(int);
   size_t       size;

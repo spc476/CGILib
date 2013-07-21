@@ -42,14 +42,14 @@ typedef struct list
 
 /***********************************************************************/
 
-void		(ListInit)		(List *const);
-Node           *(ListRemHead)		(List *const);
-Node           *(ListRemTail)		(List *const);
+void		ListInit		(List *const);
+Node           *ListRemHead		(List *const);
+Node           *ListRemTail		(List *const);
 
-void		(NodeInsert)		(Node *const,Node *const);
-void		(NodeRemove)		(Node *const);
-Node           *(NodeNext)		(Node *);
-Node           *(NodePrev)		(Node *);
+void		NodeInsert		(Node *const,Node *const);
+void		NodeRemove		(Node *const);
+Node           *NodeNext		(Node *);
+Node           *NodePrev		(Node *);
 
 /************************************************************************/
 
@@ -63,7 +63,7 @@ static inline void ListAddHead(List *const pl,Node *const pn)
 
 /*-----------------------------------------------------------------------*/
 
-static inline void (ListAddTail)(List *const pl,Node *const pn)
+static inline void ListAddTail(List *const pl,Node *const pn)
 {
   assert(pl != NULL);
   assert(pn != NULL);
@@ -73,7 +73,7 @@ static inline void (ListAddTail)(List *const pl,Node *const pn)
 
 /*-----------------------------------------------------------------------*/
 
-static inline Node *(ListGetHead)(List *const pl)
+static inline Node *ListGetHead(List *const pl)
 {
   assert(pl          != NULL);
   assert(pl->lh_Head != NULL);
@@ -83,7 +83,7 @@ static inline Node *(ListGetHead)(List *const pl)
 
 /*------------------------------------------------------------------------*/
 
-static inline Node *(ListGetTail)(List *const pl)
+static inline Node *ListGetTail(List *const pl)
 {
   assert(pl              != NULL);
   assert(pl->lh_TailPred != NULL);
@@ -93,7 +93,7 @@ static inline Node *(ListGetTail)(List *const pl)
 
 /*------------------------------------------------------------------------*/
 
-static inline bool (ListEmpty)(List *const pl)
+static inline bool ListEmpty(List *const pl)
 {
   assert(pl != NULL);
   return(pl->lh_Head == (Node *)&pl->lh_Tail);
@@ -101,7 +101,7 @@ static inline bool (ListEmpty)(List *const pl)
 
 /*-----------------------------------------------------------------------*/
 
-static inline bool (NodeValid)(Node *const pn)
+static inline bool NodeValid(Node *const pn)
 {
   assert(pn != NULL);
 

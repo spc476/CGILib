@@ -32,7 +32,7 @@
 
 /**********************************************************************/
 
-struct pair *(PairNew)(char **psrc,char delim,char eos)
+struct pair *PairNew(char **psrc,char delim,char eos)
 {
   struct pair *psp;
   char        *src;
@@ -66,7 +66,7 @@ struct pair *(PairNew)(char **psrc,char delim,char eos)
 
 /***********************************************************************/
 
-struct pair *(PairCreate)(const char *name,const char *value)
+struct pair *PairCreate(const char *name,const char *value)
 {
   struct pair *psp;
   
@@ -81,7 +81,7 @@ struct pair *(PairCreate)(const char *name,const char *value)
 
 /***********************************************************************/
 
-void (PairFree)(struct pair *psp)
+void PairFree(struct pair *psp)
 {
   assert(psp != NULL);
   assert(NodeValid(&psp->node));
@@ -93,7 +93,7 @@ void (PairFree)(struct pair *psp)
 
 /*************************************************************************/
 
-struct pair *(PairListGetPair)(List *plist,const char *name)
+struct pair *PairListGetPair(List *plist,const char *name)
 {
   struct pair *psp;
   
@@ -111,7 +111,7 @@ struct pair *(PairListGetPair)(List *plist,const char *name)
 
 /***********************************************************************/
 
-char *(PairListGetValue)(List *plist,const char *name)
+char *PairListGetValue(List *plist,const char *name)
 {
   struct pair *psp;
 
@@ -127,7 +127,7 @@ char *(PairListGetValue)(List *plist,const char *name)
 
 /************************************************************************/
 
-void (PairListFree)(List *plist)
+void PairListFree(List *plist)
 {
   struct pair *psp;
   

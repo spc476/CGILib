@@ -87,7 +87,7 @@ static inline void ht_makepair(HtmlToken token,char *name,char *value)
 
 /******************************************************************/
 
-HtmlToken (HtmlParseNew)(FILE *input)
+HtmlToken HtmlParseNew(FILE *input)
 {
   HtmlToken pht;
   
@@ -108,7 +108,7 @@ HtmlToken (HtmlParseNew)(FILE *input)
 
 /***********************************************************************/
 
-HtmlToken (HtmlParseClone)(HtmlToken token)
+HtmlToken HtmlParseClone(HtmlToken token)
 {
   HtmlToken    pht;
   struct pair *pair;
@@ -146,7 +146,7 @@ HtmlToken (HtmlParseClone)(HtmlToken token)
 
 /**********************************************************************/
 
-int (HtmlParseNext)(HtmlToken token)
+int HtmlParseNext(HtmlToken token)
 {
   assert(token != NULL);
 
@@ -172,7 +172,7 @@ int (HtmlParseNext)(HtmlToken token)
 
 /********************************************************************/
 
-void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
+void HtmlParsePrintTag(HtmlToken token,FILE *out)
 {
   struct pair *pp;
   
@@ -205,7 +205,7 @@ void (HtmlParsePrintTag)(HtmlToken token,FILE *out)
 
 /***********************************************************************/
 
-int (HtmlParseFree)(HtmlToken token)
+int HtmlParseFree(HtmlToken token)
 {
   assert(token != NULL);
   

@@ -56,15 +56,15 @@ typedef struct htmltoken
 
 /************************************************************************/
 
-HtmlToken		 (HtmlParseNew)		(FILE *);
-HtmlToken		 (HtmlParseClone)	(HtmlToken);
-int			 (HtmlParseNext)	(HtmlToken);
-void			 (HtmlParsePrintTag)	(HtmlToken,FILE *);
-int			 (HtmlParseFree)	(HtmlToken);
+HtmlToken		 HtmlParseNew		(FILE *);
+HtmlToken		 HtmlParseClone		(HtmlToken);
+int			 HtmlParseNext		(HtmlToken);
+void			 HtmlParsePrintTag	(HtmlToken,FILE *);
+int			 HtmlParseFree		(HtmlToken);
 
 /**********************************************************************/
 
-static inline char *(HtmlParseValue)(HtmlToken token)
+static inline char *HtmlParseValue(HtmlToken token)
 {
   assert(token != NULL);
   return token->value;
@@ -72,7 +72,7 @@ static inline char *(HtmlParseValue)(HtmlToken token)
 
 /*----------------------------------------------------------------*/
 
-static inline HToken (HtmlParseToken)(HtmlToken token)
+static inline HToken HtmlParseToken(HtmlToken token)
 {
   assert(token != NULL);
   return(token->token);
@@ -80,7 +80,7 @@ static inline HToken (HtmlParseToken)(HtmlToken token)
 
 /*------------------------------------------------------------------*/
 
-static inline struct pair *(HtmlParseFirstOption)(HtmlToken token)
+static inline struct pair *HtmlParseFirstOption(HtmlToken token)
 {
   assert(token != NULL);
   return PairListFirst(&token->pairs);
@@ -88,7 +88,7 @@ static inline struct pair *(HtmlParseFirstOption)(HtmlToken token)
 
 /*-----------------------------------------------------------------*/
 
-static inline void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
+static inline void HtmlParseAddPair(HtmlToken token,struct pair *p)
 {
   assert(token != NULL);
   assert(p     != NULL);
@@ -98,7 +98,7 @@ static inline void (HtmlParseAddPair)(HtmlToken token,struct pair *p)
 
 /*------------------------------------------------------------------*/
 
-static inline struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
+static inline struct pair *HtmlParseGetPair(HtmlToken token,const char *name)
 {
   assert(token != NULL);
   assert(name  != NULL);
@@ -107,7 +107,7 @@ static inline struct pair *(HtmlParseGetPair)(HtmlToken token,const char *name)
 
 /*-------------------------------------------------------------------*/
 
-static inline char *(HtmlParseGetValue)(HtmlToken token,char *name)
+static inline char *HtmlParseGetValue(HtmlToken token,char *name)
 {
   assert(token != NULL);
   assert(name  != NULL);
