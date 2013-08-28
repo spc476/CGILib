@@ -49,10 +49,31 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   peos   = memchr(src,eos,SIZET_MAX);	/* doesn't work on DEC Alpha */
   assert(peos   != NULL);
   pdelim = memchr(src,delim,peos-src);
-  assert(pdelim != NULL);
   
-  sname      = pdelim - src;
-  svalue     = peos   - pdelim - 1;
+  /*-------------------------------------------------------------------------
+  ; Sigh.  Dealing with garbage input.  We *know* that the end of the string
+  ; given will end with a '&' (since we added one, just to make sure).  But
+  ; what if we're given:
+  ;
+  ;	"name&"
+  ; or
+  ;	"&"
+  ;
+  ; We need to handle these bizare corner cases.
+  ;-------------------------------------------------------------------------*/
+  
+  if (pdelim == NULL)
+  {
+    pdelim = peos;
+    sname  = pdelim - src;
+    svalue = 0;    
+  }
+  else
+  {
+    sname  = pdelim - src;
+    svalue = peos   - pdelim - 1;
+  }
+  
   psp        = malloc(sizeof(struct pair));
   psp->name  = malloc(sname + 1);
   psp->value = malloc(svalue + 1);
@@ -61,7 +82,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   psp->name[sname]   = '\0';
   psp->value[svalue] = '\0';
   *psrc              = peos   + 1;
-  return(psp);
+  return(psp);     
 }
 
 /***********************************************************************/
