@@ -19,6 +19,8 @@
 #
 ########################################################################
 
+.PHONY: clean install tarball
+
 DESTLIB    = /usr/local/lib
 DESTHEADER = /usr/local/include/cgilib6
 
@@ -27,71 +29,45 @@ CFLAGS = -g -Wall -Wextra -pedantic
 AR     = ar cr
 RANLIB = ranlib
 
-TARGET = build/libcgi6.a
-
-OFILES = build/nodelist.o 		\
-	 build/util.o			\
-	 build/pair.o			\
-	 build/cgi.o			\
-	 build/rfc822.o			\
-	 build/htmltok.o		\
-	 build/mail.o			\
-	 build/chunk.o			\
-	 build/bisearch.o		\
-	 build/crashreport.o		\
-	 build/url.o			\
-	 build/url.http.o		\
-	 build/url.file.o
-
-$(TARGET) : $(OFILES)
-	$(AR) $(TARGET) $(OFILES)
-	$(RANLIB) $(TARGET)
+build/libcgi6.a : build/nodelist.o 		\
+		 build/util.o			\
+		 build/pair.o			\
+		 build/cgi.o			\
+		 build/rfc822.o			\
+		 build/htmltok.o		\
+		 build/mail.o			\
+		 build/chunk.o			\
+		 build/bisearch.o		\
+		 build/crashreport.o		\
+		 build/url.url.o		\
+		 build/url.http.o		\
+		 build/url.file.o
+	$(AR) $@ $?
+	$(RANLIB) $@
 
 #---------------------------------------------------------------------
 # rules to compile source files
 #----------------------------------------------------------------------
 
-build/nodelist.o : src/nodelist.c src/nodelist.h
-	$(CC) $(CFLAGS) -c -o $@ src/nodelist.c
+build/url.%.o : src/Url/*.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-build/util.o : src/util.c src/util.h
-	$(CC) $(CFLAGS) -c -o $@ src/util.c
+build/%.o : src/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-build/cgi.o : src/cgi.c src/cgi.h
-	$(CC) $(CFLAGS) -c -o $@ src/cgi.c
-
-build/pair.o : src/pair.c src/pair.h
-	$(CC) $(CFLAGS) -c -o $@ src/pair.c
-
-build/htmltok.o : src/htmltok.c src/htmltok.h
-	$(CC) $(CFLAGS) -c -o $@ src/htmltok.c
-
-build/rfc822.o : src/rfc822.c src/rfc822.h
-	$(CC) $(CFLAGS) -c -o $@ src/rfc822.c
-
-build/mail.o : src/mail.c src/mail.h
-	$(CC) $(CFLAGS) -c -o $@ src/mail.c
-
-build/chunk.o : src/chunk.c src/chunk.h
-	$(CC) $(CFLAGS) -c -o $@ src/chunk.c
-
-build/bisearch.o : src/bisearch.c src/bisearch.h
-	$(CC) $(CFLAGS) -c -o $@ src/bisearch.c
-
+build/nodelist.o    : src/nodelist.c    src/nodelist.h
+build/util.o        : src/util.c        src/util.h
+build/cgi.o         : src/cgi.c         src/cgi.h     src/util.h
+build/pair.o        : src/pair.c        src/pair.h    src/nodelist.h
+build/htmltok.o     : src/htmltok.c     src/htmltok.h src/nodelist.h src/util.h src/pair.h
+build/rfc822.o      : src/rfc822.c      src/rfc822.h  src/nodelist.h src/util.h src/pair.h
+build/mail.o        : src/mail.c        src/mail.h    src/nodelist.h src/util.h src/pair.h src/rfc822.h
+build/chunk.o       : src/chunk.c       src/chunk.h
+build/bisearch.o    : src/bisearch.c    src/bisearch.h
 build/crashreport.o : src/crashreport.c src/crashreport.h
-	$(CC) $(CFLAGS) -c -o $@ src/crashreport.c
-
-build/url.o : src/Url/url.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-	
-build/url.http.o : src/Url/http.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-build/url.file.o : src/Url/file.c src/url.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-debug:
-	make -f make.debug
+build/url.url.o     : src/Url/url.c     src/url.h
+build/url.http.o    : src/Url/http.c    src/url.h
+build/url.file.o    : src/Url/file.c    src/url.h
 
 clean:
 	/bin/rm -rf build/*.o
