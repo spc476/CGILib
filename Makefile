@@ -49,7 +49,7 @@ build/libcgi6.a : build/nodelist.o 		\
 # rules to compile source files
 #----------------------------------------------------------------------
 
-build/url.%.o : src/Url/*.c
+build/url.%.o : src/Url/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 build/%.o : src/%.c
@@ -79,7 +79,7 @@ clean:
 install:
 	install -d $(DESTLIB)
 	install -d $(DESTHEADER)
-	install $(TARGET) $(DESTLIB)
+	install build/libcgi6.a $(DESTLIB)
 	install src/*.h $(DESTHEADER)
 
 tarball:
