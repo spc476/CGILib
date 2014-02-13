@@ -28,7 +28,7 @@ typedef struct bisearch__t
   size_t  idx;
 } bisearch__t;
 
-bisearch__t	bisearch	(
+extern bisearch__t	bisearch	(
 				  const void *const restrict,
 				  const void *const restrict,
 				  const size_t,

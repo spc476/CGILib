@@ -42,14 +42,14 @@ typedef struct list
 
 /***********************************************************************/
 
-void		ListInit		(List *const);
-Node           *ListRemHead		(List *const);
-Node           *ListRemTail		(List *const);
+extern void	 ListInit		(List *const);
+extern Node	*ListRemHead		(List *const);
+extern Node	*ListRemTail		(List *const);
 
-void		NodeInsert		(Node *const,Node *const);
-void		NodeRemove		(Node *const);
-Node           *NodeNext		(Node *);
-Node           *NodePrev		(Node *);
+extern void	 NodeInsert		(Node *const,Node *const);
+extern void	 NodeRemove		(Node *const);
+extern Node	*NodeNext		(Node *);
+extern Node	*NodePrev		(Node *);
 
 /************************************************************************/
 

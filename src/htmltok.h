@@ -56,11 +56,11 @@ typedef struct htmltoken
 
 /************************************************************************/
 
-HtmlToken		 HtmlParseNew		(FILE *);
-HtmlToken		 HtmlParseClone		(HtmlToken);
-int			 HtmlParseNext		(HtmlToken);
-void			 HtmlParsePrintTag	(HtmlToken,FILE *);
-int			 HtmlParseFree		(HtmlToken);
+extern HtmlToken		 HtmlParseNew		(FILE *);
+extern HtmlToken		 HtmlParseClone		(HtmlToken);
+extern int			 HtmlParseNext		(HtmlToken);
+extern void			 HtmlParsePrintTag	(HtmlToken,FILE *);
+extern int			 HtmlParseFree		(HtmlToken);
 
 /**********************************************************************/
 

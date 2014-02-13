@@ -27,15 +27,15 @@
 #include <ctype.h>
 #include <assert.h>
 
-char		*up_string		(char *);
-char		*down_string		(char *);
-bool		 empty_string		(const char *);
-char		*remove_char		(char *,int (*)(int));
-char		*trim_lspace		(char *);
-char		*trim_tspace		(char *);
-int		 ctohex			(char);
-char		 hextoc			(int);
-void		 dump_memory		(FILE *,const void *,size_t,size_t);
+extern char		*up_string		(char *);
+extern char		*down_string		(char *);
+extern bool		 empty_string		(const char *);
+extern char		*remove_char		(char *,int (*)(int));
+extern char		*trim_lspace		(char *);
+extern char		*trim_tspace		(char *);
+extern int		 ctohex			(char);
+extern char		 hextoc			(int);
+extern void		 dump_memory		(FILE *,const void *,size_t,size_t);
 
 /****************************************************************/
 

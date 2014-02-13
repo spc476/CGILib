@@ -24,9 +24,9 @@
 
 #include "nodelist.h"
 
-char		*RFC822LineRead		(FILE *);
-void		 RFC822HeadersRead	(FILE *,const List *);
-size_t		 RFC822HeadersWrite	(FILE *,const List *);
-size_t		 RFC822HeaderWrite	(FILE *,const char *,const char *);
+extern char		*RFC822LineRead		(FILE *);
+extern void		 RFC822HeadersRead	(FILE *,const List *);
+extern size_t		 RFC822HeadersWrite	(FILE *,const List *);
+extern size_t		 RFC822HeaderWrite	(FILE *,const char *,const char *);
 
 #endif

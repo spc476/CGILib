@@ -41,10 +41,10 @@ typedef struct chunk
   
 /*********************************************************************/
 
-Chunk	 ChunkNew		(const char *,const struct chunk_callback *,size_t);
-int	 ChunkProcess		(Chunk,const char *,FILE *,void *);
-int	 ChunkProcessStream	(Chunk,FILE *,FILE *,void *);
-int	 ChunkFree		(Chunk);
+extern Chunk	 ChunkNew		(const char *,const struct chunk_callback *,size_t);
+extern int	 ChunkProcess		(Chunk,const char *,FILE *,void *);
+extern int	 ChunkProcessStream	(Chunk,FILE *,FILE *,void *);
+extern int	 ChunkFree		(Chunk);
 
 #endif
 

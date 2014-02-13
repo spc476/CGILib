@@ -33,13 +33,13 @@ struct pair
 
 /**********************************************************************/
 
-struct pair	*PairNew		(char **,char,char);
-struct pair	*PairCreate		(const char *,const char *);
-void		 PairFree		(struct pair *);
+extern struct pair	*PairNew		(char **,char,char);
+extern struct pair	*PairCreate		(const char *,const char *);
+extern void		 PairFree		(struct pair *);
 
-struct pair	*PairListGetPair	(List *,const char *);
-char		*PairListGetValue	(List *,const char *);
-void		 PairListFree		(List *);
+extern struct pair	*PairListGetPair	(List *,const char *);
+extern char		*PairListGetValue	(List *,const char *);
+extern void		 PairListFree		(List *);
 
 /***********************************************************************/
 
