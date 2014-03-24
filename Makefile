@@ -26,8 +26,7 @@ DESTHEADER = /usr/local/include/cgilib6
 
 CC     = gcc -std=c99
 CFLAGS = -g -Wall -Wextra -pedantic
-AR     = ar cr
-RANLIB = ranlib
+AR     = ar rscu
 
 build/libcgi6.a : build/nodelist.o 		\
 		 build/util.o			\
@@ -43,7 +42,6 @@ build/libcgi6.a : build/nodelist.o 		\
 		 build/url.http.o		\
 		 build/url.file.o
 	$(AR) $@ $?
-	$(RANLIB) $@
 
 #---------------------------------------------------------------------
 # rules to compile source files
