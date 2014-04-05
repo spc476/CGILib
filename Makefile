@@ -25,7 +25,7 @@ DESTLIB    = /usr/local/lib
 DESTHEADER = /usr/local/include/cgilib6
 
 CC     = gcc -std=c99 -pedantic -Wall -Wextra
-CFLAGS = -g -ffunction-sections -fdata-sections
+CFLAGS = -g 
 AR     = ar rscu
 
 build/libcgi6.a : build/nodelist.o 		\
