@@ -144,7 +144,13 @@ static int cgi_new_post(const Cgi cgi)
   cgi->bufsize          = length+1;
   cgi->buffer[length+1] = '&';
 
-  fread(cgi->buffer,1,length,stdin);
+  if (fread(cgi->buffer,1,length,stdin) < length)
+  {
+    if (feof(stdin))
+      return errno;
+    else
+      return ENODATA;
+  }
 
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
