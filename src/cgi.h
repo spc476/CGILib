@@ -22,6 +22,10 @@
 #ifndef CGI_H
 #define CGI_H
 
+#ifndef __GNUC__
+#  define __attribute__(x)
+#endif
+
 #include <stddef.h>
 #include <stdio.h>
 #include "nodelist.h"
@@ -83,7 +87,7 @@ static inline void CgiGetRawData(const Cgi cgi,char **pdest,size_t *psize)
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutHtml(const Cgi cgi)
+static inline void CgiOutHtml(const Cgi cgi __attribute__((unused)))
 {
   static const char msg[] = "Content-type: text/html\n\n";
   
@@ -93,7 +97,7 @@ static inline void CgiOutHtml(const Cgi cgi)
 
 /*----------------------------------------------------------------------*/
 
-static inline void CgiOutText(const Cgi cgi)
+static inline void CgiOutText(const Cgi cgi __attribute__((unused)))
 {
   static const char msg[] = "Content-type: text/plain\n\n";
 
@@ -103,7 +107,7 @@ static inline void CgiOutText(const Cgi cgi)
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutShtml(const Cgi cgi)
+static inline void CgiOutShtml(const Cgi cgi __attribute__((unused)))
 {
   static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
   
@@ -113,7 +117,7 @@ static inline void CgiOutShtml(const Cgi cgi)
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutLocation(const Cgi cgi,const char *location)
+static inline void CgiOutLocation(const Cgi cgi __attribute__((unused)),const char *location)
 {
   assert(cgi      != NULL);
   assert(location != NULL);
