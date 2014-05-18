@@ -27,12 +27,12 @@
 #include <string.h>
 #include <errno.h>
 
+#include <paths.h>
+
 #include "util.h"
 #include "rfc822.h"
 #include "pair.h"
 #include "mail.h"
-
-#define SENDMAIL	"/usr/sbin/sendmail"
 
 /*****************************************************************/
 
@@ -70,7 +70,7 @@ int EmailSend(Email email)
   char       date  [BUFSIZ];
   
   fflush(email->body);
-  sprintf(cmd,SENDMAIL " %s",email->to);
+  sprintf(cmd,_PATH_SENDMAIL " %s",email->to);
 
   output = popen(cmd,"w");
   if (output == NULL) return errno;
