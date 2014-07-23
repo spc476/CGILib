@@ -213,9 +213,7 @@ static const char *crashreport_code(const int sig,const int code)
            case FPE_FLTUND:	return "Floating-point underflow";
            case FPE_INTDIV:	return "Integer divide-by-zero";
            case FPE_INTOVF:	return "Integer overflow";
-#ifdef FPE_SUB
-           case FPE_SUB:	return "Subscript out of range";
-#endif
+           case FPE_FLTSUB:	return "Subscript out of range";
            default: return unspef;
          }
          break;
