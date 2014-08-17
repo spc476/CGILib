@@ -22,7 +22,18 @@
 #ifndef CRASHREPORT_H
 #define CRASHREPORT_H
 
-extern int	crashreport	(int);
-extern void	crashreport_with(int,char **,char **);
+#ifdef __GNUC__
+#  define _GNU_SOURCE
+#endif
+
+#include <signal.h>
+
+extern int	crashreport		(int);
+extern void	crashreport_with	(int,char **,char **);
+
+#ifdef _POSIX_VERSION
+  extern void	crashreport_coresigs	(sigset_t *);
+  extern void	crashreport_allsigs	(sigset_t *);
+#endif
 
 #endif
