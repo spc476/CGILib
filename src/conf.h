@@ -22,7 +22,7 @@
 #ifndef CGI_CONF_H
 #define CGI_CONF_H
 
-#define CGIVERSION		"CGILIB/6.2.0"
+#define CGIVERSION		"CGILIB/6.3.0"
 
 #endif
 
