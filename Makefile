@@ -19,7 +19,7 @@
 #
 ########################################################################
 
-.PHONY: clean install tarball
+.PHONY: all clean install tarball
 
 DESTLIB    = /usr/local/lib
 DESTHEADER = /usr/local/include/cgilib6
@@ -28,51 +28,36 @@ CC     = gcc -std=c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
 AR     = ar rscu
 
-build/libcgi6.a : build/nodelist.o 		\
-		 build/util.o			\
-		 build/pair.o			\
-		 build/cgi.o			\
-		 build/rfc822.o			\
-		 build/htmltok.o		\
-		 build/mail.o			\
-		 build/chunk.o			\
-		 build/bisearch.o		\
-		 build/crashreport.o		\
-		 build/url.url.o		\
-		 build/url.http.o		\
-		 build/url.file.o
+all : depend build build/src build/src/Url build/libcgi6.a
+
+build/libcgi6.a : build/src/nodelist.o 		\
+		 build/src/util.o		\
+		 build/src/pair.o		\
+		 build/src/cgi.o		\
+		 build/src/rfc822.o		\
+		 build/src/htmltok.o		\
+		 build/src/mail.o		\
+		 build/src/chunk.o		\
+		 build/src/bisearch.o		\
+		 build/src/crashreport.o	\
+		 build/src/Url/url.o		\
+		 build/src/Url/http.o		\
+		 build/src/Url/file.o
 	$(AR) $@ $?
+
+build build/src build/src/Url :
+	mkdir -p $@
 
 #---------------------------------------------------------------------
 # rules to compile source files
 #----------------------------------------------------------------------
 
-build/url.%.o : src/Url/%.c
+build/src/%.o : src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-build/%.o : src/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-build/nodelist.o    : src/nodelist.c    src/nodelist.h
-build/util.o        : src/util.c        src/util.h
-build/cgi.o         : src/cgi.c         src/cgi.h     src/util.h
-build/pair.o        : src/pair.c        src/pair.h    src/nodelist.h
-build/htmltok.o     : src/htmltok.c     src/htmltok.h src/nodelist.h src/util.h src/pair.h
-build/rfc822.o      : src/rfc822.c      src/rfc822.h  src/nodelist.h src/util.h src/pair.h
-build/mail.o        : src/mail.c        src/mail.h    src/nodelist.h src/util.h src/pair.h src/rfc822.h
-build/chunk.o       : src/chunk.c       src/chunk.h
-build/bisearch.o    : src/bisearch.c    src/bisearch.h
-build/crashreport.o : src/crashreport.c src/crashreport.h
-build/url.url.o     : src/Url/url.c     src/url.h
-build/url.http.o    : src/Url/http.c    src/url.h
-build/url.file.o    : src/Url/file.c    src/url.h
 
 clean:
-	/bin/rm -rf build/*.o
-	/bin/rm -rf build/*.a
-	/bin/rm -rf src/*~
-	/bin/rm -rf src/*/*~
-	/bin/rm -rf *~
+	/bin/rm -rf build depend
+	/bin/rm -rf `find . -name '*~'`
 
 install:
 	install -d $(DESTLIB)
@@ -80,6 +65,10 @@ install:
 	install build/libcgi6.a $(DESTLIB)
 	install src/*.h $(DESTHEADER)
 
+depend:
+	makedepend -f- -pbuild/ src/*.c src/Url/*.c >depend
+
 tarball:
 	(cd .. ; tar czvf /tmp/cgilib.tar.gz -X cgi/.exclude cgi/ )
 
+include depend
