@@ -66,7 +66,7 @@ install:
 	install src/*.h $(DESTHEADER)
 
 depend:
-	makedepend -f- -pbuild/ src/*.c src/Url/*.c >depend
+	makedepend -f- -pbuild/ -- $(CFLAGS) -- src/*.c src/Url/*.c >depend
 
 tarball:
 	(cd .. ; tar czvf /tmp/cgilib.tar.gz -X cgi/.exclude cgi/ )
