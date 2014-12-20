@@ -19,10 +19,4 @@
 *
 *************************************************************************/
 
-#ifndef CGI_CONF_H
-#define CGI_CONF_H
-
-extern const char cgilib_version[];
-
-#endif
-
+const char cgilib_version[] = CGIVERSION;

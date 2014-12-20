@@ -23,26 +23,30 @@
 
 DESTLIB    = /usr/local/lib
 DESTHEADER = /usr/local/include/cgilib6
+CGIVERSION = $(shell git describe --tag)
 
 CC     = gcc -std=c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
 AR     = ar rscu
 
+override CFLAGS += -DCGIVERSION='"CGILIB/$(CGIVERSION)"'
+
 all : depend build build/src build/src/Url build/libcgi6.a
 
-build/libcgi6.a : build/src/nodelist.o 		\
-		 build/src/util.o		\
-		 build/src/pair.o		\
-		 build/src/cgi.o		\
-		 build/src/rfc822.o		\
-		 build/src/htmltok.o		\
-		 build/src/mail.o		\
-		 build/src/chunk.o		\
-		 build/src/bisearch.o		\
-		 build/src/crashreport.o	\
-		 build/src/Url/url.o		\
-		 build/src/Url/http.o		\
-		 build/src/Url/file.o
+build/libcgi6.a : build/src/conf.o		\
+		build/src/nodelist.o 		\
+		build/src/util.o		\
+		build/src/pair.o		\
+		build/src/cgi.o			\
+		build/src/rfc822.o		\
+		build/src/htmltok.o		\
+		build/src/mail.o		\
+		build/src/chunk.o		\
+		build/src/bisearch.o		\
+		build/src/crashreport.o		\
+		build/src/Url/url.o		\
+		build/src/Url/http.o		\
+		build/src/Url/file.o
 	$(AR) $@ $?
 
 build build/src build/src/Url :
