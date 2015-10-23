@@ -19,7 +19,7 @@
 #
 ########################################################################
 
-.PHONY: all clean install tarball
+.PHONY: all clean install tarball depend
 
 DESTLIB    = /usr/local/lib
 DESTHEADER = /usr/local/include/cgilib6
@@ -62,6 +62,7 @@ build/src/%.o : src/%.c
 clean:
 	/bin/rm -rf build depend
 	/bin/rm -rf `find . -name '*~'`
+	/bin/rm Makefile.bak
 
 install:
 	install -d $(DESTLIB)
@@ -70,9 +71,23 @@ install:
 	install src/*.h $(DESTHEADER)
 
 depend:
-	makedepend -f- -pbuild/ -- $(CFLAGS) -- src/*.c src/Url/*.c >depend
+	makedepend -pbuild/ -Y -- $(CFLAGS) -- src/*.c src/Url/*.c 2>/dev/null
 
 tarball:
 	git archive -o /tmp/CGILib-$(CGIVERSION).tar.gz --prefix CGILib $(CGIVERSION)
 
-include depend
+# DO NOT DELETE
+
+build/src/bisearch.o: src/bisearch.h
+build/src/cgi.o: src/util.h src/cgi.h src/nodelist.h src/pair.h
+build/src/chunk.o: src/chunk.h
+build/src/htmltok.o: src/nodelist.h src/htmltok.h src/pair.h src/util.h
+build/src/mail.o: src/util.h src/rfc822.h src/nodelist.h src/pair.h
+build/src/mail.o: src/mail.h
+build/src/nodelist.o: src/nodelist.h
+build/src/pair.o: src/pair.h src/nodelist.h
+build/src/rfc822.o: src/nodelist.h src/util.h src/rfc822.h src/pair.h
+build/src/util.o: src/util.h
+build/src/Url/file.o: src/url.h
+build/src/Url/http.o: src/url.h
+build/src/Url/url.o: src/url.h
