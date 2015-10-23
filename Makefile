@@ -31,7 +31,7 @@ AR     = ar rscu
 
 override CFLAGS += -DCGIVERSION='"CGILIB/$(CGIVERSION)"'
 
-all : depend build build/src build/src/Url build/libcgi6.a
+all : build build/src build/src/Url build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o		\
 		build/src/nodelist.o 		\
