@@ -73,6 +73,6 @@ depend:
 	makedepend -f- -pbuild/ -- $(CFLAGS) -- src/*.c src/Url/*.c >depend
 
 tarball:
-	(cd .. ; tar czvf /tmp/cgilib.tar.gz -X cgi/.exclude cgi/ )
+	git archive -o /tmp/CGILib-$(CGIVERSION).tar.gz --prefix CGILib $(CGIVERSION)
 
 include depend
