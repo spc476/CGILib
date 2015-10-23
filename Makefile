@@ -60,9 +60,9 @@ build/src/%.o : src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	/bin/rm -rf build depend
-	/bin/rm -rf `find . -name '*~'`
-	/bin/rm Makefile.bak
+	$(RM) -r build
+	$(RM) `find . -name '*~'`
+	$(RM) Makefile.bak
 
 install:
 	install -d $(DESTLIB)
