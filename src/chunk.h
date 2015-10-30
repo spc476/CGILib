@@ -43,7 +43,7 @@ typedef struct chunk
 
 extern Chunk	 ChunkNew		(const char *,const struct chunk_callback *,size_t);
 extern int	 ChunkProcess		(Chunk,const char *,FILE *,void *);
-extern int	 ChunkProcessStream	(Chunk,FILE *,FILE *,void *);
+extern int	 ChunkProcessStream	(Chunk,FILE *restrict,FILE *restrict,void *);
 extern int	 ChunkFree		(Chunk);
 
 #endif

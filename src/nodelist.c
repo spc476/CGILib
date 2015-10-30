@@ -67,7 +67,7 @@ Node *ListRemTail(List *const pl)
 
 /**********************************************************************/
 
-void NodeInsert(Node *const pn,Node *const pntoa)
+void NodeInsert(Node *const restrict pn,Node *const restrict pntoa)
 {
   Node *pnn;
 

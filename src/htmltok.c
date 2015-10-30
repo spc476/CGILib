@@ -47,7 +47,7 @@ enum
 static HToken	 ht_nextstr	(HtmlToken);
 static HToken	 ht_nexttag	(HtmlToken);
 static HToken	 ht_nextcom	(HtmlToken);
-static void	 ht_makepair	(HtmlToken,char *,char *);
+static void	 ht_makepair	(HtmlToken,char *restrict,char *restrict);
 static void	 ht_acc		(HtmlToken,int);
 static char	*ht_accdup	(HtmlToken);
 
@@ -73,7 +73,7 @@ static inline HToken ht_nextcom(HtmlToken token)
 
 /*********************************************************************/
 
-static inline void ht_makepair(HtmlToken token,char *name,char *value)
+static inline void ht_makepair(HtmlToken token,char *restrict name,char *restrict value)
 {
   struct pair *psp;
   

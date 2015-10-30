@@ -128,7 +128,7 @@ size_t RFC822HeadersWrite(FILE *out,const List *list)
 
 /*************************************************************************/
 
-size_t RFC822HeaderWrite(FILE *out,const char *name,const char *value)
+size_t RFC822HeaderWrite(FILE *out,const char *restrict name,const char *restrict value)
 {
   int        (*conv)(int);
   size_t       size;

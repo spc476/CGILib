@@ -82,8 +82,8 @@ static int chunk_search_cmp(const void *needle,const void *haystack)
 /*********************************************************************/
 
 static void chunk_handle(
-			  FILE                  *in,
-			  FILE                  *out,
+			  FILE                  *restrict in,
+			  FILE                  *restrict out,
                           const struct chunk_callback *pcc,
                           size_t                 scc,
                           void                  *data

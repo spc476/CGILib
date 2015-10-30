@@ -87,7 +87,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
 
 /***********************************************************************/
 
-struct pair *PairCreate(const char *name,const char *value)
+struct pair *PairCreate(const char *restrict name,const char *restrict value)
 {
   struct pair *psp;
   
