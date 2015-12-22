@@ -48,6 +48,10 @@
 
 #include "crashreport.h"
 
+#ifndef SA_ONESHOT
+#  define SA_ONESHOT 0
+#endif
+
 static int    m_argc = 0;
 static char **m_argv = NULL;
 static char **m_envp = NULL;
@@ -244,6 +248,7 @@ static const char *crashreport_code(const int sig,const int code)
          }
          break;
 
+#ifdef SIGPOLL
     case SIGPOLL:
          switch(code)
          {
@@ -256,7 +261,8 @@ static const char *crashreport_code(const int sig,const int code)
            default:		break;
          }
          break;
-         
+#endif
+
     case SIGSEGV:
          switch(code)
          {
