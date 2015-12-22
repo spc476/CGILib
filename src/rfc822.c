@@ -131,7 +131,7 @@ size_t RFC822HeadersWrite(FILE *out,const List *list)
 size_t RFC822HeaderWrite(FILE *out,const char *restrict name,const char *restrict value)
 {
   int        (*conv)(int);
-  size_t       size;
+  int          size;
   char         n[strlen(name) + 1];
   const char  *s;
   char        *d;
@@ -148,6 +148,8 @@ size_t RFC822HeaderWrite(FILE *out,const char *restrict name,const char *restric
   }
   
   size = fprintf(out,"%s: %s\n",n,value);
+  if (size < 0)
+    size = 0;
   return(size);
 }
 

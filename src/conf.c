@@ -19,4 +19,6 @@
 *
 *************************************************************************/
 
+#include "conf.h"
+
 const char cgilib_version[] = CGIVERSION;

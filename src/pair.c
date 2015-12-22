@@ -48,7 +48,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   src    = *psrc;
   peos   = memchr(src,eos,SIZET_MAX);	/* doesn't work on DEC Alpha */
   assert(peos   != NULL);
-  pdelim = memchr(src,delim,peos-src);
+  pdelim = memchr(src,delim,(size_t)(peos-src));
   
   /*-------------------------------------------------------------------------
   ; Sigh.  Dealing with garbage input.  We *know* that the end of the string
@@ -65,13 +65,13 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   if (pdelim == NULL)
   {
     pdelim = peos;
-    sname  = pdelim - src;
+    sname  = (size_t)(pdelim - src);
     svalue = 0;    
   }
   else
   {
-    sname  = pdelim - src;
-    svalue = peos   - pdelim - 1;
+    sname  = (size_t)(pdelim - src);
+    svalue = (size_t)(peos   - pdelim) - 1;
   }
   
   psp        = malloc(sizeof(struct pair));

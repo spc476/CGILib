@@ -46,6 +46,8 @@
 #  include <execinfo.h>
 #endif
 
+#include "crashreport.h"
+
 static int    m_argc = 0;
 static char **m_argv = NULL;
 static char **m_envp = NULL;
@@ -125,6 +127,7 @@ static int    m_cnt  = 0;
 
 /************************************************************************/
 
+#ifdef __linux__
 #define LINESIZE	16
 
 static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t offset)
@@ -175,6 +178,7 @@ static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t 
     syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,line);
   } 
 }
+#endif
 
 /***********************************************************************/
 

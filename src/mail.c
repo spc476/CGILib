@@ -36,10 +36,10 @@
 
 /*****************************************************************/
 
-const char m_from[]    = "fred@example.net";
-const char m_to[]      = "wilma@example.net";
-const char m_replyto[] = "";
-const char m_subject[] = "I think Barney's up to no good";
+static const char m_from[]    = "fred@example.net";
+static const char m_to[]      = "wilma@example.net";
+static const char m_replyto[] = "";
+static const char m_subject[] = "I think Barney's up to no good";
 
 /*****************************************************************/
 

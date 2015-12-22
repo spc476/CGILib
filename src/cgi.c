@@ -393,7 +393,7 @@ char *UrlDecodeString(char *src)
 char UrlDecodeChar(char **psrc)
 {
   char *src;
-  int	c;
+  char	c;
 
   assert(psrc  != NULL);
   assert(*psrc != NULL);
