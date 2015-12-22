@@ -81,6 +81,8 @@ tarball:
 build/src/bisearch.o: src/bisearch.h
 build/src/cgi.o: src/util.h src/cgi.h src/nodelist.h src/pair.h
 build/src/chunk.o: src/chunk.h
+build/src/conf.o: src/conf.h
+build/src/crashreport.o: src/crashreport.h
 build/src/htmltok.o: src/nodelist.h src/htmltok.h src/pair.h src/util.h
 build/src/mail.o: src/util.h src/rfc822.h src/nodelist.h src/pair.h
 build/src/mail.o: src/mail.h
