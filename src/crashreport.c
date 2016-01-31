@@ -510,40 +510,11 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 int crashreport(int sig)
 {
   struct sigaction sa;
-  stack_t          sigstack;
-  
-  /*-----------------------------------------------------------------------
-  ; We use a separate stack for handing the signal, just in case there's an
-  ; issue with running off past the use stack.  We make the signal handler
-  ; one-shot, so that the default action is restored after we handle the
-  ; signal (see comment in crashreport_handler()).  We first check to see if
-  ; an alternative stack has been install, and if not, set one up.
-  ;------------------------------------------------------------------------*/
-  
-  if (sigaltstack(NULL,&sigstack) < 0)
-    return errno;
-  
-  if (sigstack.ss_sp == NULL)
-  {
-    sigstack.ss_sp = malloc(SIGSTKSZ);
-    if (sigstack.ss_sp == NULL)
-      return errno;
-  
-    sigstack.ss_size  = SIGSTKSZ;
-    sigstack.ss_flags = 0;
-    
-    if (sigaltstack(&sigstack,NULL) < 0)
-    {
-      int err = errno;
-      free(sigstack.ss_sp);
-      return err;
-    }
-  }
   
   sa.sa_sigaction = crashreport_handler;
-  sa.sa_flags     = SA_ONSTACK | SA_SIGINFO | SA_ONESHOT;
+  sa.sa_flags     = SA_SIGINFO | SA_ONESHOT;
   sigemptyset(&sa.sa_mask);
-
+  
   return sigaction(sig,&sa,NULL);
 }
 
