@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef MAIL_H
-#define MAIL_H
+#ifndef I_D45F5CA0_725D_57F1_8714_C302E8DEB0F8
+#define I_D45F5CA0_725D_57F1_8714_C302E8DEB0F8
 
 #include <stdio.h>
 

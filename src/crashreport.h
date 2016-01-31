@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef CRASHREPORT_H
-#define CRASHREPORT_H
+#ifndef I_4007C572_D16E_538C_88BA_7948289D7F06
+#define I_4007C572_D16E_538C_88BA_7948289D7F06
 
 #ifdef __GNUC__
 #  define _GNU_SOURCE

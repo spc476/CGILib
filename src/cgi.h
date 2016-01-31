@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef CGI_H
-#define CGI_H
+#ifndef I_712950D0_03A0_5611_BE73_AAD22FCF7C53
+#define I_712950D0_03A0_5611_BE73_AAD22FCF7C53
 
 #ifndef __GNUC__
 #  define __attribute__(x)

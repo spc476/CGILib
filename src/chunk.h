@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef BLOG_CHUNK
-#define BLOG_CHUNK
+#ifndef I_8EF18997_15E3_5BD7_BEBB_31E9B26BA661
+#define I_8EF18997_15E3_5BD7_BEBB_31E9B26BA661
 
 #include <stdio.h>
 

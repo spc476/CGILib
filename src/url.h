@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef URL_H
-#define URL_H
+#ifndef I_B51450F6_CCD6_5434_B2EA_1999BA310107
+#define I_B51450F6_CCD6_5434_B2EA_1999BA310107
 
 #include <limits.h>
 #include <assert.h>

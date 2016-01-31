@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef CGI_CONF_H
-#define CGI_CONF_H
+#ifndef I_D107635E_6B7F_50F6_A76C_7DBD627A3021
+#define I_D107635E_6B7F_50F6_A76C_7DBD627A3021
 
 extern const char cgilib_version[];
 

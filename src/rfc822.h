@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef RFC822_H
-#define RFC822_H
+#ifndef I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
+#define I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
 
 #include "nodelist.h"
 

@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef BISEARCH_H
-#define BISEARCH_H
+#ifndef I_78F0B763_36FB_562F_AECB_4348F87EC663
+#define I_78F0B763_36FB_562F_AECB_4348F87EC663
 
 typedef struct bisearch__t
 {

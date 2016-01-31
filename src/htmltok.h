@@ -19,8 +19,8 @@
 *
 *************************************************************************/
 
-#ifndef HTMLTOK_H
-#define HTMLTOK_H
+#ifndef I_436B219C_7E42_53BF_B0C4_134445F2071A
+#define I_436B219C_7E42_53BF_B0C4_134445F2071A
 
 #include <stdio.h>
 
