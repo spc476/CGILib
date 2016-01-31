@@ -44,6 +44,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/chunk.o		\
 		build/src/bisearch.o		\
 		build/src/crashreport.o		\
+		build/src/tree.o		\
 		build/src/Url/url.o		\
 		build/src/Url/http.o		\
 		build/src/Url/file.o
