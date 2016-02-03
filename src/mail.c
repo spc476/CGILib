@@ -64,10 +64,11 @@ Email EmailNew(void)
 
 int EmailSend(Email email)
 {
-  FILE      *output;
-  struct tm *ptm;
-  char       cmd   [BUFSIZ];
-  char       date  [BUFSIZ];
+  FILE        *output;
+  struct pair *hdr;
+  struct tm   *ptm;
+  char         cmd   [BUFSIZ];
+  char         date  [BUFSIZ];
   
   fflush(email->body);
   sprintf(cmd,_PATH_SENDMAIL " %s",email->to);
@@ -80,6 +81,15 @@ int EmailSend(Email email)
 
   if (!empty_string(email->replyto))
     fprintf(output,"Reply-To: <%s>\n",email->replyto);
+  
+  for (
+        hdr = (struct pair *)ListGetHead(&email->headers);
+        NodeValid(&hdr->node);
+        hdr = (struct pair *)NodeNext(&hdr->node)
+      )
+  {
+    fprintf(output,"%s: %s\n",hdr->name,hdr->value);
+  }
   
   fprintf(
   	output,
