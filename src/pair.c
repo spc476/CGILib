@@ -114,6 +114,24 @@ void PairFree(struct pair *psp)
 
 /*************************************************************************/
 
+void PairListCreate(
+        List       *plist,
+        const char *restrict name,
+        const char *restrict value
+)
+{
+  struct pair *pair;
+  
+  assert(plist != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
+  
+  pair = PairCreate(name,value);
+  ListAddTail(plist,&pair->node);
+}
+
+/*************************************************************************/
+
 struct pair *PairListGetPair(List *plist,const char *name)
 {
   struct pair *psp;
