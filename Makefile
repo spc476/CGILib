@@ -90,6 +90,7 @@ build/src/mail.o: src/mail.h
 build/src/nodelist.o: src/nodelist.h
 build/src/pair.o: src/pair.h src/nodelist.h
 build/src/rfc822.o: src/nodelist.h src/util.h src/rfc822.h src/pair.h
+build/src/tree.o: src/tree.h
 build/src/util.o: src/util.h
 build/src/Url/file.o: src/url.h
 build/src/Url/http.o: src/url.h
