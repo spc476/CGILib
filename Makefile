@@ -47,7 +47,8 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/tree.o		\
 		build/src/Url/url.o		\
 		build/src/Url/http.o		\
-		build/src/Url/file.o
+		build/src/Url/file.o		\
+		build/src/Url/gopher.o
 	$(AR) $@ $?
 
 build build/src build/src/Url :
@@ -93,5 +94,6 @@ build/src/rfc822.o: src/nodelist.h src/util.h src/rfc822.h src/pair.h
 build/src/tree.o: src/tree.h
 build/src/util.o: src/util.h
 build/src/Url/file.o: src/url.h
+build/src/Url/gopher.o: src/url.h
 build/src/Url/http.o: src/url.h
 build/src/Url/url.o: src/url.h

@@ -39,8 +39,28 @@ typedef enum url_type
 {
   URL_FILE,
   URL_HTTP,
+  URL_GOPHER,
   URL_max
 } url_type__t;
+
+typedef enum
+{
+  GOPHER_FILE     = '0',
+  GOPHER_DIR      = '1',
+  GOPHER_CSO      = '2',
+  GOPHER_ERROR    = '3',
+  GOPHER_BINHEX   = '4',
+  GOPHER_ZIP      = '5',
+  GOPHER_UUENCODE = '6',
+  GOPHER_SEARCH   = '7',
+  GOPHER_TELNET   = '8',
+  GOPHER_BINARY   = '9',
+  GOPHER_IMAGE    = 'I',
+  GOPHER_3270     = 'T',
+  GOPHER_GIF      = 'g',
+  GOPHER_HTML     = 'h',
+  GOPHER_INFO     = 'i',
+} gopher_type__e;
 
 typedef struct urlhttp
 {
@@ -52,6 +72,17 @@ typedef struct urlhttp
   char        *fragment;
 } urlhttp__t;
 
+typedef struct urlgopher
+{
+  url_type__t     scheme;
+  char           *host;
+  int             port;
+  gopher_type__e  type;
+  char           *selector;
+  char           *search;
+  char           *plus;
+} urlgopher__t;
+
 typedef struct urlfile
 {
   url_type__t  scheme;
@@ -60,9 +91,10 @@ typedef struct urlfile
 
 typedef union url
 {
-  url_type__t scheme;
-  urlhttp__t  http;
-  urlfile__t  file;
+  url_type__t  scheme;
+  urlhttp__t   http;
+  urlfile__t   file;
+  urlgopher__t gopher;
 } url__t;
 
 struct urlvector

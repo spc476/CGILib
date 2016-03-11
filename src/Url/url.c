@@ -32,11 +32,13 @@
 
 extern struct urlvector g_httpvec;
 extern struct urlvector g_filevec;
+extern struct urlvector g_gophervec;
 
 const struct urlrelation g_protos[] = 
 {
-  { "file"      , URL_FILE      , &g_filevec      , sizeof(urlfile__t) },
-  { "http"      , URL_HTTP      , &g_httpvec      , sizeof(urlhttp__t) },
+  { "file"      , URL_FILE      , &g_filevec      , sizeof(urlfile__t)   },
+  { "http"      , URL_HTTP      , &g_httpvec      , sizeof(urlhttp__t)   },
+  { "gopher"	, URL_GOPHER	, &g_gophervec	  , sizeof(urlgopher__t) },
 };
 
 #define PROTOCOLS	(sizeof(g_protos) / sizeof(struct urlrelation))
