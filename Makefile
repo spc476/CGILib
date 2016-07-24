@@ -21,9 +21,9 @@
 
 .PHONY: all clean install tarball depend
 
-DESTLIB    = /usr/local/lib
-DESTHEADER = /usr/local/include/cgilib6
-CGIVERSION = $(shell git describe --tag)
+DESTLIB     = /usr/local/lib
+DESTHEADER  = /usr/local/include/cgilib6
+CGIVERSION := $(shell git describe --tag)
 
 CC     = gcc -std=c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
