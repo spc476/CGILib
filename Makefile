@@ -19,17 +19,24 @@
 #
 ########################################################################
 
-.PHONY: all clean install tarball depend
-
-DESTLIB     = /usr/local/lib
-DESTHEADER  = /usr/local/include/cgilib6
 CGIVERSION := $(shell git describe --tag)
 
 CC     = gcc -std=c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
 AR     = ar rscu
 
+INSTALL         = /usr/bin/install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA    = $(INSTALL) -m 644
+
+prefix      = /usr/local
+includedir  = $(prefix)/include
+exec_prefix = $(prefix)
+libdir      = $(exec_prefix)/lib
+
 override CFLAGS += -DCGIVERSION='"CGILIB/$(CGIVERSION)"'
+
+.PHONY: all clean install tarball depend
 
 all : build build/src build/src/Url build/libcgi6.a
 
@@ -67,10 +74,10 @@ clean:
 	$(RM) Makefile.bak
 
 install:
-	install -d $(DESTLIB)
-	install -d $(DESTHEADER)
-	install build/libcgi6.a $(DESTLIB)
-	install src/*.h $(DESTHEADER)
+	$(INSTALL) -d $(libdir)
+	$(INSTALL) -d $(includedir)/cgilib6
+	$(INSTALL_PROGRAM) build/libcgi6.a $(libdir)
+	$(INSTALL_DATA)    src/*.h $(includedir)/cgilib6
 
 depend:
 	makedepend -pbuild/ -Y -- $(CFLAGS) -- src/*.c src/Url/*.c 2>/dev/null
