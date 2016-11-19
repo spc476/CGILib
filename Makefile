@@ -21,7 +21,7 @@
 
 CGIVERSION := $(shell git describe --tag)
 
-CC     = gcc -std=c99 -pedantic -Wall -Wextra
+CC     = c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
 AR     = ar rscu
 
