@@ -74,10 +74,10 @@ clean:
 	$(RM) Makefile.bak
 
 install:
-	$(INSTALL) -d $(libdir)
-	$(INSTALL) -d $(includedir)/cgilib6
-	$(INSTALL_PROGRAM) build/libcgi6.a $(libdir)
-	$(INSTALL_DATA)    src/*.h $(includedir)/cgilib6
+	$(INSTALL) -d $(DESTDIR)$(libdir)
+	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib6
+	$(INSTALL_PROGRAM) build/libcgi6.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA)    src/*.h $(DESTDIR)$(includedir)/cgilib6
 
 depend:
 	makedepend -pbuild/ -Y -- $(CFLAGS) -- src/*.c src/Url/*.c 2>/dev/null
