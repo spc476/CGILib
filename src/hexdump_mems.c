@@ -41,7 +41,11 @@ int hexdump_mems(
   assert(dsize  >= amount * 3);
   assert(dest   != NULL);
   
-  for ( ; (dsize > 0) && (amount > 0) ; amount--,block++)
+  for (
+        ;
+        (dsize > 0) && (amount > 0) && (size > 0) ;
+        amount--,block++,size--
+      )
   {
     bytes = snprintf(dest,dsize," %02X",*block);
     if (bytes < 0) return bytes;
