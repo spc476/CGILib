@@ -20,9 +20,9 @@
 *************************************************************************/
 
 #include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
 #include <assert.h>
+
+#include "dump.h"
 
 int hexdump_mems(
         char       *dest,
@@ -33,7 +33,6 @@ int hexdump_mems(
 )
 {
   const unsigned char *block = data;
-  int                  bytes;
   
   assert(amount > 0);
   assert(size   > 0);
@@ -47,12 +46,13 @@ int hexdump_mems(
         amount--,block++,size--
       )
   {
-    bytes = snprintf(dest,dsize," %02X",*block);
-    if (bytes < 0) return bytes;
-    if ((unsigned)bytes > dsize) return ENOMEM;
-    dest  += bytes;
-    dsize -= bytes;
+    if (dsize < 4) return ENOMEM;
+    dest[0] = ' ';
+    hex(&dest[1],dsize,*block,2);
+    dest  += 3;
+    dsize -= 3;
   }
   
+  *dest = '\0';
   return 0;
 }
