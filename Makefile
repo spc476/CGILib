@@ -56,6 +56,8 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/chardump_mems.o	\
 		build/src/dump_mems.o		\
 		build/src/dump_memorys.o	\
+		build/src/dump_memoryf.o	\
+		build/src/dump_memoryl.o	\
 		build/src/Url/url.o		\
 		build/src/Url/http.o		\
 		build/src/Url/file.o		\

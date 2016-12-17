@@ -29,5 +29,6 @@ int chardump_mems  (char *,size_t,const void *,size_t,size_t);
 int dump_mems      (char *,size_t,const void *,size_t,size_t,size_t);
 int dump_memorys   (char *,size_t,const void *,size_t,size_t,size_t);
 int dump_memoryf   (FILE *,       const void *,size_t,size_t,size_t);
+int dump_memoryl   (int,          const void *,size_t,size_t,size_t);
 
 #endif
