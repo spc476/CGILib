@@ -27,6 +27,8 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include "dump.h"
+
 extern char		*up_string		(char *);
 extern char		*down_string		(char *);
 extern bool		 empty_string		(const char *);
@@ -35,7 +37,6 @@ extern char		*trim_lspace		(char *);
 extern char		*trim_tspace		(char *);
 extern int		 ctohex			(char);
 extern char		 hextoc			(int);
-extern void		 dump_memory		(FILE *,const void *,size_t,size_t);
 
 /****************************************************************/
 
@@ -61,6 +62,16 @@ static inline char *trim_space(char *s)
 }
 
 /*--------------------------------------------------------------*/
+
+static inline void dump_memory(
+        FILE       *out,
+        const void *data,
+        size_t      size,
+        size_t      offset
+)
+{
+  dump_memoryf(out,data,size,16,offset);
+}
 
 #endif
 
