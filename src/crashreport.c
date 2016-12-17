@@ -46,6 +46,7 @@
 #  include <execinfo.h>
 #endif
 
+#include "dump.h"
 #include "crashreport.h"
 
 #ifndef SA_ONESHOT
@@ -134,53 +135,31 @@ static int    m_cnt  = 0;
 #ifdef __linux__
 #define LINESIZE	16
 
-static void crashreport_hexdump(unsigned long pid,void *data,size_t size,size_t offset)
+static void crashreport_hexdump(
+    unsigned long  pid,
+    const void    *data,
+    size_t         size,
+    size_t         offset
+)
 {
   const unsigned char *block = data;
-  char                *p;
-  char                 line[80];
-  char                 ascii[LINESIZE + 1];
-  int                  skip;
-  int                  j;
+  char                 toffs[sizeof(size_t) * 2 + 1];
+  char                 tbyte[LINESIZE * 3 + 1];
   
   syslog(LOG_ALERT,"CRASH(%lu/%03d): STACK DUMP",pid,m_cnt++);
   
   while(size > 0)
   {
-    p = line;
-    p += sprintf(p,"%08lX: ",(unsigned long)offset);
-
-    for (skip = offset % LINESIZE , j = 0 ; skip ; j++ , skip--)
-    {
-      p += sprintf(p,"   ");
-      ascii[j] = ' ';
-    }
+    hex(toffs,sizeof(toffs),offset,sizeof(size_t)*2);
+    hexdump_mems(tbyte,sizeof(tbyte),block,size,LINESIZE);
+    syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s: %s",pid,m_cnt++,toffs,tbyte);
     
-    do
-    {
-      p += sprintf(p,"%02X ",*block);
-      if (isprint(*block))
-        ascii[j] = *block;
-      else
-        ascii[j] = '.';
-      
-      block++;
-      offset++;
-      j++;
-      size--;
-    } while ((j < LINESIZE) && (size > 0));
+    if (size < LINESIZE) break;
     
-    ascii[j] = '\0';
-    
-    if (j < LINESIZE)
-    {
-      int i;
-      
-      for (i = j ; i < LINESIZE ; i++)
-        p += sprintf(p,"   ");
-    }
-    syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s",pid,m_cnt++,line);
-  } 
+    block  += LINESIZE;
+    size   -= LINESIZE;
+    offset += LINESIZE;
+  }
 }
 #endif
 
