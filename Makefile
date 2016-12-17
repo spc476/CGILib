@@ -52,6 +52,10 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/bisearch.o		\
 		build/src/crashreport.o		\
 		build/src/tree.o		\
+		build/src/hexdump_mems.o	\
+		build/src/chardump_mems.o	\
+		build/src/dump_mems.o		\
+		build/src/dump_memorys.o	\
 		build/src/Url/url.o		\
 		build/src/Url/http.o		\
 		build/src/Url/file.o		\
