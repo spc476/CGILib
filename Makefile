@@ -95,18 +95,26 @@ tarball:
 # DO NOT DELETE
 
 build/src/bisearch.o: src/bisearch.h
-build/src/cgi.o: src/util.h src/cgi.h src/nodelist.h src/pair.h
+build/src/cgi.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
 build/src/chunk.o: src/chunk.h
 build/src/conf.o: src/conf.h
-build/src/crashreport.o: src/crashreport.h
+build/src/crashreport.o: src/dump.h src/crashreport.h
+build/src/dump_memoryf.o: src/dump.h
+build/src/dump_memoryl.o: src/dump.h
+build/src/dump_memorys.o: src/dump.h
+build/src/dump_mems.o: src/dump.h
+build/src/hex.o: src/dump.h
+build/src/hexdump_mems.o: src/dump.h
 build/src/htmltok.o: src/nodelist.h src/htmltok.h src/pair.h src/util.h
-build/src/mail.o: src/util.h src/rfc822.h src/nodelist.h src/pair.h
-build/src/mail.o: src/mail.h
+build/src/htmltok.o: src/dump.h
+build/src/mail.o: src/util.h src/dump.h src/rfc822.h src/nodelist.h
+build/src/mail.o: src/pair.h src/mail.h
 build/src/nodelist.o: src/nodelist.h
 build/src/pair.o: src/pair.h src/nodelist.h
-build/src/rfc822.o: src/nodelist.h src/util.h src/rfc822.h src/pair.h
+build/src/rfc822.o: src/nodelist.h src/util.h src/dump.h src/rfc822.h
+build/src/rfc822.o: src/pair.h
 build/src/tree.o: src/tree.h
-build/src/util.o: src/util.h
+build/src/util.o: src/util.h src/dump.h
 build/src/Url/file.o: src/url.h
 build/src/Url/gopher.o: src/url.h
 build/src/Url/http.o: src/url.h
