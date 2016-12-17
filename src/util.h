@@ -22,6 +22,10 @@
 #ifndef I_E9E199CD_82EF_511B_941A_FD918E03F4A1
 #define I_E9E199CD_82EF_511B_941A_FD918E03F4A1
 
+#ifndef __GNUC__
+#  define __attribute__(x)
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -63,6 +67,7 @@ static inline char *trim_space(char *s)
 
 /*--------------------------------------------------------------*/
 
+static inline void dump_memory(FILE *,const void *,size_t,size_t) __attribute__((deprecated));
 static inline void dump_memory(
         FILE       *out,
         const void *data,
