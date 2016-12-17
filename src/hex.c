@@ -27,8 +27,8 @@ void hex(char *dest,size_t dsize,uintptr_t val,size_t digits)
   int c;
   
   assert(dest   != NULL);
-  assert(dsize  >= sizeof(uintptr_t) * 2);
   assert(digits <= sizeof(uintptr_t) * 2);
+  assert(dsize  >  digits);
   
   dest[digits] = '\0';
   while(digits--)
