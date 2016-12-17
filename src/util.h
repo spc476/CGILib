@@ -77,7 +77,7 @@ static inline void dump_memory(
         size_t      offset
 )
 {
-  dump_memoryf(out,data,size,16,offset);
+  dump_memoryf(out,data,size,DEF_DUMP_BYTES,offset);
 }
 
 #endif

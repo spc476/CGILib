@@ -133,7 +133,6 @@ static int    m_cnt  = 0;
 /************************************************************************/
 
 #ifdef __linux__
-#define LINESIZE	16
 
 static void crashreport_hexdump(
     unsigned long  pid,
@@ -144,21 +143,21 @@ static void crashreport_hexdump(
 {
   const unsigned char *block = data;
   char                 toffs[sizeof(size_t) * 2 + 1];
-  char                 tbyte[LINESIZE * 3 + 1];
+  char                 tbyte[DEF_DUMP_BYTES * 3 + 1];
   
   syslog(LOG_ALERT,"CRASH(%lu/%03d): STACK DUMP",pid,m_cnt++);
   
   while(size > 0)
   {
     hex(toffs,sizeof(toffs),offset,sizeof(size_t)*2);
-    hexdump_mems(tbyte,sizeof(tbyte),block,size,LINESIZE);
+    hexdump_mems(tbyte,sizeof(tbyte),block,size,DEF_DUMP_BYTES);
     syslog(LOG_ALERT,"CRASH(%lu/%03d):        %s: %s",pid,m_cnt++,toffs,tbyte);
     
-    if (size < LINESIZE) break;
+    if (size < DEF_DUMP_BYTES) break;
     
-    block  += LINESIZE;
-    size   -= LINESIZE;
-    offset += LINESIZE;
+    block  += DEF_DUMP_BYTES;
+    size   -= DEF_DUMP_BYTES;
+    offset += DEF_DUMP_BYTES;
   }
 }
 #endif
