@@ -65,7 +65,9 @@ static inline char *trim_space(char *s)
   return trim_tspace(trim_lspace(s));
 }
 
-/*--------------------------------------------------------------*/
+/*------------------------------------------------------------------
+; The following function id deprecated; use dump_memoryf() instead.
+;-------------------------------------------------------------------*/
 
 static inline void dump_memory(FILE *,const void *,size_t,size_t) __attribute__((deprecated));
 static inline void dump_memory(
