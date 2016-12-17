@@ -41,7 +41,11 @@ int chardump_mems(
   assert(dsize  >= amount);
   assert(dest   != NULL);
   
-  for ( ; (dsize > 0) && (amount > 0) ; dsize--,amount--,block++)
+  for (
+        ;
+        (size > 0) && (dsize > 0) && (amount > 0) ;
+        size--,dsize--,amount--,block++
+      )
   {
     if (isprint(*block))
       *dest++ = *block;
