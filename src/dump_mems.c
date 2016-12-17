@@ -36,8 +36,9 @@ int dump_mems(
         size_t      offset
 )
 {
-  int bytes;
-  int rc;
+  size_t bump;
+  int    bytes;
+  int    rc;
   
   assert(amount > 0);
   assert(size   > 0);
@@ -55,8 +56,17 @@ int dump_mems(
   rc = hexdump_mems(dest,dsize,data,size,amount);
   if (rc < 0) return rc;
   
-  dest  += amount * 3;
-  dsize -= amount * 3;
+  /*------------------------------------------------------------------
+  ; Advance buffer pointer past the hex data.  There are two cases to watch
+  ; out for---when size < amount of data we want, and size >= amount of data
+  ; we want.  For the former, we only want to bump up the buffer pointer as
+  ; much as we wrote out.  Yes, we could use strlen() to to get to the end
+  ; of the buffer, but this is O(1) instead of O(n).
+  ;------------------------------------------------------------------------*/
+  
+  bump   = size < amount ? size : amount;
+  dest  += bump * 3;
+  dsize -= bump * 3;
   
   if (dsize == 0)  return ENOMEM;
   
