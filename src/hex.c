@@ -19,18 +19,26 @@
 *
 *************************************************************************/
 
-#ifndef I_B085509E_4B2C_59EA_87CE_25537724EAFD
-#define I_B085509E_4B2C_59EA_87CE_25537724EAFD
+#include <assert.h>
+#include "dump.h"
 
-#include <stdint.h>
-#include <stdio.h>
-
-void hex            (char *,size_t,uintptr_t,size_t);
-int  hexdump_mems   (char *,size_t,const void *,size_t,size_t);
-int  chardump_mems  (char *,size_t,const void *,size_t,size_t);
-int  dump_mems      (char *,size_t,const void *,size_t,size_t,size_t);
-int  dump_memorys   (char *,size_t,const void *,size_t,size_t,size_t);
-int  dump_memoryf   (FILE *,       const void *,size_t,size_t,size_t);
-int  dump_memoryl   (int,          const void *,size_t,size_t,size_t);
-
-#endif
+void hex(char *dest,size_t dsize,uintptr_t val,size_t digits)
+{
+  int c;
+  
+  assert(dest   != NULL);
+  assert(dsize  >= sizeof(uintptr_t) * 2);
+  assert(digits <= sizeof(uintptr_t) * 2);
+  
+  dest[digits] = '\0';
+  while(digits--)
+  {
+    c = (int)(val & (uintptr_t)15);
+    assert(c >= 0);
+    assert(c <  16);
+    c += '0';
+    if (c > '9') c += 7;
+    dest[digits] = c;
+    val >>= 4;
+  }
+}
