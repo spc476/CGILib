@@ -21,7 +21,6 @@
 
 #include <errno.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -37,21 +36,36 @@ int dump_mems(
 )
 {
   size_t bump;
-  int    bytes;
   int    rc;
   
   assert(amount > 0);
   assert(size   > 0);
   assert(data   != NULL);
-  assert(dsize  >= 10 + (amount * 4) + 2);
   assert(dest   != NULL);
   
-  bytes = snprintf(dest,dsize,"%08zX:",offset);
-  if (bytes < 0) return bytes;
-  if ((unsigned)bytes > dsize) return ENOMEM;
+  /*---------------------------------------------------------------------
+  ; Each line contains:
+  ;
+  ;	sizeof(size_t)*2 characters	pointer
+  ;	': '				separator
+  ;	amount * 3			space + hex byte value
+  ;	' '				separator
+  ;	amount				ASCII dump
+  ;	'\0'				NUL byte
+  ;
+  ; I want to ensure a large enough buffer, and this assert will catch a
+  ; too-small buffer during development.
+  ;---------------------------------------------------------------------*/
+
+  assert(dsize >= sizeof(size_t)*2 + 2 + (amount * 3) + 1 + amount + 1);
   
-  dest  += bytes;
-  dsize -= bytes;
+  hex(dest,dsize,offset,sizeof(size_t)*2);
+  dest    += sizeof(size_t)*2;
+  dsize   -= sizeof(size_t)*2;
+  dest[0]  = ':';
+  dest[1]  = ' ';
+  dest    += 2;
+  dsize   -= 2;
   
   rc = hexdump_mems(dest,dsize,data,size,amount);
   if (rc < 0) return rc;
@@ -82,6 +96,17 @@ int dump_mems(
   {
     size_t d = (amount - size) * 3;
     if (d > dsize) return ENOMEM;
+    
+    /*--------------------------------------------------------------------
+    ; memset() is not listed in POSIX as being an async-safe function. 
+    ; Really, POSIX?  Really?  I can't see it being non-async-safe as other
+    ; than setting memory to 0, it has no other side effects outside the
+    ; memory it's given.  Unless I'm horribly wrong.  I'm not going to write
+    ; a loop to set a bunch of characters to ' ' just to be POSIXly anal
+    ; here.  I'm going to call memset() and if there is a case where this
+    ; truly breaks, then I'll change my tune.  But not until then.
+    ;----------------------------------------------------------------------*/
+    
     memset(dest,' ',d);
     dest  += d;
     dsize -= d;
