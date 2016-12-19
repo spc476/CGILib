@@ -50,7 +50,7 @@ int dump_memorys(
     rc = dump_mems(dest,dsize,mem,size,amount,offset);
     if (rc < 0) return rc;
     
-    len     = strlen(dest);    
+    len     = strlen(dest);
     dest   += len;
     dsize  -= len;
     

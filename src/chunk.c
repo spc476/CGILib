@@ -82,8 +82,8 @@ static int chunk_search_cmp(const void *needle,const void *haystack)
 /*********************************************************************/
 
 static void chunk_handle(
-			  FILE                  *restrict in,
-			  FILE                  *restrict out,
+                          FILE                  *restrict in,
+                          FILE                  *restrict out,
                           const struct chunk_callback *pcc,
                           size_t                 scc,
                           void                  *data
@@ -100,9 +100,9 @@ static void chunk_handle(
   
   memset(cmdbuf,0,sizeof(cmdbuf));
   chunk_readcallback(in,cmdbuf,BUFSIZ);
-
+  
   res = bsearch(cmdbuf,pcc,scc,sizeof(struct chunk_callback),chunk_search_cmp);
-
+  
   if (res)
     (*res->callback)(out,data);
   else
@@ -114,7 +114,7 @@ static void chunk_handle(
 Chunk ChunkNew(const char *cname,const struct chunk_callback *pcc,size_t scc)
 {
   Chunk chunk;
-
+  
   assert(cname != NULL);
   assert(pcc   != NULL);
   assert(scc   >  0);
@@ -122,7 +122,7 @@ Chunk ChunkNew(const char *cname,const struct chunk_callback *pcc,size_t scc)
   chunk         = malloc(sizeof(struct chunk));
   chunk->name   = strdup(cname);
   chunk->cb     = pcc;
-  chunk->cbsize = scc;  
+  chunk->cbsize = scc;
   
   return chunk;
 }
@@ -133,17 +133,17 @@ int ChunkProcess(Chunk chunk,const char *name,FILE *out,void *data)
 {
   char   fname[FILENAME_MAX];
   FILE  *in;
-
+  
   assert(chunk != NULL);
   assert(name  != NULL);
   assert(out   != NULL);
-    
+  
   sprintf(fname,"%s/%s",chunk->name,name);
   
   in = fopen(fname,"r");
   if (in == NULL)
     return(errno);
-
+    
   ChunkProcessStream(chunk,in,out,data);
   
   fclose(in);
@@ -159,7 +159,7 @@ int ChunkProcessStream(Chunk chunk,FILE *in,FILE *out,void *data)
   assert(chunk != NULL);
   assert(in    != NULL);
   assert(out   != NULL);
-
+  
   while(!feof(in))
   {
     c = fgetc(in);
@@ -173,7 +173,7 @@ int ChunkProcessStream(Chunk chunk,FILE *in,FILE *out,void *data)
         continue;
       }
       fputc('%',out);
-    }    
+    }
     fputc(c,out);
   }
   return(0);

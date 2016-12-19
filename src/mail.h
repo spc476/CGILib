@@ -41,9 +41,9 @@ typedef struct email
 
 /********************************************************************/
 
-extern Email		EmailNew		(void);
-extern int		EmailSend		(Email);
-extern int		EmailFree		(Email);
+extern Email            EmailNew                (void);
+extern int              EmailSend               (Email);
+extern int              EmailFree               (Email);
 
 /********************************************************************/
 

@@ -28,9 +28,9 @@
 /************************************************************************/
 
 #if (INT_MAX < 65535L)
-#  define PORTMAX	INT_MAX
+#  define PORTMAX       INT_MAX
 #else
-#  define PORTMAX	65535
+#  define PORTMAX       65535
 #endif
 
 /********************************************************************/
@@ -99,10 +99,10 @@ typedef union url
 
 struct urlvector
 {
-  int    (*new)		(url__t *restrict,const char *);
-  int    (*compare)	(const url__t *const restrict,const url__t *const restrict);
-  size_t (*makestring)	(const url__t *const restrict,char *restrict,size_t);
-  void   (*free)	(url__t *);
+  int    (*new)         (url__t *restrict,const char *);
+  int    (*compare)     (const url__t *const restrict,const url__t *const restrict);
+  size_t (*makestring)  (const url__t *const restrict,char *restrict,size_t);
+  void   (*free)        (url__t *);
 };
 
 struct urlrelation
@@ -117,18 +117,18 @@ struct urlrelation
 
 extern const struct urlrelation g_protos[];
 
-extern size_t	 UrlGetProto		(char *,size_t,const char **);
-extern size_t	 UrlGetHost		(char *,size_t,const char **);
-extern size_t	 UrlGetPort		(char *,size_t,const char **);
-extern size_t	 UrlGetFile		(char *,size_t,const char **);
+extern size_t    UrlGetProto            (char *,size_t,const char **);
+extern size_t    UrlGetHost             (char *,size_t,const char **);
+extern size_t    UrlGetPort             (char *,size_t,const char **);
+extern size_t    UrlGetFile             (char *,size_t,const char **);
 
-url__t	*UrlNew		(const char *);
+url__t  *UrlNew         (const char *);
 
 /*------------------------------------------------------------------*/
 
 static inline int UrlCompare(
-	const url__t *const restrict durl,
-	const url__t *const restrict surl
+        const url__t *const restrict durl,
+        const url__t *const restrict surl
 )
 {
   assert(durl         != NULL);
@@ -142,16 +142,16 @@ static inline int UrlCompare(
 /*------------------------------------------------------------------*/
 
 static inline size_t UrlMakeString(
-	const url__t *const restrict url,
-	char         *restrict       d,
-	size_t                       sd
+        const url__t *const restrict url,
+        char         *restrict       d,
+        size_t                       sd
 )
 {
   assert(url         != NULL);
   assert(url->scheme <  URL_max);
   assert(d           != NULL);
   assert(sd          >  0);
-
+  
   return (*g_protos[url->scheme].puv->makestring)(url,d,sd);
 }
 

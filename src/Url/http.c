@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int	http_new	(url__t *restrict,const char *restrict);
-static int	http_compare	(const url__t *const restrict,const url__t *const restrict);
-static size_t	http_makestring	(const url__t *const restrict,char *restrict,size_t);
-static void	http_free	(url__t *);
+static int      http_new        (url__t *restrict,const char *restrict);
+static int      http_compare    (const url__t *const restrict,const url__t *const restrict);
+static size_t   http_makestring (const url__t *const restrict,char *restrict,size_t);
+static void     http_free       (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_httpvec = 
+const struct urlvector g_httpvec =
 {
   http_new,
   http_compare,
@@ -63,19 +63,19 @@ static int http_new(url__t *restrict url,const char *surl)
   ;
   ; durl->vector is also set.
   ;
-  ; The spec (RFC-1808) is 
+  ; The spec (RFC-1808) is
   ; http:[//host.domain.top[:port]][/path/file[;parms][?query][#fragment]]
   ;
-  ; technically, everything but the scheme may be absent, but for now, 
-  ; we're hacking it up a bit ...   
+  ; technically, everything but the scheme may be absent, but for now,
+  ; we're hacking it up a bit ...
   ;
   ; we're also ignoring the parms portion for now.
   ;-----------------------------------------------------------------*/
-
+  
   /*------------------------------------------------
   ; host portion, if any
   ;-------------------------------------------------*/
-
+  
   UrlGetHost(tmpbuf,BUFSIZ,&surl);
   hurl->host = strdup(tmpbuf);
   
@@ -87,7 +87,7 @@ static int http_new(url__t *restrict url,const char *surl)
   if (tmpsz)
   {
     long lport;
-
+    
     errno = 0;
     lport = strtol(tmpbuf,NULL,10);
     if ((errno == ERANGE) && ((lport == LONG_MAX) || (lport == LONG_MIN)))
@@ -108,12 +108,12 @@ static int http_new(url__t *restrict url,const char *surl)
     hurl->path = strdup(tmpbuf);
   else
     hurl->path = strdup("/");
-
+    
   /*------------------------------------------------------
   ; params, query and fragment parts
   ;-------------------------------------------------------*/
   
-  if (*surl == '?')	/* query part */
+  if (*surl == '?')     /* query part */
   {
     surl++;
     tmpsz = UrlGetFile(tmpbuf,BUFSIZ,&surl);
@@ -124,7 +124,7 @@ static int http_new(url__t *restrict url,const char *surl)
   }
   else
     hurl->query = strdup("");
-  
+    
   /*---------------------------------------------------------------
   ; fragment part (of file) if any
   ;----------------------------------------------------------------*/
@@ -133,15 +133,15 @@ static int http_new(url__t *restrict url,const char *surl)
     hurl->fragment = strdup(++surl);
   else
     hurl->fragment = strdup("");
-
+    
   return(0);
 }
 
 /**********************************************************************/
 
 static int http_compare(
-	const url__t *const restrict durl,
-	const url__t *const restrict surl
+        const url__t *const restrict durl,
+        const url__t *const restrict surl
 )
 {
   int rc;
@@ -167,9 +167,9 @@ static int http_compare(
 /**********************************************************************/
 
 static size_t http_makestring(
-	const url__t *const restrict url,
-	char         *restrict       d,
-	size_t                       sd
+        const url__t *const restrict url,
+        char         *restrict       d,
+        size_t                       sd
 )
 {
   char port[7];
@@ -189,22 +189,22 @@ static size_t http_makestring(
     port[0] = '\0';
   else
     snprintf(port,sizeof(port),":%d",url->http.port);
-  
+    
   return snprintf(
-  	d,
-  	sd, /*   h N p ? q # f */
-  	"http://%s%s%s%s%s%s%s",
-  	url->http.host,
-  	port,
-  	url->http.path,
-  	(*url->http.query != '\0')    ? "?" : "",
-  	url->http.query,
-  	(*url->http.fragment != '\0') ? "#" : "",
-  	url->http.fragment
+        d,
+        sd, /*   h N p ? q # f */
+        "http://%s%s%s%s%s%s%s",
+        url->http.host,
+        port,
+        url->http.path,
+        (*url->http.query != '\0')    ? "?" : "",
+        url->http.query,
+        (*url->http.fragment != '\0') ? "#" : "",
+        url->http.fragment
   );
 }
 
-/***********************************************************************/  
+/***********************************************************************/
 
 static void http_free(url__t *url)
 {

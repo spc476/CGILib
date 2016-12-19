@@ -29,9 +29,9 @@
 void ListInit(List *const pl)
 {
   assert(pl != NULL);
-
-  pl->lh_Head	  = (Node *)&pl->lh_Tail;
-  pl->lh_Tail	  = NULL;
+  
+  pl->lh_Head     = (Node *)&pl->lh_Tail;
+  pl->lh_Tail     = NULL;
   pl->lh_TailPred = (Node *)&pl->lh_Head;
 }
 
@@ -40,12 +40,12 @@ void ListInit(List *const pl)
 Node *ListRemHead(List *const pl)
 {
   Node *pn;
-
+  
   assert(pl != NULL);
-
+  
   pn = ListGetHead(pl);
   assert(pn != NULL);
-  if (NodeValid(pn)) 
+  if (NodeValid(pn))
     NodeRemove(pn);
   return(pn);
 }
@@ -55,9 +55,9 @@ Node *ListRemHead(List *const pl)
 Node *ListRemTail(List *const pl)
 {
   Node *pn;
-
+  
   assert(pl != NULL);
-
+  
   pn = ListGetTail(pl);
   assert(pn != NULL);
   if (NodeValid(pn))
@@ -70,14 +70,14 @@ Node *ListRemTail(List *const pl)
 void NodeInsert(Node *const restrict pn,Node *const restrict pntoa)
 {
   Node *pnn;
-
+  
   assert(pn    != NULL);
   assert(pntoa != NULL);
-
+  
   pnn            = pn->ln_Succ;
   pntoa->ln_Succ = pnn;
   pntoa->ln_Pred = pn;
-  pn->ln_Succ	 = pntoa;
+  pn->ln_Succ    = pntoa;
   pnn->ln_Pred   = pntoa;
 }
 
@@ -87,14 +87,14 @@ void NodeRemove(Node *const pn)
 {
   Node *pns;
   Node *pnp;
-
+  
   assert(pn          != NULL);
   assert(pn->ln_Succ != NULL);
   assert(pn->ln_Pred != NULL);
-
+  
   pns = pn->ln_Succ;
   pnp = pn->ln_Pred;
-
+  
   pns->ln_Pred = pnp;
   pnp->ln_Succ = pns;
 }
@@ -104,7 +104,7 @@ void NodeRemove(Node *const pn)
 Node *NodeNext(Node *pn)
 {
   assert(pn != NULL);
-
+  
   if (NodeValid(pn))
     pn = pn->ln_Succ;
   return(pn);
@@ -115,7 +115,7 @@ Node *NodeNext(Node *pn)
 Node *NodePrev(Node *pn)
 {
   assert(pn != NULL);
-
+  
   if (NodeValid(pn))
     pn = pn->ln_Pred;
   return(pn);

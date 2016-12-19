@@ -19,7 +19,7 @@
 *
 *************************************************************************/
 
-#define _GNU_SOURCE 1 
+#define _GNU_SOURCE 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,12 +44,12 @@ enum
 
 /**********************************************************************/
 
-static HToken	 ht_nextstr	(HtmlToken);
-static HToken	 ht_nexttag	(HtmlToken);
-static HToken	 ht_nextcom	(HtmlToken);
-static void	 ht_makepair	(HtmlToken,char *restrict,char *restrict);
-static void	 ht_acc		(HtmlToken,int);
-static char	*ht_accdup	(HtmlToken);
+static HToken    ht_nextstr     (HtmlToken);
+static HToken    ht_nexttag     (HtmlToken);
+static HToken    ht_nextcom     (HtmlToken);
+static void      ht_makepair    (HtmlToken,char *restrict,char *restrict);
+static void      ht_acc         (HtmlToken,int);
+static char     *ht_accdup      (HtmlToken);
 
 /*************************************************************************/
 
@@ -95,7 +95,7 @@ HtmlToken HtmlParseNew(FILE *input)
   
   pht         = malloc(sizeof(struct htmltoken));
   pht->token  = T_STRING;
-  pht->value  = NULL;	/* dup_string(""); */ /* am i perpetuating a hack? */
+  pht->value  = NULL;   /* dup_string(""); */ /* am i perpetuating a hack? */
   pht->state  = S_STRING;
   pht->input  = input;
   pht->data   = NULL;
@@ -113,9 +113,9 @@ HtmlToken HtmlParseClone(HtmlToken token)
   HtmlToken    pht;
   struct pair *pair;
   struct pair *pairp;
-
+  
   assert(token != NULL);
-
+  
   /*----------------------------------
   ; do I really need this call?
   ;-----------------------------------*/
@@ -149,25 +149,25 @@ HtmlToken HtmlParseClone(HtmlToken token)
 int HtmlParseNext(HtmlToken token)
 {
   assert(token != NULL);
-
-  if(token->value) 
-    free(token->value);
   
+  if(token->value)
+    free(token->value);
+    
   token->value = NULL;
   PairListFree(&token->pairs);
   token->idx = 0;
   
   switch(token->state)
   {
-    case T_EOF:		return(ht_nexteof(token));
-    case T_STRING:	return(ht_nextstr(token));
-    case T_TAG:		return(ht_nexttag(token));
-    case T_COMMENT:	return(ht_nextcom(token));
+    case T_EOF:         return(ht_nexteof(token));
+    case T_STRING:      return(ht_nextstr(token));
+    case T_TAG:         return(ht_nexttag(token));
+    case T_COMMENT:     return(ht_nextcom(token));
     default:
-         assert(0);	/* this shouldn't happen */
+         assert(0);     /* this shouldn't happen */
   }
-  assert(0);		/* and this shouldn't happen either */
-  return(T_EOF);	/* shut up -Wall -pedantic -ansi options to gcc */
+  assert(0);            /* and this shouldn't happen either */
+  return(T_EOF);        /* shut up -Wall -pedantic -ansi options to gcc */
 }
 
 /********************************************************************/
@@ -214,18 +214,18 @@ int HtmlParseFree(HtmlToken token)
   free(token->value);
   free(token);
   return(0);
-}  
+}
 
 /***********************************************************************/
-  
+
 static HToken ht_nextstr(HtmlToken token)
 {
   int c;
   int st = S_EOF;
-    
+  
   assert(token        != NULL);
   assert(token->input != NULL);
-
+  
   while(!feof(token->input))
   {
     c = fgetc(token->input);
@@ -238,7 +238,7 @@ static HToken ht_nextstr(HtmlToken token)
     else
       ht_acc(token,c);
   }
-
+  
   token->value = ht_accdup(token);
   token->token = T_STRING;
   token->state = st;
@@ -253,191 +253,191 @@ static HToken ht_nexttag(HtmlToken token)
   char *t;
   char *tt;
   int   level;
-    
-  assert(token != NULL);  
+  
+  assert(token != NULL);
   
   /*-----------------------------------------------------------
   ; but parsing HTML has proven to be a real bitch to program,
-  ; especially testing for unexpected end of files and what not, 
+  ; especially testing for unexpected end of files and what not,
   ; so I'm dropping down a level, so to speak.  This will probably
   ; produce horrible code, but at this point, nothing else has
-  ; worked reliably, so ... 
-  ;------------------------------------------------------------*/  
+  ; worked reliably, so ...
+  ;------------------------------------------------------------*/
   
-  	/*-------------------------------------------------
-  	; STAGE ALPHA - we just read a '<', so skip past 
-  	; any white space till we hit the tag
-  	;--------------------------------------------------*/
- 
-htnt_alpha:	c = fgetc(token->input);
-		if (c == EOF)   goto htnt_error;
-		if (isspace(c)) goto htnt_alpha;
-		if (c == '>' ) 	goto htnt_alpha10;	/* done - return tag */
-		if (c == '!' ) 	goto htnt_comment;
-		goto htnt_gottag;
+        /*-------------------------------------------------
+        ; STAGE ALPHA - we just read a '<', so skip past
+        ; any white space till we hit the tag
+        ;--------------------------------------------------*/
+        
+htnt_alpha:     c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (isspace(c)) goto htnt_alpha;
+                if (c == '>' )  goto htnt_alpha10;      /* done - return tag */
+                if (c == '!' )  goto htnt_comment;
+                goto htnt_gottag;
+                
+htnt_alpha10:   token->value = up_string(ht_accdup(token));
+                goto htnt_done;
+                
+        /*-----------------------------------------------
+        ; STAGE BETA - read the tag and save
+        ;----------------------------------------------*/
+        
+htnt_gottag:    ht_acc(token,c);
+                c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (c == '=' )  goto htnt_error;
+                if (c == '>' )  goto htnt_alpha10;      /* done - return tag */
+                if (!isspace(c)) goto htnt_gottag;
+                
+                token->value = up_string(ht_accdup(token));
+                
+        /*-------------------------------------------------
+        ; STAGE GAMMA - skip space to options
+        ;------------------------------------------------*/
+        
+htnt_bopts:     c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (isspace(c)) goto htnt_bopts;
+                if (c == '>')   goto htnt_done;
+                if (c == '=')   goto htnt_error;
+                
+        /*-----------------------------------------------
+        ; STAGE DELTA - read in option
+        ;-----------------------------------------------*/
+        
+htnt_gotopt:    ht_acc(token,c);
+                c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (isspace(c)) goto htnt_boptval;
+                if (c == '>')   goto htnt_gotoptd;
+                if (c == '=')   goto htnt_voptval;
+                goto htnt_gotopt;
+                
+htnt_gotoptd:   t = up_string(ht_accdup(token));
+                ht_makepair(token,t,strdup(""));
+                free(t);
+                goto htnt_done;
+                
+        /*------------------------------------------------
+        ; STAGE EPSILON - between an option and possibly its
+        ; value - or another option
+        ;-------------------------------------------------*/
+        
+htnt_boptval:   c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (isspace(c)) goto htnt_boptval;
+                if (c == '>')   goto htnt_gotoptd;
+                if (c == '=')   goto htnt_voptval;
+                
+                t = up_string(ht_accdup(token));
+                ht_makepair(token,t,strdup(""));
+                free(t);
+                goto htnt_gotopt;
+                
+        /*-------------------------------------------------
+        ; STAGE ZETA4[1] - skip space between '=' and value.
+        ; Also determine if the value is quoted or not.
+        ;
+        ; [1]   - local rock radio station in Lower Sheol
+        ;--------------------------------------------------*/
+        
+htnt_voptval:   t = up_string(ht_accdup(token));
 
-htnt_alpha10:	token->value = up_string(ht_accdup(token));
-		goto htnt_done;
-
-	/*-----------------------------------------------
-	; STAGE BETA - read the tag and save
-	;----------------------------------------------*/
-	
-htnt_gottag:	ht_acc(token,c);
-		c = fgetc(token->input);
-		if (c == EOF) 	goto htnt_error;
-		if (c == '=' ) 	goto htnt_error;
-		if (c == '>' ) 	goto htnt_alpha10;	/* done - return tag */
-		if (!isspace(c)) goto htnt_gottag;
-
-		token->value = up_string(ht_accdup(token));
-		
-	/*-------------------------------------------------
-	; STAGE GAMMA - skip space to options
-	;------------------------------------------------*/
-	
-htnt_bopts:	c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (isspace(c))	goto htnt_bopts;
-		if (c == '>')	goto htnt_done;
-		if (c == '=')	goto htnt_error;
-		
-	/*-----------------------------------------------
-	; STAGE DELTA - read in option
-	;-----------------------------------------------*/
-	
-htnt_gotopt:	ht_acc(token,c);
-		c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (isspace(c))	goto htnt_boptval;
-		if (c == '>')	goto htnt_gotoptd;
-		if (c == '=')	goto htnt_voptval;
-		goto htnt_gotopt;
-
-htnt_gotoptd:	t = up_string(ht_accdup(token));
-		ht_makepair(token,t,strdup(""));
-		free(t);
-		goto htnt_done;
-
-	/*------------------------------------------------
-	; STAGE EPSILON - between an option and possibly its
-	; value - or another option
-	;-------------------------------------------------*/
-
-htnt_boptval:	c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (isspace(c))	goto htnt_boptval;
-		if (c == '>')	goto htnt_gotoptd;
-		if (c == '=')	goto htnt_voptval;
-		
-		t = up_string(ht_accdup(token));
-		ht_makepair(token,t,strdup(""));
-		free(t);
-		goto htnt_gotopt;
-
-	/*-------------------------------------------------
-	; STAGE ZETA4[1] - skip space between '=' and value.
-	; Also determine if the value is quoted or not.
-	;
-	; [1]	- local rock radio station in Lower Sheol
-	;--------------------------------------------------*/
-	
-htnt_voptval:	t = up_string(ht_accdup(token));
-
-htnt_voptval10:	c = fgetc(token->input);
-		if (c == EOF)   goto htnt_error;
-		if (isspace(c))	goto htnt_voptval10;
-		if (c == '>')	goto htnt_error;
-		if (c == '\'')	goto htnt_valsq;
-		if (c == '"')	goto htnt_valdq;
-		
-	/*-------------------------------------------------
-	; STAGE ETA - read in non-quoted value
-	;-------------------------------------------------*/
-	
-htnt_nqval:	ht_acc(token,c);
-		c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (c == '>')	goto htnt_nqvald;
-		if (!isspace(c)) goto htnt_nqval;
-		tt = ht_accdup(token);
-		ht_makepair(token,t,tt);
-		free(tt);
-		free(t);
-		goto htnt_bopts;
-		
-htnt_nqvald:	ht_makepair(token,t,ht_accdup(token));
-		free(t);
-		goto htnt_done;
-		
-	/*------------------------------------------------
-	; STAGE THETA - read in single quoted value
-	;------------------------------------------------*/
-
-htnt_valsq10:	ht_acc(token,c);
-htnt_valsq:	c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (iscntrl(c)) c = ' ';
-		if (c != '\'')	goto htnt_valsq10;
-		tt = ht_accdup(token);
-		ht_makepair(token,t,tt);
-		free(tt);
-		free(t);
-		goto htnt_bopts;
-
-	/*------------------------------------------------
-	; STAGE IOTA - read in a double quoted value
-	;------------------------------------------------*/
-	
-htnt_valdq10:	ht_acc(token,c);
-htnt_valdq:	c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (iscntrl(c)) c = ' ';
-		if (c != '"')	goto htnt_valdq10;
-		tt = ht_accdup(token);
-		ht_makepair(token,t,tt);
-		free(tt);
-		free(t);
-		goto htnt_bopts;
-		
-	/*-------------------------------------------------
-	; STAGE KAPPA - read in a comment (kludgy for now)
-	;------------------------------------------------*/
-	
-htnt_comment:	level = 1;
-htnt_comm10:	c = fgetc(token->input);
-		if (c == EOF)	goto htnt_error;
-		if (c != '<')	goto htnt_comm20;
-		level++;
-		goto htnt_comm30;
-htnt_comm20:	if (c != '>')	goto htnt_comm30;
-		if (level == 1)	goto htnt_commdone;
-		level--;
-htnt_comm30:	ht_acc(token,c);
-		goto htnt_comm10;
-		
-htnt_commdone:	token->value = ht_accdup(token);
-		token->token = T_COMMENT;
-		token->state = S_STRING;
-		return T_COMMENT;
-		
-	/*--------------------------------------------------
-	; STAGE OMEGA - done - return
-	;--------------------------------------------------*/
-	
-htnt_done:	token->token = T_TAG;
-		token->state = S_STRING;
-		return T_TAG;
-		
-	/*-----------------------------------------------
-	; Abandon All Hope Ye Who Enter Here
-	;-----------------------------------------------*/
-	
-htnt_error:	token->token = T_EOF;
-		token->state = S_EOF;
-		return T_EOF;
+htnt_voptval10: c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (isspace(c)) goto htnt_voptval10;
+                if (c == '>')   goto htnt_error;
+                if (c == '\'')  goto htnt_valsq;
+                if (c == '"')   goto htnt_valdq;
+                
+        /*-------------------------------------------------
+        ; STAGE ETA - read in non-quoted value
+        ;-------------------------------------------------*/
+        
+htnt_nqval:     ht_acc(token,c);
+                c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (c == '>')   goto htnt_nqvald;
+                if (!isspace(c)) goto htnt_nqval;
+                tt = ht_accdup(token);
+                ht_makepair(token,t,tt);
+                free(tt);
+                free(t);
+                goto htnt_bopts;
+                
+htnt_nqvald:    ht_makepair(token,t,ht_accdup(token));
+                free(t);
+                goto htnt_done;
+                
+        /*------------------------------------------------
+        ; STAGE THETA - read in single quoted value
+        ;------------------------------------------------*/
+        
+htnt_valsq10:   ht_acc(token,c);
+htnt_valsq:     c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (iscntrl(c)) c = ' ';
+                if (c != '\'')  goto htnt_valsq10;
+                tt = ht_accdup(token);
+                ht_makepair(token,t,tt);
+                free(tt);
+                free(t);
+                goto htnt_bopts;
+                
+        /*------------------------------------------------
+        ; STAGE IOTA - read in a double quoted value
+        ;------------------------------------------------*/
+        
+htnt_valdq10:   ht_acc(token,c);
+htnt_valdq:     c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (iscntrl(c)) c = ' ';
+                if (c != '"')   goto htnt_valdq10;
+                tt = ht_accdup(token);
+                ht_makepair(token,t,tt);
+                free(tt);
+                free(t);
+                goto htnt_bopts;
+                
+        /*-------------------------------------------------
+        ; STAGE KAPPA - read in a comment (kludgy for now)
+        ;------------------------------------------------*/
+        
+htnt_comment:   level = 1;
+htnt_comm10:    c = fgetc(token->input);
+                if (c == EOF)   goto htnt_error;
+                if (c != '<')   goto htnt_comm20;
+                level++;
+                goto htnt_comm30;
+htnt_comm20:    if (c != '>')   goto htnt_comm30;
+                if (level == 1) goto htnt_commdone;
+                level--;
+htnt_comm30:    ht_acc(token,c);
+                goto htnt_comm10;
+                
+htnt_commdone:  token->value = ht_accdup(token);
+                token->token = T_COMMENT;
+                token->state = S_STRING;
+                return T_COMMENT;
+                
+        /*--------------------------------------------------
+        ; STAGE OMEGA - done - return
+        ;--------------------------------------------------*/
+        
+htnt_done:      token->token = T_TAG;
+                token->state = S_STRING;
+                return T_TAG;
+                
+        /*-----------------------------------------------
+        ; Abandon All Hope Ye Who Enter Here
+        ;-----------------------------------------------*/
+        
+htnt_error:     token->token = T_EOF;
+                token->state = S_EOF;
+                return T_EOF;
 }
-		
+
 /**********************************************************************/
 
 static void ht_acc(HtmlToken token,int c)
@@ -450,7 +450,7 @@ static void ht_acc(HtmlToken token,int c)
     token->max += 64;
     token->data = realloc(token->data,token->max);
   }
-
+  
   token->data[token->idx++] = c;
 }
 
@@ -466,7 +466,7 @@ static char *ht_accdup(HtmlToken token)
   memcpy(text,token->data,token->idx);
   text[token->idx] = '\0';
   token->idx = 0;
-
+  
   return text;
 }
 

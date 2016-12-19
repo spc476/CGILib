@@ -33,14 +33,14 @@
 
 #include "dump.h"
 
-extern char		*up_string		(char *);
-extern char		*down_string		(char *);
-extern bool		 empty_string		(const char *);
-extern char		*remove_char		(char *,int (*)(int));
-extern char		*trim_lspace		(char *);
-extern char		*trim_tspace		(char *);
-extern int		 ctohex			(char);
-extern char		 hextoc			(int);
+extern char             *up_string              (char *);
+extern char             *down_string            (char *);
+extern bool              empty_string           (const char *);
+extern char             *remove_char            (char *,int (*)(int));
+extern char             *trim_lspace            (char *);
+extern char             *trim_tspace            (char *);
+extern int               ctohex                 (char);
+extern char              hextoc                 (int);
 
 /****************************************************************/
 

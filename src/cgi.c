@@ -33,11 +33,11 @@
 
 /**************************************************************************/
 
-static int		 cgi_create	(Cgi *,void *);
-static int		 cgi_new_get	(const Cgi);
-static int		 cgi_new_post	(const Cgi);
-static int		 cgi_new_head	(const Cgi);
-static int		 cgi_new_put	(const Cgi);
+static int               cgi_create     (Cgi *,void *);
+static int               cgi_new_get    (const Cgi);
+static int               cgi_new_post   (const Cgi);
+static int               cgi_new_head   (const Cgi);
+static int               cgi_new_put    (const Cgi);
 static void              cgicookie_new  (const Cgi,const char *,size_t);
 
 /*************************************************************************/
@@ -52,10 +52,10 @@ Cgi CgiNew(void *data)
   
   if (request_method == NULL)
     return NULL;
-  
+    
   if (cgi_create(&cgi,data) != 0)
     return NULL;
-  
+    
   if (strcmp(request_method,"GET") == 0)
     rc = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
@@ -69,7 +69,7 @@ Cgi CgiNew(void *data)
     free(cgi);
     return NULL;
   }
-
+  
   if (rc != 0)
   {
     free(cgi);
@@ -84,13 +84,13 @@ Cgi CgiNew(void *data)
 static int cgi_create(Cgi *pcgi,void *data)
 {
   struct cgi *cgi;
-
+  
   assert(pcgi != NULL);
-       
+  
   cgi = calloc(1,sizeof(struct cgi));
   cgi->data = data;
   *pcgi     = cgi;
-
+  
   ListInit(&cgi->vars);
   return(0);
 }
@@ -101,7 +101,7 @@ static int cgi_new_get(const Cgi cgi)
 {
   char   *query_string;
   size_t  qs;
-
+  
   assert(cgi != NULL);
   
   query_string = getenv("QUERY_STRING");
@@ -129,20 +129,20 @@ static int cgi_new_post(const Cgi cgi)
   
   if ((content_type == NULL) || (content_length == NULL))
     return ENOMSG;
-
+    
   if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
     return(ENOMSG);
-  
+    
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
     return(ERANGE);
-  
+    
   cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
   cgi->bufsize          = length+1;
   cgi->buffer[length+1] = '&';
-
+  
   if (fread(cgi->buffer,1,length,stdin) < length)
   {
     if (feof(stdin))
@@ -150,7 +150,7 @@ static int cgi_new_post(const Cgi cgi)
     else
       return ENODATA;
   }
-
+  
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
   cgi->method  = POST;
@@ -173,22 +173,22 @@ static int cgi_new_put(const Cgi cgi)
 {
   char   *content_length;
   size_t  length;
-
+  
   content_length = getenv("CONTENT_LENGTH");
-
+  
   if (content_length == NULL)
     return ENOMSG;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
-
+  
   if ((length == LONG_MAX) && (errno == ERANGE))
     return ERANGE;
-
+    
   cgi->bufsize  = length;
   cgi->datatype = getenv("CONTENT_TYPE");
   cgi->method   = PUT;
-
+  
   return 0;
 }
 
@@ -206,16 +206,16 @@ struct pair *CgiNextValue(const Cgi cgi)
     return(NULL);
   if (empty_string(cgi->pbuff))
     return(NULL);
-
+    
   psp = PairNew(&cgi->pbuff,'=','&');
-
+  
   for ( d = s = psp->name  ; *s ; *d++ = UrlDecodeChar(&s))
     ;
   *d = '\0';
   for ( d = s = psp->value ; *s ; *d++ = UrlDecodeChar(&s))
     ;
   *d = '\0';
-
+  
   return(psp);
 }
 
@@ -239,17 +239,17 @@ size_t CgiListGetValues(const Cgi cgi,char ***darray,const char *name)
   size_t        idx   = 0;
   char        **store = NULL;
   struct pair  *pair;
-
+  
   assert(darray != NULL);
   assert(name   != NULL);
-
+  
   pair = CgiListGetPair(cgi,name);
   if (pair == NULL)
   {
     *darray = NULL;
     return(0);
   }
-
+  
   while(NodeValid(&pair->node))
   {
     if (strcmp(pair->name,name) == 0)
@@ -257,7 +257,7 @@ size_t CgiListGetValues(const Cgi cgi,char ***darray,const char *name)
       if (idx == size)
       {
         store = realloc(store,size+256);
-	size  += 256;
+        size  += 256;
       }
       store[idx++] = pair->value;
     }
@@ -306,7 +306,7 @@ static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
 {
   assert(cgi  != NULL);
   assert(data != NULL);
-
+  
   if (size)
   {
     cgi->buffer = malloc(size + 2);
@@ -330,17 +330,17 @@ static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
 char *UrlEncodeString(const char *src)
 {
   size_t  nsize;
-  char	 *dest;
-  char	 *p;
-
+  char   *dest;
+  char   *p;
+  
   assert(src != NULL);
-
+  
   nsize = strlen(src) * 3 + 1;
-  dest	= malloc(nsize);
-
+  dest  = malloc(nsize);
+  
   for ( p = dest ; *src ; src++)
     p = UrlEncodeChar(p,*src);
-
+    
   *p = 0;
   
   return dest;
@@ -351,9 +351,9 @@ char *UrlEncodeString(const char *src)
 char *UrlEncodeChar(char *dest,char c)
 {
   div_t sdiv;
-
+  
   assert(dest != NULL);
-
+  
   if (ispunct(c) || iscntrl(c))
   {
     if ((c != '-') && (c != '@') && (c != '*') && (c != '_'))
@@ -377,12 +377,12 @@ char *UrlDecodeString(char *src)
 {
   char *r;
   char *t;
-
+  
   assert(src != NULL);
-
+  
   for ( r = src , t = src ; *src ; t++)
     *t = UrlDecodeChar(&src);
-
+    
   *t = '\0';
   return(r);
 }
@@ -392,11 +392,11 @@ char *UrlDecodeString(char *src)
 char UrlDecodeChar(char **psrc)
 {
   char *src;
-  char	c;
-
+  char  c;
+  
   assert(psrc  != NULL);
   assert(*psrc != NULL);
-
+  
   src = *psrc;
   c   = *src++;
   if (c == '+')
@@ -405,7 +405,7 @@ char UrlDecodeChar(char **psrc)
   {
     assert(isxdigit(*src));
     assert(isxdigit(*(src+1)));
-    c	 = ctohex(*src) * 16 + ctohex(*(src+1));
+    c    = ctohex(*src) * 16 + ctohex(*(src+1));
     src += 2;
   }
   *psrc = src;

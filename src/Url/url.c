@@ -34,37 +34,37 @@ extern struct urlvector g_httpvec;
 extern struct urlvector g_filevec;
 extern struct urlvector g_gophervec;
 
-const struct urlrelation g_protos[] = 
+const struct urlrelation g_protos[] =
 {
   { "file"      , URL_FILE      , &g_filevec      , sizeof(urlfile__t)   },
   { "http"      , URL_HTTP      , &g_httpvec      , sizeof(urlhttp__t)   },
-  { "gopher"	, URL_GOPHER	, &g_gophervec	  , sizeof(urlgopher__t) },
+  { "gopher"    , URL_GOPHER    , &g_gophervec    , sizeof(urlgopher__t) },
 };
 
-#define PROTOCOLS	(sizeof(g_protos) / sizeof(struct urlrelation))
+#define PROTOCOLS       (sizeof(g_protos) / sizeof(struct urlrelation))
 
 /********************************************************************/
 
 size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
-  char	     *rd;
-  char	      c;
-
+  char       *rd;
+  char        c;
+  
   assert(d      != NULL);
   assert(sd     >     0);
   assert(ppurl  != NULL);
   assert(*ppurl != NULL);
-
+  
   rd = d;
   s  = *ppurl;
-
+  
   while(((c = *s++) != 0) && (--sd))
   {
     if (c == ':') break;
     *d++ = tolower(c);
   }
-  *d	 = '\0';
+  *d     = '\0';
   *ppurl = s;
   return((size_t)(d - rd));
 }
@@ -75,20 +75,20 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
   char       *rd;
-
+  
   assert(d      != NULL);
   assert(sd     >  0);
   assert(ppurl  != NULL);
   assert(*ppurl != NULL);
-
+  
   rd = d;
   s  = *ppurl;
-
+  
   if ((*s == '/') && (*(s+1) == '/'))
   {
     int c;
-
-    s += 2;	/* point past // in URL */
+    
+    s += 2;     /* point past // in URL */
     while(((c = *s) != 0) && (--sd))
     {
       if ((c == ':') || (c == '/')) break;
@@ -97,7 +97,7 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
     }
   }
   if (*(d-1) == '.') d--;       /* remove any trailing '.'      */
-  *d	 = '\0';
+  *d     = '\0';
   *ppurl = s;
   return((size_t)(d - rd));
 }
@@ -108,15 +108,15 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
   char       *rd;
-
+  
   assert(d      != NULL);
   assert(sd     >  0);
   assert(ppurl  != NULL);
   assert(*ppurl != NULL);
-
+  
   rd = d;
   s  = *ppurl;
-
+  
   if (*s == ':')
   {
     s++;
@@ -126,7 +126,7 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
       *d++ = *s++;
     }
   }
-  *d	 = '\0';
+  *d     = '\0';
   *ppurl = s;
   return((size_t)(d - rd));
 }
@@ -137,23 +137,23 @@ size_t UrlGetFile(char *d,size_t sd,const char **ppurl)
 {
   const char *s;
   char       *rd;
-  char	      c;
-
+  char        c;
+  
   assert(d      != NULL);
-  assert(sd     >	0);
+  assert(sd     >       0);
   assert(ppurl  != NULL);
   assert(*ppurl != NULL);
-
+  
   rd = d;
   s  = *ppurl;
-
+  
   while(((c = *s) != 0) && (--sd))
   {
     if (strchr("?#",c)) break;
     *d++ = c;
     s++;
   }
-  *d	 = '\0';
+  *d     = '\0';
   *ppurl = s;
   return((size_t)(d - rd));
 }
@@ -164,13 +164,13 @@ url__t *UrlNew(const char *url)
 {
   size_t      i;
   const char *turl = url;
-  char	      tmpbuf[BUFSIZ];
+  char        tmpbuf[BUFSIZ];
   url__t     *purl;
-
+  
   assert(url != NULL);
-
+  
   UrlGetProto(tmpbuf,BUFSIZ,&turl);
-
+  
   for (i = 0 ; i < PROTOCOLS ; i++)
   {
     if (strcmp(tmpbuf,g_protos[i].proto) == 0)
@@ -180,7 +180,7 @@ url__t *UrlNew(const char *url)
       
       if ((*g_protos[i].puv->new)(purl,turl) == 0)
         return purl;
-      
+        
       free(purl);
       return NULL;
     }
@@ -188,6 +188,6 @@ url__t *UrlNew(const char *url)
   
   return NULL;
 }
-      
+
 /**********************************************************************/
 

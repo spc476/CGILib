@@ -24,10 +24,10 @@
 
 /*************************************************************************/
 
-static int	tree_delta	(tree__s *);
-static tree__s	*tree_rotl	(tree__s *);
-static tree__s	*tree_rotr	(tree__s *);
-static tree__s	*tree_balance	(tree__s *);
+static int      tree_delta      (tree__s *);
+static tree__s  *tree_rotl      (tree__s *);
+static tree__s  *tree_rotr      (tree__s *);
+static tree__s  *tree_balance   (tree__s *);
 
 /*************************************************************************/
 
@@ -75,15 +75,15 @@ static tree__s *tree_balance(tree__s *self)
       self->left = tree_rotl(self->left);
     return tree_rotr(self);
   }
-
+  
   self->height = 0;
   
   if (self->left && (self->left->height > self->height))
     self->height = self->left->height;
-
+    
   if (self->right && (self->right->height > self->height))
     self->height = self->right->height;
-
+    
   self->height += 1;
   return self;
 }
@@ -94,7 +94,7 @@ static tree__s *tree_move_right(tree__s *self,tree__s *rhs)
 {
   if (self == NULL)
     return rhs;
-  
+    
   self->right = tree_move_right(self->right,rhs);
   return tree_balance(self);
 }
@@ -102,63 +102,63 @@ static tree__s *tree_move_right(tree__s *self,tree__s *rhs)
 /*************************************************************************/
 
 tree__s *tree_insert(
-	tree__s *self,
-	tree__s *item,
-	int (*compare)(const void *,const void *)
+        tree__s *self,
+        tree__s *item,
+        int (*compare)(const void *,const void *)
 )
 {
   int rc;
   
   if (self == NULL)
     return item;
-
+    
   rc = (*compare)(item,self);
-
+  
   if (rc < 0)
     self->left = tree_insert(self->left,item,compare);
   else
     self->right = tree_insert(self->right,item,compare);
-
+    
   return tree_balance(self);
 }
 
 /*************************************************************************/
 
 tree__s *tree_find(
-	tree__s    *self,
-	const void *item,
-	int (*compare)(const void *,const void *)
+        tree__s    *self,
+        const void *item,
+        int (*compare)(const void *,const void *)
 )
 {
   int rc;
   
   if (self == NULL)
     return NULL;
-  
+    
   rc = (*compare)(item,self);
-
+  
   if (rc < 0)
     return tree_find(self->left,item,compare);
   else if (rc == 0)
     return self;
-  else 
+  else
     return tree_find(self->right,item,compare);
 }
 
 /*************************************************************************/
 
 tree__s *tree_remove(
-	tree__s     *self,
-	const void  *item,
-	int        (*compare)(const void *,const void *),
-	tree__s    **remove
+        tree__s     *self,
+        const void  *item,
+        int        (*compare)(const void *,const void *),
+        tree__s    **remove
 )
 {
   int rc;
   
   if (self == NULL)
     return NULL;
-  
+    
   rc = (*compare)(item,self);
   
   if (rc < 0)
@@ -167,13 +167,13 @@ tree__s *tree_remove(
   {
     if (remove != NULL)
       *remove = self;
-
+      
     tree__s *tmp = tree_move_right(self->left,self->right);
     return tmp;
   }
   else
     self->right = tree_remove(self->right,item,compare,remove);
-
+    
   return tree_balance(self);
 }
 

@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int	gopher_new		(url__t *restrict,const char *restrict);
-static int	gopher_compare		(const url__t *const restrict,const url__t *const restrict);
-static size_t	gopher_makestring	(const url__t *const restrict,char *restrict,size_t);
-static void	gopher_free		(url__t *);
+static int      gopher_new              (url__t *restrict,const char *restrict);
+static int      gopher_compare          (const url__t *const restrict,const url__t *const restrict);
+static size_t   gopher_makestring       (const url__t *const restrict,char *restrict,size_t);
+static void     gopher_free             (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_gophervec = 
+const struct urlvector g_gophervec =
 {
   gopher_new,
   gopher_compare,
@@ -62,7 +62,7 @@ static int gopher_new(url__t *restrict url,const char *surl)
   /*------------------------------------------------
   ; host portion, if any
   ;-------------------------------------------------*/
-
+  
   UrlGetHost(tmpbuf,BUFSIZ,&surl);
   hurl->host = strdup(tmpbuf);
   
@@ -74,7 +74,7 @@ static int gopher_new(url__t *restrict url,const char *surl)
   if (tmpsz)
   {
     long lport;
-
+    
     errno = 0;
     lport = strtol(tmpbuf,NULL,10);
     if ((errno == ERANGE) && ((lport == LONG_MAX) || (lport == LONG_MIN)))
@@ -85,7 +85,7 @@ static int gopher_new(url__t *restrict url,const char *surl)
   }
   else
     hurl->port = 70;
-  
+    
   if (*surl == '\0')
   {
     hurl->type     = GOPHER_DIR;
@@ -138,7 +138,7 @@ static int gopher_new(url__t *restrict url,const char *surl)
   /*------------------------------------------
   ; if we're up against Sark, return an error.
   ;-------------------------------------------*/
-
+  
   if (*surl == '\0')
   {
     free(hurl->selector);
@@ -188,8 +188,8 @@ static int gopher_new(url__t *restrict url,const char *surl)
 /**********************************************************************/
 
 static int gopher_compare(
-	const url__t *const restrict durl,
-	const url__t *const restrict surl
+        const url__t *const restrict durl,
+        const url__t *const restrict surl
 )
 {
   int rc;
@@ -217,9 +217,9 @@ static int gopher_compare(
 /**********************************************************************/
 
 static size_t gopher_makestring(
-	const url__t *const restrict url,
-	char         *restrict       d,
-	size_t                       sd
+        const url__t *const restrict url,
+        char         *restrict       d,
+        size_t                       sd
 )
 {
   char port[7];
@@ -240,23 +240,23 @@ static size_t gopher_makestring(
     port[0] = '\0';
   else
     snprintf(port,sizeof(port),":%d",url->gopher.port);
-  
+    
   return snprintf(
-  	d,
-  	sd, /*     h N  t p > s > + */
-  	"gopher://%s%s/%c%s%s%s%s%s",
-  	url->gopher.host,
-  	port,
-  	url->gopher.type,
-  	url->gopher.selector,
-  	(*url->gopher.search != '\0') ? "%09" : "",
-  	url->gopher.search,
-  	(*url->gopher.plus   != '\0') ? "%09" : "",
-  	url->gopher.plus
+        d,
+        sd, /*     h N  t p > s > + */
+        "gopher://%s%s/%c%s%s%s%s%s",
+        url->gopher.host,
+        port,
+        url->gopher.type,
+        url->gopher.selector,
+        (*url->gopher.search != '\0') ? "%09" : "",
+        url->gopher.search,
+        (*url->gopher.plus   != '\0') ? "%09" : "",
+        url->gopher.plus
   );
 }
 
-/***********************************************************************/  
+/***********************************************************************/
 
 static void gopher_free(url__t *url)
 {

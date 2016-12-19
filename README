@@ -1,36 +1,36 @@
 
-This is code I wrote *years* ago to help implement CGI-based programs in C. 
+This is code I wrote *years* ago to help implement CGI-based programs in C.
 It has evolved since then, accumulating other bits of code that I've found
 useful in CGI-based programs as well as other, non-CGI-based programs.  It's
 somewhat of a grabbag of routines here.
 
-bisearch	- binary search that returns both found/not-found indicator,
-		  plus the index where it item was found/would have been
-		  found.
+bisearch        - binary search that returns both found/not-found indicator,
+                  plus the index where it item was found/would have been
+                  found.
+                  
+cgi             - routines to handle CGI variables; both GET and POST
+                  variables are supported, but not both at the same time.
+                  This limitation was one that has never bothered me.
+                  
+chunk           - a simple template system.  Real simple.  It's up to you to
+                  provide loops, sub-templates, etc.  All this does is allow
+                  you to register callbacks keyed off the text between '%{'
+                  and '}%'.  The rest is up to you.
+                  
+htmltok         - a simple tag-soup HTML parser.
 
-cgi		- routines to handle CGI variables; both GET and POST
-		  variables are supported, but not both at the same time. 
-		  This limitation was one that has never bothered me.
+mail            - a simple interface to sending email
 
-chunk		- a simple template system.  Real simple.  It's up to you to
-		  provide loops, sub-templates, etc.  All this does is allow
-		  you to register callbacks keyed off the text between '%{'
-		  and '}%'.  The rest is up to you.
+nodelist        - a double-linked list library, based off the old Amiga
+                  OS.
+                  
+pair            - creates name/value pairs and puts them into a list.  It
+                  does a linear scan to find pairs.
+                  
+rfc822          - parses RFC-822 formatted headers.
 
-htmltok		- a simple tag-soup HTML parser.  
-
-mail		- a simple interface to sending email
-
-nodelist	- a double-linked list library, based off the old Amiga
-		  OS.
-
-pair		- creates name/value pairs and puts them into a list.  It
-		  does a linear scan to find pairs.
-
-rfc822		- parses RFC-822 formatted headers.
-
-url		- right now it only parses and creates HTTP based urls,
-		  but the infrastructure is there to support more types.
-
-util		- some miscellaneous routines that don't fit elsewhere.
+url             - right now it only parses and creates HTTP based urls,
+                  but the infrastructure is there to support more types.
+                  
+util            - some miscellaneous routines that don't fit elsewhere.
 

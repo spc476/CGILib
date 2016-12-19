@@ -60,7 +60,7 @@ bool empty_string(const char *s)
   
   for ( ; *s ; s++)
     if (!isspace(*s)) return false;
-
+    
   return true;
 }
 
@@ -72,11 +72,11 @@ char *remove_char(char *s,int (*tstchar)(int))
   char *d   = s;
   
   assert(s != NULL);
-  assert(tstchar);		/* can function pointers be compared to NULL? */
+  assert(tstchar);              /* can function pointers be compared to NULL? */
   
   for ( ; *s ; s++)
     if (!(*tstchar)(*s)) *d++ = *s;
-
+    
   *d = '\0';
   return(ret);
 }
@@ -86,9 +86,9 @@ char *remove_char(char *s,int (*tstchar)(int))
 char *trim_lspace(char *s)
 {
   char *p;
-
-  assert(s != NULL);  
-
+  
+  assert(s != NULL);
+  
   for ( p = s ; (*p) && (isspace(*p)) ; p++)
     ;
   memmove(s,p,strlen(p) + 1);
@@ -114,11 +114,11 @@ char *trim_tspace(char *s)
 int ctohex(char c)
 {
   assert(isxdigit(c));
- 
-  c = toupper(c); 
+  
+  c = toupper(c);
   c -= '0';
   if (c > 9) c -= 7;
-  assert(c >= 0);	/* warning on AIX - apparently chars are unsigned */
+  assert(c >= 0);       /* warning on AIX - apparently chars are unsigned */
   assert(c <  16);
   return c;
 }

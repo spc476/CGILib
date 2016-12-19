@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int	file_new	(url__t *,const char *);
-static int	file_compare	(const url__t *const restrict,const url__t *const restrict);
-static size_t	file_makestring	(const url__t *const restrict,char *restrict,size_t);
-static void	file_free	(url__t *);
+static int      file_new        (url__t *,const char *);
+static int      file_compare    (const url__t *const restrict,const url__t *const restrict);
+static size_t   file_makestring (const url__t *const restrict,char *restrict,size_t);
+static void     file_free       (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_filevec = 
+const struct urlvector g_filevec =
 {
   file_new,
   file_compare,
@@ -55,13 +55,13 @@ static int file_new(url__t *restrict url,const char *surl)
   
   assert(url  != NULL);
   assert(surl != NULL);
-
+  
   /*------------------------------------------------------------
   ; host portion of string - can be either one of 'localhost' or
   ; the host this library is running on, or nothing.  If the host
   ; specified isn't this host, it's an error
   ;------------------------------------------------------------*/
-    
+  
   tmpsz = UrlGetHost(tmpbuf,BUFSIZ,&surl);
   if (tmpsz)
   {
@@ -85,17 +85,17 @@ static int file_new(url__t *restrict url,const char *surl)
 /**************************************************************************/
 
 static int file_compare(
-	const url__t *const restrict durl,
-	const url__t *const restrict surl
+        const url__t *const restrict durl,
+        const url__t *const restrict surl
 )
 {
   int rc;
-
+  
   assert(durl != NULL);
   assert(durl->scheme == URL_FILE);
   assert(surl         != NULL);
   assert(surl->scheme <  URL_max);
-
+  
   rc = durl->scheme - surl->scheme;
   if (rc != 0) return rc;
   return strcmp(durl->file.path,surl->file.path);
@@ -104,9 +104,9 @@ static int file_compare(
 /**********************************************************************/
 
 static size_t file_makestring(
-	const url__t *const restrict url,
-	char         *restrict       d,
-	size_t                       sd
+        const url__t *const restrict url,
+        char         *restrict       d,
+        size_t                       sd
 )
 {
   assert(url            != NULL);

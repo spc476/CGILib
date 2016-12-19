@@ -27,11 +27,11 @@
 /*************************************************************************/
 
 bisearch__t bisearch(
-	const void *const restrict key,
-	const void *const restrict base,
-	const size_t               nelem,
-	const size_t               size,
-	int (*compare)(const void *restrict,const void *restrict)
+        const void *const restrict key,
+        const void *const restrict base,
+        const size_t               nelem,
+        const size_t               size,
+        int (*compare)(const void *restrict,const void *restrict)
 )
 {
   size_t    first;

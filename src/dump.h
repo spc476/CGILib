@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define DEF_DUMP_BYTES	16
+#define DEF_DUMP_BYTES  16
 
 void hex            (char *,size_t,uintptr_t,size_t);
 int  hexdump_mems   (char *,size_t,const void *,size_t,size_t);

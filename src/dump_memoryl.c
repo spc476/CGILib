@@ -37,9 +37,9 @@ int dump_memoryl(
 {
   const char *mem = data;
   char        buffer[BUFSIZ];
-
+  
   assert(level  >= 0);
-  assert(level  <= LOG_DEBUG);  
+  assert(level  <= LOG_DEBUG);
   assert(data   != NULL);
   assert(size   >  0);
   assert(amount >  0);
@@ -47,12 +47,12 @@ int dump_memoryl(
   /*---------------------------------------------------------------------
   ; Each line contains:
   ;
-  ;	sizeof(size_t)*2 characters	pointer
-  ;	': '				separator
-  ;	amount * 3			space + hex byte value
-  ;	' '				separator
-  ;	amount				ASCII dump
-  ;	'\0'				NUL byte
+  ;     sizeof(size_t)*2 characters     pointer
+  ;     ': '                            separator
+  ;     amount * 3                      space + hex byte value
+  ;     ' '                             separator
+  ;     amount                          ASCII dump
+  ;     '\0'                            NUL byte
   ;
   ; I want to ensure a large enough buffer, and this assert will catch a
   ; too-small buffer during development.

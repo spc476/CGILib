@@ -42,14 +42,14 @@ typedef struct list
 
 /***********************************************************************/
 
-extern void	 ListInit		(List *const);
-extern Node	*ListRemHead		(List *const);
-extern Node	*ListRemTail		(List *const);
+extern void      ListInit               (List *const);
+extern Node     *ListRemHead            (List *const);
+extern Node     *ListRemTail            (List *const);
 
-extern void	 NodeInsert		(Node *const,Node *const);
-extern void	 NodeRemove		(Node *const);
-extern Node	*NodeNext		(Node *);
-extern Node	*NodePrev		(Node *);
+extern void      NodeInsert             (Node *const,Node *const);
+extern void      NodeRemove             (Node *const);
+extern Node     *NodeNext               (Node *);
+extern Node     *NodePrev               (Node *);
 
 /************************************************************************/
 
@@ -67,7 +67,7 @@ static inline void ListAddTail(List *const pl,Node *const pn)
 {
   assert(pl != NULL);
   assert(pn != NULL);
-
+  
   NodeInsert(pl->lh_TailPred,pn);
 }
 
@@ -77,7 +77,7 @@ static inline Node *ListGetHead(List *const pl)
 {
   assert(pl          != NULL);
   assert(pl->lh_Head != NULL);
-
+  
   return(pl->lh_Head);
 }
 
@@ -87,7 +87,7 @@ static inline Node *ListGetTail(List *const pl)
 {
   assert(pl              != NULL);
   assert(pl->lh_TailPred != NULL);
-
+  
   return(pl->lh_TailPred);
 }
 
@@ -104,7 +104,7 @@ static inline bool ListEmpty(List *const pl)
 static inline bool NodeValid(Node *const pn)
 {
   assert(pn != NULL);
-
+  
   if (pn->ln_Succ == NULL) return(0);
   if (pn->ln_Pred == NULL) return(0);
   return(1);

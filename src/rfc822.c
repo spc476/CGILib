@@ -101,7 +101,7 @@ void RFC822HeadersRead(FILE *in,const List *list)
     up_string(ppair->name);
     ListAddTail((List *)list,&ppair->node);
     free(line);
-  }  
+  }
 }
 
 /*************************************************************************/
@@ -110,7 +110,7 @@ size_t RFC822HeadersWrite(FILE *out,const List *list)
 {
   struct pair *ppair;
   size_t       size;
-
+  
   assert(out  != NULL);
   assert(list != NULL);
   

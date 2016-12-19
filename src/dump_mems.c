@@ -46,17 +46,17 @@ int dump_mems(
   /*---------------------------------------------------------------------
   ; Each line contains:
   ;
-  ;	sizeof(size_t)*2 characters	pointer
-  ;	': '				separator
-  ;	amount * 3			space + hex byte value
-  ;	' '				separator
-  ;	amount				ASCII dump
-  ;	'\0'				NUL byte
+  ;     sizeof(size_t)*2 characters     pointer
+  ;     ': '                            separator
+  ;     amount * 3                      space + hex byte value
+  ;     ' '                             separator
+  ;     amount                          ASCII dump
+  ;     '\0'                            NUL byte
   ;
   ; I want to ensure a large enough buffer, and this assert will catch a
   ; too-small buffer during development.
   ;---------------------------------------------------------------------*/
-
+  
   assert(dsize >= sizeof(size_t)*2 + 2 + (amount * 3) + 1 + amount + 1);
   
   hex(dest,dsize,offset,sizeof(size_t)*2);
@@ -98,7 +98,7 @@ int dump_mems(
     if (d > dsize) return ENOMEM;
     
     /*--------------------------------------------------------------------
-    ; memset() is not listed in POSIX as being an async-safe function. 
+    ; memset() is not listed in POSIX as being an async-safe function.
     ; Really, POSIX?  Really?  I can't see it being non-async-safe as other
     ; than setting memory to 0, it has no other side effects outside the
     ; memory it's given.  Unless I'm horribly wrong.  I'm not going to write

@@ -42,11 +42,11 @@ typedef enum htoken
 
 typedef struct htmltoken
 {
-  Node    node;	
+  Node    node;
   HToken  token;
-  char	 *value;
+  char   *value;
   List    pairs;
-  int	  state;
+  int     state;
   FILE   *input;
   List    children;
   char   *data;
@@ -56,11 +56,11 @@ typedef struct htmltoken
 
 /************************************************************************/
 
-extern HtmlToken		 HtmlParseNew		(FILE *);
-extern HtmlToken		 HtmlParseClone		(HtmlToken);
-extern int			 HtmlParseNext		(HtmlToken);
-extern void			 HtmlParsePrintTag	(HtmlToken,FILE *);
-extern int			 HtmlParseFree		(HtmlToken);
+extern HtmlToken                 HtmlParseNew           (FILE *);
+extern HtmlToken                 HtmlParseClone         (HtmlToken);
+extern int                       HtmlParseNext          (HtmlToken);
+extern void                      HtmlParsePrintTag      (HtmlToken,FILE *);
+extern int                       HtmlParseFree          (HtmlToken);
 
 /**********************************************************************/
 

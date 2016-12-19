@@ -28,7 +28,7 @@
 
 #include "pair.h"
 
-#define SIZET_MAX	((size_t)-1)
+#define SIZET_MAX       ((size_t)-1)
 
 /**********************************************************************/
 
@@ -46,7 +46,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   assert(delim != eos);
   
   src    = *psrc;
-  peos   = memchr(src,eos,SIZET_MAX);	/* doesn't work on DEC Alpha */
+  peos   = memchr(src,eos,SIZET_MAX);   /* doesn't work on DEC Alpha */
   assert(peos   != NULL);
   pdelim = memchr(src,delim,(size_t)(peos-src));
   
@@ -55,9 +55,9 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   ; given will end with a '&' (since we added one, just to make sure).  But
   ; what if we're given:
   ;
-  ;	"name&"
+  ;     "name&"
   ; or
-  ;	"&"
+  ;     "&"
   ;
   ; We need to handle these bizare corner cases.
   ;-------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   {
     pdelim = peos;
     sname  = (size_t)(pdelim - src);
-    svalue = 0;    
+    svalue = 0;
   }
   else
   {
@@ -82,7 +82,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   psp->name[sname]   = '\0';
   psp->value[svalue] = '\0';
   *psrc              = peos   + 1;
-  return(psp);     
+  return(psp);
 }
 
 /***********************************************************************/
@@ -136,7 +136,7 @@ struct pair *PairListGetPair(List *plist,const char *name)
 {
   struct pair *psp;
   
-  assert(plist != NULL);  
+  assert(plist != NULL);
   assert(name  != NULL);
   
   psp = (struct pair *)ListGetHead(plist);
@@ -153,8 +153,8 @@ struct pair *PairListGetPair(List *plist,const char *name)
 char *PairListGetValue(List *plist,const char *name)
 {
   struct pair *psp;
-
-  assert(plist != NULL);  
+  
+  assert(plist != NULL);
   assert(name  != NULL);
   
   psp = PairListGetPair(plist,name);
@@ -175,9 +175,9 @@ void PairListFree(List *plist)
   while(1)
   {
     psp = (struct pair *)ListRemHead(plist);
-    if (!NodeValid(&psp->node)) 
+    if (!NodeValid(&psp->node))
     {
-      return; 
+      return;
     }
     PairFree(psp);
   }
