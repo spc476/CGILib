@@ -90,7 +90,7 @@ static tree__s *tree_balance(tree__s *self)
 
 /*************************************************************************/
 
-static tree__s *tree_move_right(tree__s *self,tree__s *rhs)
+static tree__s *tree_move_right(tree__s *restrict self,tree__s *restrict rhs)
 {
   if (self == NULL)
     return rhs;
@@ -102,8 +102,8 @@ static tree__s *tree_move_right(tree__s *self,tree__s *rhs)
 /*************************************************************************/
 
 tree__s *tree_insert(
-        tree__s *self,
-        tree__s *item,
+        tree__s *restrict self,
+        tree__s *restrict item,
         int (*compare)(const void *,const void *)
 )
 {

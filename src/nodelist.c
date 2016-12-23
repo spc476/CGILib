@@ -101,24 +101,24 @@ void NodeRemove(Node *const pn)
 
 /*************************************************************************/
 
-Node *NodeNext(Node *pn)
+Node *NodeNext(const Node *const pn)
 {
   assert(pn != NULL);
   
   if (NodeValid(pn))
-    pn = pn->ln_Succ;
-  return(pn);
+    return pn->ln_Succ;
+  return((Node *)pn);
 }
 
 /*********************************************************************/
 
-Node *NodePrev(Node *pn)
+Node *NodePrev(const Node *const pn)
 {
   assert(pn != NULL);
   
   if (NodeValid(pn))
-    pn = pn->ln_Pred;
-  return(pn);
+    return pn->ln_Pred;
+  return((Node *)pn);
 }
 
 /********************************************************************/

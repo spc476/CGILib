@@ -62,7 +62,7 @@ Email EmailNew(void)
 
 /*****************************************************************/
 
-int EmailSend(Email email)
+int EmailSend(const Email email)
 {
   FILE        *output;
   struct pair *hdr;

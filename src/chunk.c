@@ -129,7 +129,7 @@ Chunk ChunkNew(const char *cname,const struct chunk_callback *pcc,size_t scc)
 
 /***********************************************************************/
 
-int ChunkProcess(Chunk chunk,const char *name,FILE *out,void *data)
+int ChunkProcess(const Chunk chunk,const char *name,FILE *out,void *data)
 {
   char   fname[FILENAME_MAX];
   FILE  *in;
@@ -152,7 +152,7 @@ int ChunkProcess(Chunk chunk,const char *name,FILE *out,void *data)
 
 /*********************************************************************/
 
-int ChunkProcessStream(Chunk chunk,FILE *in,FILE *out,void *data)
+int ChunkProcessStream(const Chunk chunk,FILE *in,FILE *out,void *data)
 {
   int c;
   

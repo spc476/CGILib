@@ -132,7 +132,7 @@ void PairListCreate(
 
 /*************************************************************************/
 
-struct pair *PairListGetPair(List *plist,const char *name)
+struct pair *PairListGetPair(const List *plist,const char *name)
 {
   struct pair *psp;
   
@@ -150,7 +150,7 @@ struct pair *PairListGetPair(List *plist,const char *name)
 
 /***********************************************************************/
 
-char *PairListGetValue(List *plist,const char *name)
+char *PairListGetValue(const List *plist,const char *name)
 {
   struct pair *psp;
   

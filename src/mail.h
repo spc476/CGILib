@@ -42,7 +42,7 @@ typedef struct email
 /********************************************************************/
 
 extern Email            EmailNew                (void);
-extern int              EmailSend               (Email);
+extern int              EmailSend               (const Email);
 extern int              EmailFree               (Email);
 
 /********************************************************************/
