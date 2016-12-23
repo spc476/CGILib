@@ -34,7 +34,7 @@ includedir  = $(prefix)/include
 exec_prefix = $(prefix)
 libdir      = $(exec_prefix)/lib
 
-override CFLAGS += -DCGIVERSION='"CGILIB/$(CGIVERSION)"'
+override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY: all clean install tarball depend
 
