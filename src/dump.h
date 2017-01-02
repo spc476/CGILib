@@ -27,12 +27,12 @@
 
 #define DEF_DUMP_BYTES  16
 
-void hex            (char *,size_t,uintptr_t,size_t);
-int  hexdump_mems   (char *,size_t,const void *,size_t,size_t);
-int  chardump_mems  (char *,size_t,const void *,size_t,size_t);
-int  dump_mems      (char *,size_t,const void *,size_t,size_t,size_t);
-int  dump_memorys   (char *,size_t,const void *,size_t,size_t,size_t);
-int  dump_memoryf   (FILE *,       const void *,size_t,size_t,size_t);
-int  dump_memoryl   (int,          const void *,size_t,size_t,size_t);
+extern void hex           (char *,size_t,uintptr_t,size_t);
+extern int  hexdump_mems  (char *,size_t,const void *,size_t,size_t);
+extern int  chardump_mems (char *,size_t,const void *,size_t,size_t);
+extern int  dump_mems     (char *,size_t,const void *,size_t,size_t,size_t);
+extern int  dump_memorys  (char *,size_t,const void *,size_t,size_t,size_t);
+extern int  dump_memoryf  (FILE *,       const void *,size_t,size_t,size_t);
+extern int  dump_memoryl  (int,          const void *,size_t,size_t,size_t);
 
 #endif
