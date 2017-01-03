@@ -38,7 +38,7 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY: all clean install tarball depend
 
-all : build build/src build/src/Url build/src/rfc822 build/libcgi6.a
+all : build build/src build/src/Url build/src/RFC822 build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o		\
 		build/src/nodelist.o 		\
@@ -69,7 +69,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/rfc822:
+build build/src build/src/Url build/src/RFC822:
 	mkdir -p $@
 
 #---------------------------------------------------------------------
