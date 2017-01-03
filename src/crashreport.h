@@ -26,7 +26,10 @@
 
 extern int  crashreport          (int);
 extern void crashreport_with     (int,char **,char **);
-extern void crashreport_coresigs (sigset_t *);
-extern void crashreport_allsigs  (sigset_t *);
+
+#ifdef _POSIX_VERSION
+  extern void crashreport_coresigs (sigset_t *);
+  extern void crashreport_allsigs  (sigset_t *);
+#endif
 
 #endif
