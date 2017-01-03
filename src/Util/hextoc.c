@@ -26,9 +26,9 @@ char hextoc(int i)
 {
   assert(i >= 0);
   assert(i <  16);
-
+  
   i += '0';
   if (i > '9') i += 7;
   assert(isxdigit(i));
-  return i;  
+  return i;
 }
