@@ -45,7 +45,10 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/util.o		\
 		build/src/pair.o		\
 		build/src/cgi.o			\
-		build/src/rfc822.o		\
+		build/src/RFC822LineRead.o	\
+		build/src/RFC822HeadersRead.o	\
+		build/src/RFC822HeaderWrite.o	\
+		build/src/RFC822HeadersWrite.o	\
 		build/src/htmltok.o		\
 		build/src/mail.o		\
 		build/src/chunk.o		\
@@ -94,6 +97,9 @@ tarball:
 
 # DO NOT DELETE
 
+build/src/RFC822HeadersRead.o: src/nodelist.h src/pair.h src/rfc822.h
+build/src/RFC822HeadersRead.o: src/util.h src/dump.h
+build/src/RFC822HeadersWrite.o: src/pair.h src/nodelist.h src/rfc822.h
 build/src/bisearch.o: src/bisearch.h
 build/src/cgi.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
 build/src/chunk.o: src/chunk.h
@@ -111,8 +117,6 @@ build/src/mail.o: src/util.h src/dump.h src/rfc822.h src/nodelist.h
 build/src/mail.o: src/pair.h src/mail.h
 build/src/nodelist.o: src/nodelist.h
 build/src/pair.o: src/pair.h src/nodelist.h
-build/src/rfc822.o: src/nodelist.h src/util.h src/dump.h src/rfc822.h
-build/src/rfc822.o: src/pair.h
 build/src/tree.o: src/tree.h
 build/src/util.o: src/util.h src/dump.h
 build/src/Url/file.o: src/url.h

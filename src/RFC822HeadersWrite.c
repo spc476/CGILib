@@ -19,15 +19,27 @@
 *
 *************************************************************************/
 
-#ifndef I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
-#define I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
+#include <assert.h>
 
-#include <stdio.h>
-#include "nodelist.h"
+#include "pair.h"
+#include "rfc822.h"
 
-extern char   *RFC822LineRead     (FILE *);
-extern void    RFC822HeadersRead  (FILE *,const List *);
-extern size_t  RFC822HeadersWrite (FILE *,const List *);
-extern size_t  RFC822HeaderWrite  (FILE *,const char *restrict,const char *restrict);
-
-#endif
+size_t RFC822HeadersWrite(FILE *out,const List *list)
+{
+  struct pair *ppair;
+  size_t       size;
+  
+  assert(out  != NULL);
+  assert(list != NULL);
+  
+  for
+  (
+    size = 0 , ppair = (struct pair *)ListGetHead((List *)list);
+    NodeValid(&ppair->node);
+    ppair = (struct pair *)NodeNext(&ppair->node)
+  )
+  {
+    size += RFC822HeaderWrite(out,ppair->name,ppair->value);
+  }
+  return(size);
+}

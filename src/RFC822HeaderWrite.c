@@ -19,15 +19,32 @@
 *
 *************************************************************************/
 
-#ifndef I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
-#define I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
-
+#include <ctype.h>
 #include <stdio.h>
-#include "nodelist.h"
+#include <string.h>
+#include <assert.h>
 
-extern char   *RFC822LineRead     (FILE *);
-extern void    RFC822HeadersRead  (FILE *,const List *);
-extern size_t  RFC822HeadersWrite (FILE *,const List *);
-extern size_t  RFC822HeaderWrite  (FILE *,const char *restrict,const char *restrict);
-
-#endif
+size_t RFC822HeaderWrite(FILE *out,const char *restrict name,const char *restrict value)
+{
+  int        (*conv)(int);
+  int          size;
+  char         n[strlen(name) + 1];
+  const char  *s;
+  char        *d;
+  
+  assert(out   != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
+  
+  for (conv = (toupper) , s = name , d = n ; ; s++ , d++)
+  {
+    *d   = (*conv)(*s);
+    conv = isalpha(*d) ? (tolower) : (toupper);
+    if (*d == '\0') break;
+  }
+  
+  size = fprintf(out,"%s: %s\n",n,value);
+  if (size < 0)
+    size = 0;
+  return(size);
+}

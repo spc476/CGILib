@@ -19,15 +19,55 @@
 *
 *************************************************************************/
 
-#ifndef I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
-#define I_79C55F83_96BD_5AEE_A60B_1CAB5C1D78F2
-
+#include <ctype.h>
 #include <stdio.h>
-#include "nodelist.h"
+#include <stdlib.h>
+#include <assert.h>
 
-extern char   *RFC822LineRead     (FILE *);
-extern void    RFC822HeadersRead  (FILE *,const List *);
-extern size_t  RFC822HeadersWrite (FILE *,const List *);
-extern size_t  RFC822HeaderWrite  (FILE *,const char *restrict,const char *restrict);
-
-#endif
+char *RFC822LineRead(FILE *in)
+{
+  char   *line = NULL;
+  size_t  max  = 0;
+  size_t  idx  = 0;
+  int     c;
+  
+  assert(in != NULL);
+  
+  while((c = fgetc(in)) != EOF)
+  {
+    if (c == '\n')
+    {
+      int c1 = fgetc(in);
+      if ((c1 == EOF) || (c1 == '\n') || !isspace(c1))
+        ungetc(c1,in);
+      else
+        c = ' ';
+    }
+    
+    if (idx == max)
+    {
+      char *n;
+      
+      max += 80;
+      n    = realloc(line,max);
+      if (n == NULL)
+      {
+        free(line);
+        return NULL;
+      }
+      line = n;
+    }
+    line[idx++] = c;
+    line[idx]   = '\0';
+    
+    if (c == '\n') break;
+  }
+  
+  if ((line != NULL) && (*line == '\n'))
+  {
+    free(line);
+    line = NULL;
+  }
+  
+  return line;
+}
