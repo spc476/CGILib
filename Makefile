@@ -44,51 +44,59 @@ all : build               \
 	build/src/RFC822  \
 	build/src/Cgi     \
 	build/src/Htmltok \
+	build/src/Util	  \
 	build/libcgi6.a
 
-build/libcgi6.a : build/src/conf.o		\
-		build/src/nodelist.o 		\
-		build/src/util.o		\
-		build/src/pair.o		\
-		build/src/Cgi/UrlEncodeChar.o	\
-		build/src/Cgi/UrlEncodeString.o	\
-		build/src/Cgi/UrlDecodeChar.o	\
-		build/src/Cgi/UrlDecodeString.o	\
-		build/src/Cgi/CgiNew.o          \
-		build/src/Cgi/CgiNextValue.o    \
-		build/src/Cgi/CgiListMake.o     \
-		build/src/Cgi/CgiListGetValues.o \
-		build/src/Cgi/CgiListRequired.o	\
-		build/src/Cgi/CgiFree.o		\
+build/libcgi6.a : build/src/conf.o			\
+		build/src/nodelist.o 			\
+		build/src/Util/ctohex.o			\
+		build/src/Util/down_string.o		\
+		build/src/Util/empty_string.o		\
+		build/src/Util/hextoc.o			\
+		build/src/Util/remove_char.o		\
+		build/src/Util/trim_lspace.o		\
+		build/src/Util/trim_tspace.o		\
+		build/src/Util/up_string.o		\
+		build/src/pair.o			\
+		build/src/Cgi/UrlEncodeChar.o		\
+		build/src/Cgi/UrlEncodeString.o		\
+		build/src/Cgi/UrlDecodeChar.o		\
+		build/src/Cgi/UrlDecodeString.o		\
+		build/src/Cgi/CgiNew.o          	\
+		build/src/Cgi/CgiNextValue.o    	\
+		build/src/Cgi/CgiListMake.o     	\
+		build/src/Cgi/CgiListGetValues.o	\
+		build/src/Cgi/CgiListRequired.o		\
+		build/src/Cgi/CgiFree.o			\
 		build/src/RFC822/RFC822LineRead.o	\
 		build/src/RFC822/RFC822HeadersRead.o	\
 		build/src/RFC822/RFC822HeaderWrite.o	\
 		build/src/RFC822/RFC822HeadersWrite.o	\
-		build/src/Htmltok/HtmlParseNew.o \
-		build/src/Htmltok/HtmlParseClone.o \
-		build/src/Htmltok/HtmlParsePrintTag.o \
-		build/src/Htmltok/HtmlParseNext.o \
-		build/src/Htmltok/HtmlParseFree.o \
-		build/src/mail.o		\
-		build/src/chunk.o		\
-		build/src/bisearch.o		\
-		build/src/crashreport.o		\
-		build/src/crashreport-posix.o	\
-		build/src/tree.o		\
-		build/src/hex.o			\
-		build/src/hexdump_mems.o	\
-		build/src/chardump_mems.o	\
-		build/src/dump_mems.o		\
-		build/src/dump_memorys.o	\
-		build/src/dump_memoryf.o	\
-		build/src/dump_memoryl.o	\
-		build/src/Url/url.o		\
-		build/src/Url/http.o		\
-		build/src/Url/file.o		\
+		build/src/Htmltok/HtmlParseNew.o	\
+		build/src/Htmltok/HtmlParseClone.o	\
+		build/src/Htmltok/HtmlParsePrintTag.o	\
+		build/src/Htmltok/HtmlParseNext.o	\
+		build/src/Htmltok/HtmlParseFree.o	\
+		build/src/mail.o			\
+		build/src/chunk.o			\
+		build/src/bisearch.o			\
+		build/src/crashreport.o			\
+		build/src/crashreport-posix.o		\
+		build/src/tree.o			\
+		build/src/hex.o				\
+		build/src/hexdump_mems.o		\
+		build/src/chardump_mems.o		\
+		build/src/dump_mems.o			\
+		build/src/dump_memorys.o		\
+		build/src/dump_memoryf.o		\
+		build/src/dump_memoryl.o		\
+		build/src/Url/url.o			\
+		build/src/Url/http.o			\
+		build/src/Url/file.o			\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util:
 	mkdir -p $@
 
 #---------------------------------------------------------------------
