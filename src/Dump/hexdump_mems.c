@@ -22,7 +22,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "dump.h"
+#include "../dump.h"
 
 int hexdump_mems(
         char       *dest,

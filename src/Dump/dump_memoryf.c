@@ -23,12 +23,10 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <syslog.h>
+#include "../dump.h"
 
-#include "dump.h"
-
-int dump_memoryl(
-        int         level,
+int dump_memoryf(
+        FILE       *fpout,
         const void *data,
         size_t      size,
         size_t      amount,
@@ -38,8 +36,7 @@ int dump_memoryl(
   const char *mem = data;
   char        buffer[BUFSIZ];
   
-  assert(level  >= 0);
-  assert(level  <= LOG_DEBUG);
+  assert(fpout  != NULL);
   assert(data   != NULL);
   assert(size   >  0);
   assert(amount >  0);
@@ -63,10 +60,16 @@ int dump_memoryl(
   while(true)
   {
     int rc = dump_mems(buffer,sizeof(buffer),mem,size,amount,offset);
-    if (rc < 0) return rc;
-    syslog(level,"%s",buffer);
-    if (amount >= size) break;
     
+    if (rc < 0)
+      return rc;
+    if (fputs(buffer,fpout) < 0)
+      return errno;
+    if (fputc('\n',fpout) < 0)
+      return errno;
+    if (amount >= size)
+      break;
+      
     mem    += amount;
     size   -= amount;
     offset += amount;

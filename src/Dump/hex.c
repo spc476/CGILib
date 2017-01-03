@@ -20,7 +20,7 @@
 *************************************************************************/
 
 #include <assert.h>
-#include "dump.h"
+#include "../dump.h"
 
 void hex(char *dest,size_t dsize,uintptr_t val,size_t digits)
 {

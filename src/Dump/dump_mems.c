@@ -24,7 +24,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "dump.h"
+#include "../dump.h"
 
 int dump_mems(
         char       *dest,

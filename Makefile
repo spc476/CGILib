@@ -45,6 +45,7 @@ all : build               \
 	build/src/Cgi     \
 	build/src/Htmltok \
 	build/src/Util	  \
+	build/src/Dump    \
 	build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o			\
@@ -83,20 +84,20 @@ build/libcgi6.a : build/src/conf.o			\
 		build/src/crashreport.o			\
 		build/src/crashreport-posix.o		\
 		build/src/tree.o			\
-		build/src/hex.o				\
-		build/src/hexdump_mems.o		\
-		build/src/chardump_mems.o		\
-		build/src/dump_mems.o			\
-		build/src/dump_memorys.o		\
-		build/src/dump_memoryf.o		\
-		build/src/dump_memoryl.o		\
+		build/src/Dump/hex.o			\
+		build/src/Dump/hexdump_mems.o		\
+		build/src/Dump/chardump_mems.o		\
+		build/src/Dump/dump_mems.o		\
+		build/src/Dump/dump_memorys.o		\
+		build/src/Dump/dump_memoryf.o		\
+		build/src/Dump/dump_memoryl.o		\
 		build/src/Url/url.o			\
 		build/src/Url/http.o			\
 		build/src/Url/file.o			\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util build/src/Dump:
 	mkdir -p $@
 
 #---------------------------------------------------------------------
