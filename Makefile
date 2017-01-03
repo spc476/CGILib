@@ -172,7 +172,7 @@ build/./src/Dump/hexdump_mems.o: ./src/dump.h
 build/./src/Dump/dump_memorys.o: ./src/dump.h
 build/./src/Dump/dump_mems.o: ./src/dump.h
 build/./src/Dump/dump_memoryl.o: ./src/dump.h
-build/./src/Dump/hex.o: ./src/dump.h
+build/./src/Dump/hex.o: ./src/dump.h ./src/util.h ./src/dump.h
 build/./src/Dump/dump_memoryf.o: ./src/dump.h
 build/./src/conf.o: ./src/conf.h
 build/./src/crashreport.o: ./src/dump.h ./src/crashreport.h
