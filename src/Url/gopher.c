@@ -31,10 +31,10 @@
 
 /**********************************************************************/
 
-static int      gopher_new              (url__t *restrict,const char *restrict);
-static int      gopher_compare          (const url__t *const restrict,const url__t *const restrict);
-static size_t   gopher_makestring       (const url__t *const restrict,char *restrict,size_t);
-static void     gopher_free             (url__t *);
+static int    gopher_new        (url__t *restrict,const char *restrict);
+static int    gopher_compare    (const url__t *const restrict,const url__t *const restrict);
+static size_t gopher_makestring (const url__t *const restrict,char *restrict,size_t);
+static void   gopher_free       (url__t *);
 
 /***********************************************************************/
 

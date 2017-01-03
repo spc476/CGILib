@@ -31,10 +31,10 @@
 
 /**********************************************************************/
 
-static int      file_new        (url__t *,const char *);
-static int      file_compare    (const url__t *const restrict,const url__t *const restrict);
-static size_t   file_makestring (const url__t *const restrict,char *restrict,size_t);
-static void     file_free       (url__t *);
+static int    file_new        (url__t *,const char *);
+static int    file_compare    (const url__t *const restrict,const url__t *const restrict);
+static size_t file_makestring (const url__t *const restrict,char *restrict,size_t);
+static void   file_free       (url__t *);
 
 /***********************************************************************/
 

@@ -31,10 +31,10 @@
 
 /**********************************************************************/
 
-static int      http_new        (url__t *restrict,const char *restrict);
-static int      http_compare    (const url__t *const restrict,const url__t *const restrict);
-static size_t   http_makestring (const url__t *const restrict,char *restrict,size_t);
-static void     http_free       (url__t *);
+static int    http_new        (url__t *restrict,const char *restrict);
+static int    http_compare    (const url__t *const restrict,const url__t *const restrict);
+static size_t http_makestring (const url__t *const restrict,char *restrict,size_t);
+static void   http_free       (url__t *);
 
 /***********************************************************************/
 
