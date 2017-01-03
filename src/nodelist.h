@@ -105,10 +105,7 @@ static inline bool ListEmpty(const List *const pl)
 static inline bool NodeValid(const Node *const pn)
 {
   assert(pn != NULL);
-  
-  if (pn->ln_Succ == NULL) return(0);
-  if (pn->ln_Pred == NULL) return(0);
-  return(1);
+  return ((pn->ln_Succ != NULL) && (pn->ln_Pred != NULL));
 }
 
 /*----------------------------------------------------------------------*/
