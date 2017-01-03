@@ -29,6 +29,15 @@
 
 /************************************************************************/
 
+enum
+{
+  S_EOF,
+  S_STRING,
+  S_TAG,
+  S_COMMENT,
+  S_TAGIGNORE
+};
+
 typedef enum htoken
 {
   T_EOF,

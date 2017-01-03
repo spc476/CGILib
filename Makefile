@@ -38,7 +38,13 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY: all clean install tarball depend
 
-all : build build/src build/src/Url build/src/RFC822 build/src/Cgi build/libcgi6.a
+all : build               \
+	build/src         \
+	build/src/Url     \
+	build/src/RFC822  \
+	build/src/Cgi     \
+	build/src/Htmltok \
+	build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o		\
 		build/src/nodelist.o 		\
@@ -58,7 +64,11 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/RFC822/RFC822HeadersRead.o	\
 		build/src/RFC822/RFC822HeaderWrite.o	\
 		build/src/RFC822/RFC822HeadersWrite.o	\
-		build/src/htmltok.o		\
+		build/src/Htmltok/HtmlParseNew.o \
+		build/src/Htmltok/HtmlParseClone.o \
+		build/src/Htmltok/HtmlParsePrintTag.o \
+		build/src/Htmltok/HtmlParseNext.o \
+		build/src/Htmltok/HtmlParseFree.o \
 		build/src/mail.o		\
 		build/src/chunk.o		\
 		build/src/bisearch.o		\
@@ -78,7 +88,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822 build/src/Cgi:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok:
 	mkdir -p $@
 
 #---------------------------------------------------------------------

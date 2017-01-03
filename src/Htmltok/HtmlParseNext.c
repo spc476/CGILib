@@ -27,31 +27,11 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "nodelist.h"
-#include "htmltok.h"
-#include "util.h"
+#include "../nodelist.h"
+#include "../htmltok.h"
+#include "../util.h"
 
 /************************************************************************/
-
-enum
-{
-  S_EOF,
-  S_STRING,
-  S_TAG,
-  S_COMMENT,
-  S_TAGIGNORE
-};
-
-/**********************************************************************/
-
-static HToken    ht_nextstr     (HtmlToken);
-static HToken    ht_nexttag     (HtmlToken);
-static HToken    ht_nextcom     (HtmlToken);
-static void      ht_makepair    (HtmlToken,char *restrict,char *restrict);
-static void      ht_acc         (HtmlToken,int);
-static char     *ht_accdup      (HtmlToken);
-
-/*************************************************************************/
 
 static inline HToken ht_nexteof(HtmlToken token)
 {
@@ -87,136 +67,37 @@ static inline void ht_makepair(HtmlToken token,char *restrict name,char *restric
 
 /******************************************************************/
 
-HtmlToken HtmlParseNew(FILE *input)
+static void ht_acc(HtmlToken token,int c)
 {
-  HtmlToken pht;
+  assert(token != NULL);
+  assert(c     != EOF);
   
-  assert(input != NULL);
+  if (token->idx == token->max)
+  {
+    token->max += 64;
+    token->data = realloc(token->data,token->max);
+  }
   
-  pht         = malloc(sizeof(struct htmltoken));
-  pht->token  = T_STRING;
-  pht->value  = NULL;   /* dup_string(""); */ /* am i perpetuating a hack? */
-  pht->state  = S_STRING;
-  pht->input  = input;
-  pht->data   = NULL;
-  pht->max    = 0;
-  pht->idx    = 0;
-  
-  ListInit(&pht->pairs);
-  return pht;
+  token->data[token->idx++] = c;
 }
 
-/***********************************************************************/
+/*********************************************************************/
 
-HtmlToken HtmlParseClone(HtmlToken token)
+static char *ht_accdup(HtmlToken token)
 {
-  HtmlToken    pht;
-  struct pair *pair;
-  struct pair *pairp;
+  char *text;
   
   assert(token != NULL);
   
-  /*----------------------------------
-  ; do I really need this call?
-  ;-----------------------------------*/
+  text = malloc(token->idx + 1);
+  memcpy(text,token->data,token->idx);
+  text[token->idx] = '\0';
+  token->idx = 0;
   
-  pht         = malloc(sizeof(struct htmltoken));
-  pht->token  = token->token;
-  pht->state  = token->state;
-  pht->value  = strdup(token->value);
-  pht->input  = token->input;
-  pht->data   = NULL;
-  pht->max    = 0;
-  pht->idx    = 0;
-  
-  ListInit(&pht->pairs);
-  
-  for (
-        pair = PairListFirst(&token->pairs) ;
-        NodeValid(&pair->node) ;
-        pair = (struct pair *)NodeNext(&pair->node)
-      )
-  {
-    pairp = PairClone(pair);
-    ListAddTail(&pht->pairs,&pairp->node);
-  }
-  
-  return(pht);
+  return text;
 }
 
 /**********************************************************************/
-
-int HtmlParseNext(HtmlToken token)
-{
-  assert(token != NULL);
-  
-  if(token->value)
-    free(token->value);
-    
-  token->value = NULL;
-  PairListFree(&token->pairs);
-  token->idx = 0;
-  
-  switch(token->state)
-  {
-    case T_EOF:         return(ht_nexteof(token));
-    case T_STRING:      return(ht_nextstr(token));
-    case T_TAG:         return(ht_nexttag(token));
-    case T_COMMENT:     return(ht_nextcom(token));
-    default:
-         assert(0);     /* this shouldn't happen */
-  }
-  assert(0);            /* and this shouldn't happen either */
-  return(T_EOF);        /* shut up -Wall -pedantic -ansi options to gcc */
-}
-
-/********************************************************************/
-
-void HtmlParsePrintTag(HtmlToken token,FILE *out)
-{
-  struct pair *pp;
-  
-  fprintf(out,"<%s",HtmlParseValue(token));
-  
-  for
-  (
-    pp = HtmlParseFirstOption(token);
-    NodeValid(&pp->node);
-    pp = (struct pair *)NodeNext(&pp->node)
-  )
-  {
-    if (!emptynull_string(pp->name))
-    {
-      fprintf(out," %s=",pp->name);
-      if (emptynull_string(pp->value))
-      {
-        if (strcmp(pp->name,"ALT") != 0)
-          fprintf(out,"\"%s\"",pp->name);
-        else
-          fprintf(out,"\"\"");
-      }
-      else
-        fprintf(out,"\"%s\"",pp->value);
-    }
-  }
-  
-  fputc('>',out);
-}
-
-/***********************************************************************/
-
-int HtmlParseFree(HtmlToken token)
-{
-  assert(token != NULL);
-  
-  PairListFree(&token->pairs);
-  free(token->data);
-  free(token->value);
-  free(token);
-  return(0);
-}
-
-/***********************************************************************/
 
 static HToken ht_nextstr(HtmlToken token)
 {
@@ -440,35 +321,28 @@ htnt_error:     token->token = T_EOF;
 
 /**********************************************************************/
 
-static void ht_acc(HtmlToken token,int c)
+int HtmlParseNext(HtmlToken token)
 {
   assert(token != NULL);
-  assert(c     != EOF);
   
-  if (token->idx == token->max)
-  {
-    token->max += 64;
-    token->data = realloc(token->data,token->max);
-  }
-  
-  token->data[token->idx++] = c;
-}
-
-/*********************************************************************/
-
-static char *ht_accdup(HtmlToken token)
-{
-  char *text;
-  
-  assert(token != NULL);
-  
-  text = malloc(token->idx + 1);
-  memcpy(text,token->data,token->idx);
-  text[token->idx] = '\0';
+  if(token->value)
+    free(token->value);
+    
+  token->value = NULL;
+  PairListFree(&token->pairs);
   token->idx = 0;
   
-  return text;
+  switch(token->state)
+  {
+    case T_EOF:         return(ht_nexteof(token));
+    case T_STRING:      return(ht_nextstr(token));
+    case T_TAG:         return(ht_nexttag(token));
+    case T_COMMENT:     return(ht_nextcom(token));
+    default:
+         assert(0);     /* this shouldn't happen */
+  }
+  assert(0);            /* and this shouldn't happen either */
+  return(T_EOF);        /* shut up -Wall -pedantic -ansi options to gcc */
 }
 
-/**********************************************************************/
-
+/********************************************************************/
