@@ -24,13 +24,11 @@
 
 char hextoc(int i)
 {
-  char c;
-  
   assert(i >= 0);
   assert(i <  16);
-  
-  c = i+'0';
-  if (c > '9') c += 7;
-  assert(isxdigit(c));
-  return c;
+
+  i += '0';
+  if (i > '9') i += 7;
+  assert(isxdigit(i));
+  return i;  
 }
