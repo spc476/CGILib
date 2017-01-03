@@ -19,27 +19,31 @@
 *
 *************************************************************************/
 
+#include <stdlib.h>
 #include <assert.h>
 
-#include "pair.h"
-#include "rfc822.h"
+#include "../nodelist.h"
+#include "../pair.h"
+#include "../rfc822.h"
+#include "../util.h"
 
-size_t RFC822HeadersWrite(FILE *out,const List *list)
+void RFC822HeadersRead(FILE *in,const List *list)
 {
+  char        *line;
+  char        *t;
   struct pair *ppair;
-  size_t       size;
   
-  assert(out  != NULL);
+  assert(in   != NULL);
   assert(list != NULL);
   
-  for
-  (
-    size = 0 , ppair = (struct pair *)ListGetHead((List *)list);
-    NodeValid(&ppair->node);
-    ppair = (struct pair *)NodeNext(&ppair->node)
-  )
+  while((line = RFC822LineRead(in)) != NULL)
   {
-    size += RFC822HeaderWrite(out,ppair->name,ppair->value);
+    t            = line;
+    ppair        = PairNew(&t,':','\0');
+    ppair->name  = trim_space(ppair->name);
+    ppair->value = trim_space(ppair->value);
+    up_string(ppair->name);
+    ListAddTail((List *)list,&ppair->node);
+    free(line);
   }
-  return(size);
 }

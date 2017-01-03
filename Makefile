@@ -38,17 +38,17 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY: all clean install tarball depend
 
-all : build build/src build/src/Url build/libcgi6.a
+all : build build/src build/src/Url build/src/rfc822 build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o		\
 		build/src/nodelist.o 		\
 		build/src/util.o		\
 		build/src/pair.o		\
 		build/src/cgi.o			\
-		build/src/RFC822LineRead.o	\
-		build/src/RFC822HeadersRead.o	\
-		build/src/RFC822HeaderWrite.o	\
-		build/src/RFC822HeadersWrite.o	\
+		build/src/RFC822/RFC822LineRead.o	\
+		build/src/RFC822/RFC822HeadersRead.o	\
+		build/src/RFC822/RFC822HeaderWrite.o	\
+		build/src/RFC822/RFC822HeadersWrite.o	\
 		build/src/htmltok.o		\
 		build/src/mail.o		\
 		build/src/chunk.o		\
@@ -69,7 +69,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url :
+build build/src build/src/Url build/src/rfc822:
 	mkdir -p $@
 
 #---------------------------------------------------------------------

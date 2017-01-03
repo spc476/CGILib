@@ -19,31 +19,55 @@
 *
 *************************************************************************/
 
+#include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include "nodelist.h"
-#include "pair.h"
-#include "rfc822.h"
-#include "util.h"
-
-void RFC822HeadersRead(FILE *in,const List *list)
+char *RFC822LineRead(FILE *in)
 {
-  char        *line;
-  char        *t;
-  struct pair *ppair;
+  char   *line = NULL;
+  size_t  max  = 0;
+  size_t  idx  = 0;
+  int     c;
   
-  assert(in   != NULL);
-  assert(list != NULL);
+  assert(in != NULL);
   
-  while((line = RFC822LineRead(in)) != NULL)
+  while((c = fgetc(in)) != EOF)
   {
-    t            = line;
-    ppair        = PairNew(&t,':','\0');
-    ppair->name  = trim_space(ppair->name);
-    ppair->value = trim_space(ppair->value);
-    up_string(ppair->name);
-    ListAddTail((List *)list,&ppair->node);
-    free(line);
+    if (c == '\n')
+    {
+      int c1 = fgetc(in);
+      if ((c1 == EOF) || (c1 == '\n') || !isspace(c1))
+        ungetc(c1,in);
+      else
+        c = ' ';
+    }
+    
+    if (idx == max)
+    {
+      char *n;
+      
+      max += 80;
+      n    = realloc(line,max);
+      if (n == NULL)
+      {
+        free(line);
+        return NULL;
+      }
+      line = n;
+    }
+    line[idx++] = c;
+    line[idx]   = '\0';
+    
+    if (c == '\n') break;
   }
+  
+  if ((line != NULL) && (*line == '\n'))
+  {
+    free(line);
+    line = NULL;
+  }
+  
+  return line;
 }
