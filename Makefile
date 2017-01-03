@@ -38,13 +38,22 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY: all clean install tarball depend
 
-all : build build/src build/src/Url build/src/RFC822 build/libcgi6.a
+all : build build/src build/src/Url build/src/RFC822 build/src/Cgi build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o		\
 		build/src/nodelist.o 		\
 		build/src/util.o		\
 		build/src/pair.o		\
-		build/src/cgi.o			\
+		build/src/Cgi/UrlEncodeChar.o	\
+		build/src/Cgi/UrlEncodeString.o	\
+		build/src/Cgi/UrlDecodeChar.o	\
+		build/src/Cgi/UrlDecodeString.o	\
+		build/src/Cgi/CgiNew.o          \
+		build/src/Cgi/CgiNextValue.o    \
+		build/src/Cgi/CgiListMake.o     \
+		build/src/Cgi/CgiListGetValues.o \
+		build/src/Cgi/CgiListRequired.o	\
+		build/src/Cgi/CgiFree.o		\
 		build/src/RFC822/RFC822LineRead.o	\
 		build/src/RFC822/RFC822HeadersRead.o	\
 		build/src/RFC822/RFC822HeaderWrite.o	\
@@ -69,7 +78,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi:
 	mkdir -p $@
 
 #---------------------------------------------------------------------
@@ -98,9 +107,6 @@ tarball:
 
 # DO NOT DELETE
 
-build/src/RFC822HeadersRead.o: src/nodelist.h src/pair.h src/rfc822.h
-build/src/RFC822HeadersRead.o: src/util.h src/dump.h
-build/src/RFC822HeadersWrite.o: src/pair.h src/nodelist.h src/rfc822.h
 build/src/bisearch.o: src/bisearch.h
 build/src/cgi.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
 build/src/chunk.o: src/chunk.h
