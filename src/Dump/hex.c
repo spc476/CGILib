@@ -22,7 +22,7 @@
 #include <assert.h>
 #include "../dump.h"
 
-void hex(char *dest,size_t dsize,uintptr_t val,size_t digits)
+void hex(char *dest,size_t dsize __attribute__((unused)),uintptr_t val,size_t digits)
 {
   int c;
   
