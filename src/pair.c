@@ -22,13 +22,12 @@
 #define _GNU_SOURCE 1
 
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #include "pair.h"
-
-#define SIZET_MAX       ((size_t)-1)
 
 /**********************************************************************/
 
@@ -46,7 +45,7 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   assert(delim != eos);
   
   src    = *psrc;
-  peos   = memchr(src,eos,SIZET_MAX);   /* doesn't work on DEC Alpha */
+  peos   = memchr(src,eos,SIZE_MAX);   /* doesn't work on DEC Alpha */
   assert(peos   != NULL);
   pdelim = memchr(src,delim,(size_t)(peos-src));
   
