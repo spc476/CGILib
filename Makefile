@@ -46,6 +46,7 @@ all : build               \
 	build/src/Htmltok \
 	build/src/Util	  \
 	build/src/Dump    \
+	build/src/Pair    \
 	build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o			\
@@ -58,7 +59,13 @@ build/libcgi6.a : build/src/conf.o			\
 		build/src/Util/trim_lspace.o		\
 		build/src/Util/trim_tspace.o		\
 		build/src/Util/up_string.o		\
-		build/src/pair.o			\
+		build/src/Pair/PairCreate.o		\
+		build/src/Pair/PairFree.o		\
+		build/src/Pair/PairListCreate.o		\
+		build/src/Pair/PairListFree.o		\
+		build/src/Pair/PairListGetPair.o	\
+		build/src/Pair/PairListGetValue.o	\
+		build/src/Pair/PairNew.o		\
 		build/src/Cgi/UrlEncodeChar.o		\
 		build/src/Cgi/UrlEncodeString.o		\
 		build/src/Cgi/UrlDecodeChar.o		\
@@ -97,7 +104,7 @@ build/libcgi6.a : build/src/conf.o			\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util build/src/Dump:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util build/src/Dump build/src/Pair:
 	mkdir -p $@
 
 #---------------------------------------------------------------------

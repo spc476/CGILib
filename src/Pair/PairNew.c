@@ -19,7 +19,7 @@
 *
 *************************************************************************/
 
-#define _GNU_SOURCE 1
+#define _GNU_SOURCE
 
 #include <stddef.h>
 #include <stdint.h>
@@ -27,9 +27,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "pair.h"
-
-/**********************************************************************/
+#include "../pair.h"
 
 struct pair *PairNew(char **psrc,char delim,char eos)
 {
@@ -83,104 +81,3 @@ struct pair *PairNew(char **psrc,char delim,char eos)
   *psrc              = peos   + 1;
   return(psp);
 }
-
-/***********************************************************************/
-
-struct pair *PairCreate(const char *restrict name,const char *restrict value)
-{
-  struct pair *psp;
-  
-  assert(name  != NULL);
-  assert(value != NULL);
-  
-  psp         = malloc(sizeof(struct pair));
-  psp->name   = strdup(name);
-  psp->value  = strdup(value);
-  return(psp);
-}
-
-/***********************************************************************/
-
-void PairFree(struct pair *psp)
-{
-  assert(psp != NULL);
-  assert(NodeValid(&psp->node));
-  
-  free(psp->name);
-  free(psp->value);
-  free(psp);
-}
-
-/*************************************************************************/
-
-void PairListCreate(
-        List       *plist,
-        const char *restrict name,
-        const char *restrict value
-)
-{
-  struct pair *pair;
-  
-  assert(plist != NULL);
-  assert(name  != NULL);
-  assert(value != NULL);
-  
-  pair = PairCreate(name,value);
-  ListAddTail(plist,&pair->node);
-}
-
-/*************************************************************************/
-
-struct pair *PairListGetPair(const List *plist,const char *name)
-{
-  struct pair *psp;
-  
-  assert(plist != NULL);
-  assert(name  != NULL);
-  
-  psp = (struct pair *)ListGetHead(plist);
-  while(NodeValid(&psp->node))
-  {
-    if (strcmp(psp->name,name) == 0) return(psp);
-    psp = (struct pair *)NodeNext(&psp->node);
-  }
-  return(NULL);
-}
-
-/***********************************************************************/
-
-char *PairListGetValue(const List *plist,const char *name)
-{
-  struct pair *psp;
-  
-  assert(plist != NULL);
-  assert(name  != NULL);
-  
-  psp = PairListGetPair(plist,name);
-  if (psp != NULL)
-    return(psp->value);
-  else
-    return(NULL);
-}
-
-/************************************************************************/
-
-void PairListFree(List *plist)
-{
-  struct pair *psp;
-  
-  assert(plist != NULL);
-  
-  while(1)
-  {
-    psp = (struct pair *)ListRemHead(plist);
-    if (!NodeValid(&psp->node))
-    {
-      return;
-    }
-    PairFree(psp);
-  }
-}
-
-/***********************************************************************/
-
