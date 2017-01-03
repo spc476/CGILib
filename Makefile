@@ -54,6 +54,7 @@ build/libcgi6.a : build/src/conf.o		\
 		build/src/chunk.o		\
 		build/src/bisearch.o		\
 		build/src/crashreport.o		\
+		build/src/crashreport-posix.o	\
 		build/src/tree.o		\
 		build/src/hex.o			\
 		build/src/hexdump_mems.o	\

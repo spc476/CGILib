@@ -22,18 +22,11 @@
 #ifndef I_4007C572_D16E_538C_88BA_7948289D7F06
 #define I_4007C572_D16E_538C_88BA_7948289D7F06
 
-#ifdef __GNUC__
-#  define _GNU_SOURCE
-#endif
-
 #include <signal.h>
 
-extern int  crashreport      (int);
-extern void crashreport_with (int,char **,char **);
-
-#ifdef _POSIX_VERSION
-  extern void crashreport_coresigs (sigset_t *);
-  extern void crashreport_allsigs  (sigset_t *);
-#endif
+extern int  crashreport          (int);
+extern void crashreport_with     (int,char **,char **);
+extern void crashreport_coresigs (sigset_t *);
+extern void crashreport_allsigs  (sigset_t *);
 
 #endif

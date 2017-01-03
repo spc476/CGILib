@@ -498,57 +498,6 @@ int crashreport(int sig)
 
 /********************************************************************/
 
-#ifdef _POSIX_VERSION
-
-  static const int m_coresigs[] =
-  {
-  
-    /* ANSI C signals */
-    
-    SIGILL,
-    SIGABRT,
-    SIGFPE,
-    SIGSEGV,
-    
-    /* POSIX signals */
-    
-    SIGQUIT,
-    SIGBUS,
-    SIGSYS,
-    SIGTRAP,
-    SIGXCPU,
-    SIGXFSZ,
-    
-    /* other signals sometimes defined */
-#ifdef SIGIOT
-    SIGIOT,
-#endif
-  };
-  
-# define CORESIGS       (sizeof(m_coresigs) / sizeof(int))
-
-  /******************************************************************/
-  
-  void crashreport_coresigs(sigset_t *set)
-  {
-    sigemptyset(set);
-    for (size_t i = 0 ; i < CORESIGS ; i++)
-      sigaddset(set,m_coresigs[i]);
-  }
-  
-  /******************************************************************/
-  
-  void crashreport_allsigs(sigset_t *set)
-  {
-    sigfillset(set);
-    for (size_t i = 0 ; i < CORESIGS ; i++)
-      sigdelset(set,m_coresigs[i]);
-  }
-  
-#endif
-
-/********************************************************************/
-
 void crashreport_with(int argc,char **argv,char **envp)
 {
   m_argc = argc;
