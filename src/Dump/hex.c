@@ -21,11 +21,10 @@
 
 #include <assert.h>
 #include "../dump.h"
+#include "../util.h"
 
 void hex(char *dest,size_t dsize __attribute__((unused)),uintptr_t val,size_t digits)
 {
-  int c;
-  
   assert(dest   != NULL);
   assert(digits <= sizeof(uintptr_t) * 2);
   assert(dsize  >  digits);
@@ -33,12 +32,7 @@ void hex(char *dest,size_t dsize __attribute__((unused)),uintptr_t val,size_t di
   dest[digits] = '\0';
   while(digits--)
   {
-    c = (int)(val & (uintptr_t)15);
-    assert(c >= 0);
-    assert(c <  16);
-    c += '0';
-    if (c > '9') c += 7;
-    dest[digits] = c;
+    dest[digits] = hextoc((int)(val & (uintptr_t)15));
     val >>= 4;
   }
 }
