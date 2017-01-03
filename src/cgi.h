@@ -61,17 +61,17 @@ struct dstring
 
 /************************************************************************/
 
-extern Cgi               CgiNew                 (void *);
-extern void              CgiListMake            (const Cgi);
-extern struct pair      *CgiNextValue           (const Cgi);
-extern size_t            CgiListGetValues       (const Cgi,char ***,const char *);      /* added */
-extern int               CgiListRequired        (const Cgi,struct dstring *,size_t);
-extern int               CgiFree                (Cgi);
+extern Cgi          CgiNew           (void *);
+extern void         CgiListMake      (const Cgi);
+extern struct pair *CgiNextValue     (const Cgi);
+extern size_t       CgiListGetValues (const Cgi,char ***,const char *);      /* added */
+extern int          CgiListRequired  (const Cgi,struct dstring *,size_t);
+extern int          CgiFree          (Cgi);
 
-extern char             *UrlEncodeString        (const char *);
-extern char             *UrlEncodeChar          (char *,char);
-extern char             *UrlDecodeString        (char *);
-extern char              UrlDecodeChar          (char **);
+extern char        *UrlEncodeString  (const char *);
+extern char        *UrlEncodeChar    (char *,char);
+extern char        *UrlDecodeString  (char *);
+extern char         UrlDecodeChar    (char **);
 
 /********************************************************************/
 
@@ -162,5 +162,3 @@ static inline char *CgiListGetValue(const Cgi cgi,const char *name)
 /***********************************************************************/
 
 #endif
-
-

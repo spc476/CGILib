@@ -117,12 +117,11 @@ struct urlrelation
 
 extern const struct urlrelation g_protos[];
 
-extern size_t    UrlGetProto            (char *,size_t,const char **);
-extern size_t    UrlGetHost             (char *,size_t,const char **);
-extern size_t    UrlGetPort             (char *,size_t,const char **);
-extern size_t    UrlGetFile             (char *,size_t,const char **);
-
-url__t  *UrlNew         (const char *);
+extern size_t  UrlGetProto (char *,size_t,const char **);
+extern size_t  UrlGetHost  (char *,size_t,const char **);
+extern size_t  UrlGetPort  (char *,size_t,const char **);
+extern size_t  UrlGetFile  (char *,size_t,const char **);
+extern url__t *UrlNew      (const char *);
 
 /*------------------------------------------------------------------*/
 
