@@ -19,8 +19,6 @@
 *
 *************************************************************************/
 
-#define _GNU_SOURCE 1
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +26,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "chunk.h"
+#include "../chunk.h"
 
 /**********************************************************************/
 
@@ -111,47 +109,6 @@ static void chunk_handle(
 
 /**************************************************************************/
 
-Chunk ChunkNew(const char *cname,const struct chunk_callback *pcc,size_t scc)
-{
-  Chunk chunk;
-  
-  assert(cname != NULL);
-  assert(pcc   != NULL);
-  assert(scc   >  0);
-  
-  chunk         = malloc(sizeof(struct chunk));
-  chunk->name   = strdup(cname);
-  chunk->cb     = pcc;
-  chunk->cbsize = scc;
-  
-  return chunk;
-}
-
-/***********************************************************************/
-
-int ChunkProcess(const Chunk chunk,const char *name,FILE *out,void *data)
-{
-  char   fname[FILENAME_MAX];
-  FILE  *in;
-  
-  assert(chunk != NULL);
-  assert(name  != NULL);
-  assert(out   != NULL);
-  
-  sprintf(fname,"%s/%s",chunk->name,name);
-  
-  in = fopen(fname,"r");
-  if (in == NULL)
-    return(errno);
-    
-  ChunkProcessStream(chunk,in,out,data);
-  
-  fclose(in);
-  return(0);
-}
-
-/*********************************************************************/
-
 int ChunkProcessStream(const Chunk chunk,FILE *in,FILE *out,void *data)
 {
   int c;
@@ -179,16 +136,4 @@ int ChunkProcessStream(const Chunk chunk,FILE *in,FILE *out,void *data)
   return(0);
 }
 
-/***********************************************************************/
-
-int ChunkFree(Chunk chunk)
-{
-  assert(chunk != NULL);
-  
-  free(chunk->name);
-  free(chunk);
-  return(0);
-}
-
-/**********************************************************************/
-
+/**************************************************************************/

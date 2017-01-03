@@ -48,6 +48,7 @@ all : build                \
 	build/src/Dump     \
 	build/src/Pair     \
 	build/src/Nodelist \
+	build/src/Chunk    \
 	build/libcgi6.a
 
 build/libcgi6.a : build/src/conf.o			\
@@ -93,7 +94,10 @@ build/libcgi6.a : build/src/conf.o			\
 		build/src/Htmltok/HtmlParseNext.o	\
 		build/src/Htmltok/HtmlParseFree.o	\
 		build/src/mail.o			\
-		build/src/chunk.o			\
+		build/src/Chunk/ChunkFree.o		\
+		build/src/Chunk/ChunkNew.o		\
+		build/src/Chunk/ChunkProcess.o		\
+		build/src/Chunk/ChunkProcessStream.o	\
 		build/src/bisearch.o			\
 		build/src/crashreport.o			\
 		build/src/crashreport-posix.o		\
@@ -111,7 +115,7 @@ build/libcgi6.a : build/src/conf.o			\
 		build/src/Url/gopher.o
 	$(AR) $@ $?
 
-build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util build/src/Dump build/src/Pair build/src/Nodelist:
+build build/src build/src/Url build/src/RFC822 build/src/Cgi build/src/Htmltok build/src/Util build/src/Dump build/src/Pair build/src/Nodelist build/src/Chunk:
 	mkdir -p $@
 
 #---------------------------------------------------------------------
@@ -133,33 +137,81 @@ install:
 	$(INSTALL_DATA)    src/*.h $(DESTDIR)$(includedir)/cgilib6
 
 depend:
-	makedepend -pbuild/ -Y -- $(CFLAGS) -- src/*.c src/Url/*.c 2>/dev/null
+	makedepend -pbuild/ -Y -- $(CFLAGS) -- `find . -name '*.c'` 2>/dev/null
 
 tarball:
 	git archive -o /tmp/CGILib-$(CGIVERSION).tar.gz --prefix CGILib $(CGIVERSION)
 
 # DO NOT DELETE
 
-build/src/bisearch.o: src/bisearch.h
-build/src/cgi.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
-build/src/chunk.o: src/chunk.h
-build/src/conf.o: src/conf.h
-build/src/crashreport.o: src/dump.h src/crashreport.h
-build/src/dump_memoryf.o: src/dump.h
-build/src/dump_memoryl.o: src/dump.h
-build/src/dump_memorys.o: src/dump.h
-build/src/dump_mems.o: src/dump.h
-build/src/hex.o: src/dump.h
-build/src/hexdump_mems.o: src/dump.h
-build/src/htmltok.o: src/nodelist.h src/htmltok.h src/pair.h src/util.h
-build/src/htmltok.o: src/dump.h
-build/src/mail.o: src/util.h src/dump.h src/rfc822.h src/nodelist.h
-build/src/mail.o: src/pair.h src/mail.h
-build/src/nodelist.o: src/nodelist.h
-build/src/pair.o: src/pair.h src/nodelist.h
-build/src/tree.o: src/tree.h
-build/src/util.o: src/util.h src/dump.h
-build/src/Url/file.o: src/url.h
-build/src/Url/gopher.o: src/url.h
-build/src/Url/http.o: src/url.h
-build/src/Url/url.o: src/url.h
+build/./misc/rawfmt.o: ./misc/rawfmt.h
+build/./src/Cgi/CgiListGetValues.o: ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/CgiListGetValues.o: ./src/nodelist.h ./src/cgi.h ./src/pair.h
+build/./src/Cgi/CgiListMake.o: ./src/nodelist.h ./src/cgi.h ./src/nodelist.h
+build/./src/Cgi/CgiListMake.o: ./src/pair.h
+build/./src/Cgi/UrlDecodeString.o: ./src/cgi.h ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/UrlEncodeChar.o: ./src/util.h ./src/dump.h ./src/cgi.h
+build/./src/Cgi/UrlEncodeChar.o: ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/UrlEncodeString.o: ./src/cgi.h ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/CgiListRequired.o: ./src/cgi.h ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/CgiNextValue.o: ./src/pair.h ./src/nodelist.h ./src/util.h
+build/./src/Cgi/CgiNextValue.o: ./src/dump.h ./src/cgi.h ./src/pair.h
+build/./src/Cgi/CgiFree.o: ./src/cgi.h ./src/nodelist.h ./src/pair.h
+build/./src/Cgi/CgiFree.o: ./src/pair.h
+build/./src/Cgi/UrlDecodeChar.o: ./src/util.h ./src/dump.h
+build/./src/Cgi/CgiNew.o: ./src/util.h ./src/dump.h ./src/cgi.h
+build/./src/Cgi/CgiNew.o: ./src/nodelist.h ./src/pair.h
+build/./src/RFC822/RFC822HeadersRead.o: ./src/nodelist.h ./src/pair.h
+build/./src/RFC822/RFC822HeadersRead.o: ./src/nodelist.h ./src/rfc822.h
+build/./src/RFC822/RFC822HeadersRead.o: ./src/util.h ./src/dump.h
+build/./src/RFC822/RFC822HeadersWrite.o: ./src/pair.h ./src/nodelist.h
+build/./src/RFC822/RFC822HeadersWrite.o: ./src/rfc822.h
+build/./src/mail.o: ./src/util.h ./src/dump.h ./src/rfc822.h ./src/nodelist.h
+build/./src/mail.o: ./src/pair.h ./src/mail.h
+build/./src/Dump/hexdump_mems.o: ./src/dump.h
+build/./src/Dump/dump_memorys.o: ./src/dump.h
+build/./src/Dump/dump_mems.o: ./src/dump.h
+build/./src/Dump/dump_memoryl.o: ./src/dump.h
+build/./src/Dump/hex.o: ./src/dump.h
+build/./src/Dump/dump_memoryf.o: ./src/dump.h
+build/./src/conf.o: ./src/conf.h
+build/./src/crashreport.o: ./src/dump.h ./src/crashreport.h
+build/./src/Htmltok/HtmlParseFree.o: ./src/htmltok.h ./src/nodelist.h
+build/./src/Htmltok/HtmlParseFree.o: ./src/pair.h
+build/./src/Htmltok/HtmlParseNew.o: ./src/nodelist.h ./src/htmltok.h
+build/./src/Htmltok/HtmlParseNew.o: ./src/nodelist.h ./src/pair.h
+build/./src/Htmltok/HtmlParsePrintTag.o: ./src/nodelist.h ./src/htmltok.h
+build/./src/Htmltok/HtmlParsePrintTag.o: ./src/nodelist.h ./src/pair.h
+build/./src/Htmltok/HtmlParsePrintTag.o: ./src/util.h ./src/dump.h
+build/./src/Htmltok/HtmlParseNext.o: ./src/nodelist.h ./src/htmltok.h
+build/./src/Htmltok/HtmlParseNext.o: ./src/nodelist.h ./src/pair.h
+build/./src/Htmltok/HtmlParseNext.o: ./src/util.h ./src/dump.h
+build/./src/Htmltok/HtmlParseClone.o: ./src/nodelist.h ./src/htmltok.h
+build/./src/Htmltok/HtmlParseClone.o: ./src/nodelist.h ./src/pair.h
+build/./src/Chunk/ChunkFree.o: ./src/chunk.h
+build/./src/Chunk/ChunkProcess.o: ./src/chunk.h
+build/./src/Chunk/ChunkProcessStream.o: ./src/chunk.h
+build/./src/Chunk/ChunkNew.o: ./src/chunk.h
+build/./src/Pair/PairListCreate.o: ./src/nodelist.h ./src/pair.h
+build/./src/Pair/PairListCreate.o: ./src/nodelist.h
+build/./src/Pair/PairNew.o: ./src/pair.h ./src/nodelist.h
+build/./src/Pair/PairFree.o: ./src/pair.h ./src/nodelist.h
+build/./src/Pair/PairCreate.o: ./src/pair.h ./src/nodelist.h
+build/./src/Pair/PairListFree.o: ./src/nodelist.h ./src/pair.h
+build/./src/Pair/PairListFree.o: ./src/nodelist.h
+build/./src/Pair/PairListGetValue.o: ./src/pair.h ./src/nodelist.h
+build/./src/Pair/PairListGetPair.o: ./src/nodelist.h ./src/pair.h
+build/./src/Pair/PairListGetPair.o: ./src/nodelist.h
+build/./src/tree.o: ./src/tree.h
+build/./src/bisearch.o: ./src/bisearch.h
+build/./src/Nodelist/ListInit.o: ./src/nodelist.h
+build/./src/Nodelist/ListRemHead.o: ./src/nodelist.h
+build/./src/Nodelist/NodeInsert.o: ./src/nodelist.h
+build/./src/Nodelist/ListRemTail.o: ./src/nodelist.h
+build/./src/Nodelist/NodeRemove.o: ./src/nodelist.h
+build/./src/Nodelist/NodeNext.o: ./src/nodelist.h
+build/./src/Nodelist/NodePrev.o: ./src/nodelist.h
+build/./src/Url/http.o: ./src/url.h
+build/./src/Url/file.o: ./src/url.h
+build/./src/Url/gopher.o: ./src/url.h
+build/./src/Url/url.o: ./src/url.h
