@@ -58,10 +58,25 @@ char *RFC822LineRead(FILE *in)
       line = n;
     }
     line[idx++] = c;
-    line[idx]   = '\0';
     
     if (c == '\n') break;
   }
+  
+  if (idx == max)
+  {
+    char *n;
+    
+    max += 1;
+    n    = realloc(line,max);
+    if (n == NULL)
+    {
+      free(line);
+      return NULL;
+    }
+    line = n;
+  }
+  
+  line[idx] = '\0';
   
   if ((line != NULL) && (*line == '\n'))
   {
