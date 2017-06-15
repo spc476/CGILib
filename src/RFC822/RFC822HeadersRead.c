@@ -27,7 +27,7 @@
 #include "../rfc822.h"
 #include "../util.h"
 
-void RFC822HeadersRead(FILE *in,const List *list)
+void RFC822HeadersRead(FILE *in,List const *list)
 {
   char        *line;
   char        *t;

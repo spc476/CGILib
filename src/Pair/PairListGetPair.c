@@ -29,7 +29,7 @@
 #include "../nodelist.h"
 #include "../pair.h"
 
-struct pair *PairListGetPair(const List *plist,const char *name)
+struct pair *PairListGetPair(List const *plist,char const *name)
 {
   struct pair *psp;
   

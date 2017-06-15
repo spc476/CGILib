@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int    http_new        (url__t *restrict,const char *restrict);
-static int    http_compare    (const url__t *const restrict,const url__t *const restrict);
-static size_t http_makestring (const url__t *const restrict,char *restrict,size_t);
+static int    http_new        (url__t *restrict,char const *restrict);
+static int    http_compare    (url__t const *const restrict,url__t const *const restrict);
+static size_t http_makestring (url__t const *const restrict,char *restrict,size_t);
 static void   http_free       (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_httpvec =
+struct urlvector const g_httpvec =
 {
   http_new,
   http_compare,
@@ -48,7 +48,7 @@ const struct urlvector g_httpvec =
 
 /********************************************************************/
 
-static int http_new(url__t *restrict url,const char *surl)
+static int http_new(url__t *restrict url,char const *surl)
 {
   urlhttp__t *hurl = &url->http;
   char        tmpbuf[BUFSIZ];
@@ -140,8 +140,8 @@ static int http_new(url__t *restrict url,const char *surl)
 /**********************************************************************/
 
 static int http_compare(
-        const url__t *const restrict durl,
-        const url__t *const restrict surl
+        url__t const *const restrict durl,
+        url__t const *const restrict surl
 )
 {
   int rc;
@@ -167,7 +167,7 @@ static int http_compare(
 /**********************************************************************/
 
 static size_t http_makestring(
-        const url__t *const restrict url,
+        url__t const *const restrict url,
         char         *restrict       d,
         size_t                       sd
 )

@@ -27,12 +27,12 @@
 int chardump_mems(
         char       *dest,
         size_t      dsize,
-        const void *data,
+        void const *data,
         size_t      size,
         size_t      amount
 )
 {
-  const char *block = data;
+  char const *block = data;
   
   assert(amount > 0);
   assert(size   > 0);

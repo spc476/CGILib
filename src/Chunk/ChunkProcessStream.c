@@ -66,10 +66,10 @@ static void chunk_readcallback(FILE *in,char *obuff,size_t size)
 
 /**************************************************************************/
 
-static int chunk_search_cmp(const void *needle,const void *haystack)
+static int chunk_search_cmp(void const *needle,void const *haystack)
 {
-  const char                  *key  = needle;
-  const struct chunk_callback *hole = haystack;
+  char const                  *key  = needle;
+  struct chunk_callback const *hole = haystack;
   
   assert(needle   != NULL);
   assert(haystack != NULL);
@@ -80,14 +80,14 @@ static int chunk_search_cmp(const void *needle,const void *haystack)
 /*********************************************************************/
 
 static void chunk_handle(
-                          FILE                  *restrict in,
-                          FILE                  *restrict out,
-                          const struct chunk_callback *pcc,
-                          size_t                 scc,
-                          void                  *data
+                          FILE                        *restrict in,
+                          FILE                        *restrict out,
+                          struct chunk_callback const *pcc,
+                          size_t                       scc,
+                          void                        *data
                         )
 {
-  const struct chunk_callback *res;
+  struct chunk_callback const *res;
   char                         cmdbuf[BUFSIZ];
   
   
@@ -109,7 +109,7 @@ static void chunk_handle(
 
 /**************************************************************************/
 
-int ChunkProcessStream(const Chunk chunk,FILE *in,FILE *out,void *data)
+int ChunkProcessStream(Chunk const chunk,FILE *in,FILE *out,void *data)
 {
   int c;
   

@@ -24,7 +24,7 @@
 
 #include "../nodelist.h"
 
-Node *NodePrev(const Node *const pn)
+Node *NodePrev(Node const *const pn)
 {
   assert(pn != NULL);
   

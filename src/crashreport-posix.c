@@ -27,7 +27,7 @@
 
 /******************************************************************/
 
-static const int m_coresigs[] =
+static int const m_coresigs[] =
 {
 
   /* ANSI C signals */

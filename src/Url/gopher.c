@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int    gopher_new        (url__t *restrict,const char *restrict);
-static int    gopher_compare    (const url__t *const restrict,const url__t *const restrict);
-static size_t gopher_makestring (const url__t *const restrict,char *restrict,size_t);
+static int    gopher_new        (url__t *restrict,char const *restrict);
+static int    gopher_compare    (url__t const *const restrict,url__t const *const restrict);
+static size_t gopher_makestring (url__t const *const restrict,char *restrict,size_t);
 static void   gopher_free       (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_gophervec =
+struct urlvector const g_gophervec =
 {
   gopher_new,
   gopher_compare,
@@ -48,7 +48,7 @@ const struct urlvector g_gophervec =
 
 /********************************************************************/
 
-static int gopher_new(url__t *restrict url,const char *surl)
+static int gopher_new(url__t *restrict url,char const *surl)
 {
   urlgopher__t *hurl = &url->gopher;
   char         *next;
@@ -188,8 +188,8 @@ static int gopher_new(url__t *restrict url,const char *surl)
 /**********************************************************************/
 
 static int gopher_compare(
-        const url__t *const restrict durl,
-        const url__t *const restrict surl
+        url__t const *const restrict durl,
+        url__t const *const restrict surl
 )
 {
   int rc;
@@ -217,7 +217,7 @@ static int gopher_compare(
 /**********************************************************************/
 
 static size_t gopher_makestring(
-        const url__t *const restrict url,
+        url__t const *const restrict url,
         char         *restrict       d,
         size_t                       sd
 )

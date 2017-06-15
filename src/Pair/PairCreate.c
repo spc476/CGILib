@@ -28,7 +28,7 @@
 
 #include "../pair.h"
 
-struct pair *PairCreate(const char *restrict name,const char *restrict value)
+struct pair *PairCreate(char const *restrict name,char const *restrict value)
 {
   struct pair *psp;
   

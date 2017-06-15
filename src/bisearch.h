@@ -29,11 +29,10 @@ typedef struct bisearch__t
 } bisearch__t;
 
 extern bisearch__t bisearch(
-                             const void *const restrict,
-                             const void *const restrict,
-                             const size_t,
-                             const size_t,
-                             int (*)(const void *,const void *)
-                           );
-                           
+                             void   const *const restrict,
+                             void   const *const restrict,
+                             size_t const,
+                             size_t const,
+                             int (*)(void const *restrict,void const *restrict)
+                          );
 #endif

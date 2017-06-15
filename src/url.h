@@ -99,35 +99,35 @@ typedef union url
 
 struct urlvector
 {
-  int    (*new)         (url__t *restrict,const char *);
-  int    (*compare)     (const url__t *const restrict,const url__t *const restrict);
-  size_t (*makestring)  (const url__t *const restrict,char *restrict,size_t);
+  int    (*new)         (url__t *restrict,char const *);
+  int    (*compare)     (url__t const *const restrict,url__t const *const restrict);
+  size_t (*makestring)  (url__t const *const restrict,char *restrict,size_t);
   void   (*free)        (url__t *);
 };
 
 struct urlrelation
 {
-  const char *const             proto;
-  const url_type__t             scheme;
-  const struct urlvector *const puv;
-  const size_t                  size;
+  char             const *const proto;
+  url_type__t      const        scheme;
+  struct urlvector const *const puv;
+  size_t           const        size;
 };
 
 /********************************************************************/
 
-extern const struct urlrelation g_protos[];
+extern struct urlrelation const g_protos[];
 
-extern size_t  UrlGetProto (char *,size_t,const char **);
-extern size_t  UrlGetHost  (char *,size_t,const char **);
-extern size_t  UrlGetPort  (char *,size_t,const char **);
-extern size_t  UrlGetFile  (char *,size_t,const char **);
-extern url__t *UrlNew      (const char *);
+extern size_t  UrlGetProto (char *,size_t,char const **);
+extern size_t  UrlGetHost  (char *,size_t,char const **);
+extern size_t  UrlGetPort  (char *,size_t,char const **);
+extern size_t  UrlGetFile  (char *,size_t,char const **);
+extern url__t *UrlNew      (char const *);
 
 /*------------------------------------------------------------------*/
 
 static inline int UrlCompare(
-        const url__t *const restrict durl,
-        const url__t *const restrict surl
+        url__t const *const restrict durl,
+        url__t const *const restrict surl
 )
 {
   assert(durl         != NULL);
@@ -141,7 +141,7 @@ static inline int UrlCompare(
 /*------------------------------------------------------------------*/
 
 static inline size_t UrlMakeString(
-        const url__t *const restrict url,
+        url__t const *const restrict url,
         char         *restrict       d,
         size_t                       sd
 )

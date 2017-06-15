@@ -27,11 +27,11 @@
 /*************************************************************************/
 
 bisearch__t bisearch(
-        const void *const restrict key,
-        const void *const restrict base,
-        const size_t               nelem,
-        const size_t               size,
-        int (*compare)(const void *restrict,const void *restrict)
+        void   const *const restrict key,
+        void   const *const restrict base,
+        size_t const                 nelem,
+        size_t const                 size,
+        int (*compare)(void const *restrict,void const *restrict)
 )
 {
   size_t    first;
@@ -45,7 +45,7 @@ bisearch__t bisearch(
   
   while(len > 0)
   {
-    const char *pivot;
+    char const *pivot;
     size_t      half;
     size_t      middle;
     int         q;
@@ -54,7 +54,7 @@ bisearch__t bisearch(
     
     half   = len / 2;
     middle = first + half;
-    pivot  = (const char *)base + (middle * size);
+    pivot  = (char const *)base + (middle * size);
     q      = (*compare)(key,pivot);
     
     if (q > 0)

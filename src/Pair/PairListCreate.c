@@ -29,8 +29,8 @@
 
 void PairListCreate(
         List       *plist,
-        const char *restrict name,
-        const char *restrict value
+        char const *restrict name,
+        char const *restrict value
 )
 {
   struct pair *pair;

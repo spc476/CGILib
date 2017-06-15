@@ -24,7 +24,7 @@
 #include "../pair.h"
 #include "../rfc822.h"
 
-size_t RFC822HeadersWrite(FILE *out,const List *list)
+size_t RFC822HeadersWrite(FILE *out,List const *list)
 {
   struct pair *ppair;
   size_t       size;

@@ -24,7 +24,7 @@
 
 #include "../nodelist.h"
 
-Node *NodeNext(const Node *const pn)
+Node *NodeNext(Node const *const pn)
 {
   assert(pn != NULL);
   

@@ -29,10 +29,10 @@
 
 typedef struct email
 {
-  const char *from;
-  const char *to;
-  const char *replyto;
-  const char *subject;
+  char const *from;
+  char const *to;
+  char const *replyto;
+  char const *subject;
   char       *tbody;
   size_t      bsize;
   time_t      timestamp;
@@ -43,7 +43,7 @@ typedef struct email
 /********************************************************************/
 
 extern Email EmailNew  (void);
-extern int   EmailSend (const Email);
+extern int   EmailSend (Email const);
 extern int   EmailFree (Email);
 
 /********************************************************************/

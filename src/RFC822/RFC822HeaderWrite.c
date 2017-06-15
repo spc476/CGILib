@@ -24,12 +24,12 @@
 #include <string.h>
 #include <assert.h>
 
-size_t RFC822HeaderWrite(FILE *out,const char *restrict name,const char *restrict value)
+size_t RFC822HeaderWrite(FILE *out,char const *restrict name,char const *restrict value)
 {
   int        (*conv)(int);
   int          size;
   char         n[strlen(name) + 1];
-  const char  *s;
+  char const  *s;
   char        *d;
   
   assert(out   != NULL);

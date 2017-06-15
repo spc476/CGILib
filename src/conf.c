@@ -21,4 +21,4 @@
 
 #include "conf.h"
 
-const char cgilib_version[] = CGIVERSION;
+char const cgilib_version[] = CGIVERSION;

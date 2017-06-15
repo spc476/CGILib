@@ -31,14 +31,14 @@
 
 /**********************************************************************/
 
-static int    file_new        (url__t *,const char *);
-static int    file_compare    (const url__t *const restrict,const url__t *const restrict);
-static size_t file_makestring (const url__t *const restrict,char *restrict,size_t);
+static int    file_new        (url__t *,char const *);
+static int    file_compare    (url__t const *const restrict,url__t const *const restrict);
+static size_t file_makestring (url__t const *const restrict,char *restrict,size_t);
 static void   file_free       (url__t *);
 
 /***********************************************************************/
 
-const struct urlvector g_filevec =
+struct urlvector const g_filevec =
 {
   file_new,
   file_compare,
@@ -48,7 +48,7 @@ const struct urlvector g_filevec =
 
 /********************************************************************/
 
-static int file_new(url__t *restrict url,const char *surl)
+static int file_new(url__t *restrict url,char const *surl)
 {
   char   tmpbuf[BUFSIZ];
   size_t tmpsz;
@@ -85,8 +85,8 @@ static int file_new(url__t *restrict url,const char *surl)
 /**************************************************************************/
 
 static int file_compare(
-        const url__t *const restrict durl,
-        const url__t *const restrict surl
+        url__t const *const restrict durl,
+        url__t const *const restrict surl
 )
 {
   int rc;
@@ -104,7 +104,7 @@ static int file_compare(
 /**********************************************************************/
 
 static size_t file_makestring(
-        const url__t *const restrict url,
+        url__t const *const restrict url,
         char         *restrict       d,
         size_t                       sd
 )

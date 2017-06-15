@@ -24,7 +24,7 @@
 #include "../nodelist.h"
 #include "../cgi.h"
 
-void CgiListMake(const Cgi cgi)
+void CgiListMake(Cgi const cgi)
 {
   struct pair *psp;
   

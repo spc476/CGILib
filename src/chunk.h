@@ -28,22 +28,22 @@
 
 struct chunk_callback
 {
-  const char *const name;
+  char const *const name;
   void (*callback)(FILE *,void *);
 };
 
 typedef struct chunk
 {
   char                        *name;
-  const struct chunk_callback *cb;
+  struct chunk_callback const *cb;
   size_t                       cbsize;
 } *Chunk;
 
 /*********************************************************************/
 
-extern Chunk ChunkNew           (const char *,const struct chunk_callback *,size_t);
-extern int   ChunkProcess       (const Chunk,const char *,FILE *,void *);
-extern int   ChunkProcessStream (const Chunk,FILE *restrict,FILE *restrict,void *);
+extern Chunk ChunkNew           (char const *,struct chunk_callback const *,size_t);
+extern int   ChunkProcess       (Chunk const,char const *,FILE *,void *);
+extern int   ChunkProcessStream (Chunk const,FILE *restrict,FILE *restrict,void *);
 extern int   ChunkFree          (Chunk);
 
 #endif

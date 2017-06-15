@@ -107,7 +107,7 @@ static inline void HtmlParseAddPair(HtmlToken token,struct pair *p)
 
 /*------------------------------------------------------------------*/
 
-static inline struct pair *HtmlParseGetPair(HtmlToken token,const char *name)
+static inline struct pair *HtmlParseGetPair(HtmlToken token,char const *name)
 {
   assert(token != NULL);
   assert(name  != NULL);

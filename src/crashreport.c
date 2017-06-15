@@ -136,12 +136,12 @@ static int    m_cnt  = 0;
 
 static void crashreport_hexdump(
     unsigned long  pid,
-    const void    *data,
+    void const    *data,
     size_t         size,
     size_t         offset
 )
 {
-  const unsigned char *block = data;
+  unsigned char const *block = data;
   char                 toffs[sizeof(size_t) * 2 + 1];
   char                 tbyte[DEF_DUMP_BYTES * 3 + 1];
   
@@ -164,9 +164,9 @@ static void crashreport_hexdump(
 
 /***********************************************************************/
 
-static const char *crashreport_code(const int sig,const int code)
+static char const *crashreport_code(int const sig,int const code)
 {
-  static const char unspef[] = "Unspecified/untranslated error";
+  static char const unspef[] = "Unspecified/untranslated error";
   
   switch(code)
   {

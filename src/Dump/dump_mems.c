@@ -29,7 +29,7 @@
 int dump_mems(
         char       *dest,
         size_t      dsize,
-        const void *data,
+        void const *data,
         size_t      size,
         size_t      amount,
         size_t      offset

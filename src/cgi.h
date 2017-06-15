@@ -55,27 +55,27 @@ typedef struct cgi
 
 struct dstring
 {
-  const char *s1;
-  const char *s2;
+  char const *s1;
+  char const *s2;
 };
 
 /************************************************************************/
 
 extern Cgi          CgiNew           (void *);
-extern void         CgiListMake      (const Cgi);
-extern struct pair *CgiNextValue     (const Cgi);
-extern size_t       CgiListGetValues (const Cgi,char ***,const char *);      /* added */
-extern int          CgiListRequired  (const Cgi,struct dstring *,size_t);
+extern void         CgiListMake      (Cgi const);
+extern struct pair *CgiNextValue     (Cgi const);
+extern size_t       CgiListGetValues (Cgi const,char ***,char const *);      /* added */
+extern int          CgiListRequired  (Cgi const,struct dstring *,size_t);
 extern int          CgiFree          (Cgi);
 
-extern char        *UrlEncodeString  (const char *);
+extern char        *UrlEncodeString  (char const *);
 extern char        *UrlEncodeChar    (char *,char);
 extern char        *UrlDecodeString  (char *);
 extern char         UrlDecodeChar    (char **);
 
 /********************************************************************/
 
-static inline void CgiGetRawData(const Cgi cgi,char **pdest,size_t *psize)
+static inline void CgiGetRawData(Cgi const cgi,char **pdest,size_t *psize)
 {
   assert(cgi   != NULL);
   assert(pdest != NULL);
@@ -87,9 +87,9 @@ static inline void CgiGetRawData(const Cgi cgi,char **pdest,size_t *psize)
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutHtml(const Cgi cgi __attribute__((unused)))
+static inline void CgiOutHtml(Cgi const cgi __attribute__((unused)))
 {
-  static const char msg[] = "Content-type: text/html\n\n";
+  static char const msg[] = "Content-type: text/html\n\n";
   
   assert(cgi != NULL);
   fputs(msg,stdout);
@@ -97,9 +97,9 @@ static inline void CgiOutHtml(const Cgi cgi __attribute__((unused)))
 
 /*----------------------------------------------------------------------*/
 
-static inline void CgiOutText(const Cgi cgi __attribute__((unused)))
+static inline void CgiOutText(Cgi const cgi __attribute__((unused)))
 {
-  static const char msg[] = "Content-type: text/plain\n\n";
+  static char const msg[] = "Content-type: text/plain\n\n";
   
   assert(cgi != NULL);
   fputs(msg,stdout);
@@ -107,9 +107,9 @@ static inline void CgiOutText(const Cgi cgi __attribute__((unused)))
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutShtml(const Cgi cgi __attribute__((unused)))
+static inline void CgiOutShtml(Cgi const cgi __attribute__((unused)))
 {
-  static const char msg[] = "Content-type: text/x-server-parsed-html\n\n";
+  static char const msg[] = "Content-type: text/x-server-parsed-html\n\n";
   
   assert(cgi != NULL);
   fputs(msg,stdout);
@@ -117,7 +117,7 @@ static inline void CgiOutShtml(const Cgi cgi __attribute__((unused)))
 
 /*--------------------------------------------------------------------*/
 
-static inline void CgiOutLocation(const Cgi cgi __attribute__((unused)),const char *location)
+static inline void CgiOutLocation(Cgi const cgi __attribute__((unused)),char const *location)
 {
   assert(cgi      != NULL);
   assert(location != NULL);
@@ -127,7 +127,7 @@ static inline void CgiOutLocation(const Cgi cgi __attribute__((unused)),const ch
 
 /*--------------------------------------------------------------------*/
 
-static inline int CgiMethod(const Cgi cgi)
+static inline int CgiMethod(Cgi const cgi)
 {
   assert(cgi != NULL);
   return(cgi->method);
@@ -135,7 +135,7 @@ static inline int CgiMethod(const Cgi cgi)
 
 /*------------------------------------------------------------------*/
 
-static inline struct pair *CgiListFirst(const Cgi cgi)
+static inline struct pair *CgiListFirst(Cgi const cgi)
 {
   assert(cgi != NULL);
   return(PairListFirst(&cgi->vars));
@@ -143,7 +143,7 @@ static inline struct pair *CgiListFirst(const Cgi cgi)
 
 /*-------------------------------------------------------------------*/
 
-static inline struct pair *CgiListGetPair(const Cgi cgi,const char *name)
+static inline struct pair *CgiListGetPair(Cgi const cgi,char const *name)
 {
   assert(cgi  != NULL);
   assert(name != NULL);
@@ -152,7 +152,7 @@ static inline struct pair *CgiListGetPair(const Cgi cgi,const char *name)
 
 /*-------------------------------------------------------------------*/
 
-static inline char *CgiListGetValue(const Cgi cgi,const char *name)
+static inline char *CgiListGetValue(Cgi const cgi,char const *name)
 {
   assert(cgi  != NULL);
   assert(name != NULL);

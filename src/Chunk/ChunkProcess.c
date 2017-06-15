@@ -26,7 +26,7 @@
 
 #include "../chunk.h"
 
-int ChunkProcess(const Chunk chunk,const char *name,FILE *out,void *data)
+int ChunkProcess(Chunk const chunk,char const *name,FILE *out,void *data)
 {
   char   fname[FILENAME_MAX];
   FILE  *in;

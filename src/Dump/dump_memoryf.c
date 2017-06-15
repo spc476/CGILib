@@ -27,13 +27,13 @@
 
 int dump_memoryf(
         FILE       *fpout,
-        const void *data,
+        void const *data,
         size_t      size,
         size_t      amount,
         size_t      offset
 )
 {
-  const char *mem = data;
+  char const *mem = data;
   char        buffer[BUFSIZ];
   
   assert(fpout  != NULL);

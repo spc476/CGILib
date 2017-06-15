@@ -34,12 +34,12 @@ struct pair
 /**********************************************************************/
 
 extern struct pair *PairNew          (char **,char,char);
-extern struct pair *PairCreate       (const char *restrict,const char *restrict);
+extern struct pair *PairCreate       (char const *restrict,char const *restrict);
 extern void         PairFree         (struct pair *);
 
-extern void         PairListCreate   (List *,const char *restirct,const char *restrict);
-extern struct pair *PairListGetPair  (const List *,const char *);
-extern char        *PairListGetValue (const List *,const char *);
+extern void         PairListCreate   (List *,char const *restirct,char const *restrict);
+extern struct pair *PairListGetPair  (List const *,char const *);
+extern char        *PairListGetValue (List const *,char const *);
 extern void         PairListFree     (List *);
 
 /***********************************************************************/
@@ -67,7 +67,7 @@ static inline void PairListAdd(List *plist,char **psrc,char delim,char eos)
 
 /*---------------------------------------------------------------------*/
 
-static inline struct pair *PairListFirst(const List *plist)
+static inline struct pair *PairListFirst(List const *plist)
 {
   assert(plist != NULL);
   return (struct pair *)ListGetHead(plist);

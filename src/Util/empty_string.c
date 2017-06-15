@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <assert.h>
 
-bool empty_string(const char *s)
+bool empty_string(char const *s)
 {
   assert(s != NULL);
   

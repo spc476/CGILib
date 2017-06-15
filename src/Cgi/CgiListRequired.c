@@ -23,7 +23,7 @@
 
 #include "../cgi.h"
 
-int CgiListRequired(const Cgi cgi,struct dstring *table,size_t size)
+int CgiListRequired(Cgi const cgi,struct dstring *table,size_t size)
 {
   int cnt = 0;
   

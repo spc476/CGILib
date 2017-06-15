@@ -34,7 +34,7 @@ extern struct urlvector g_httpvec;
 extern struct urlvector g_filevec;
 extern struct urlvector g_gophervec;
 
-const struct urlrelation g_protos[] =
+struct urlrelation const g_protos[] =
 {
   { "file"      , URL_FILE      , &g_filevec      , sizeof(urlfile__t)   },
   { "http"      , URL_HTTP      , &g_httpvec      , sizeof(urlhttp__t)   },
@@ -45,9 +45,9 @@ const struct urlrelation g_protos[] =
 
 /********************************************************************/
 
-size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
+size_t UrlGetProto(char *d,size_t sd,char const **ppurl)
 {
-  const char *s;
+  char const *s;
   char       *rd;
   char        c;
   
@@ -71,9 +71,9 @@ size_t UrlGetProto(char *d,size_t sd,const char **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
+size_t UrlGetHost(char *d,size_t sd,char const **ppurl)
 {
-  const char *s;
+  char const *s;
   char       *rd;
   
   assert(d      != NULL);
@@ -104,9 +104,9 @@ size_t UrlGetHost(char *d,size_t sd,const char **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
+size_t UrlGetPort(char *d,size_t sd,char const **ppurl)
 {
-  const char *s;
+  char const *s;
   char       *rd;
   
   assert(d      != NULL);
@@ -133,9 +133,9 @@ size_t UrlGetPort(char *d,size_t sd,const char **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetFile(char *d,size_t sd,const char **ppurl)
+size_t UrlGetFile(char *d,size_t sd,char const **ppurl)
 {
-  const char *s;
+  char const *s;
   char       *rd;
   char        c;
   
@@ -160,10 +160,10 @@ size_t UrlGetFile(char *d,size_t sd,const char **ppurl)
 
 /********************************************************************/
 
-url__t *UrlNew(const char *url)
+url__t *UrlNew(char const *url)
 {
   size_t      i;
-  const char *turl = url;
+  char const *turl = url;
   char        tmpbuf[BUFSIZ];
   url__t     *purl;
   

@@ -27,12 +27,12 @@
 int hexdump_mems(
         char       *dest,
         size_t      dsize,
-        const void *data,
+        void const *data,
         size_t      size,
         size_t      amount
 )
 {
-  const unsigned char *block = data;
+  unsigned char const *block = data;
   
   assert(amount > 0);
   assert(size   > 0);

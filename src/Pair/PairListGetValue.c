@@ -27,7 +27,7 @@
 
 #include "../pair.h"
 
-char *PairListGetValue(const List *plist,const char *name)
+char *PairListGetValue(List const *plist,char const *name)
 {
   struct pair *psp;
   

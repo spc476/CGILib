@@ -35,7 +35,7 @@
 
 extern char *up_string    (char *);
 extern char *down_string  (char *);
-extern bool  empty_string (const char *);
+extern bool  empty_string (char const *);
 extern char *remove_char  (char *,int (*)(int));
 extern char *trim_lspace  (char *);
 extern char *trim_tspace  (char *);
@@ -44,7 +44,7 @@ extern char  hextoc       (int);
 
 /****************************************************************/
 
-static inline bool emptynull_string(const char *s)
+static inline bool emptynull_string(char const *s)
 {
   return ((s == NULL) || empty_string(s));
 }
@@ -69,10 +69,10 @@ static inline char *trim_space(char *s)
 ; The following function id deprecated; use dump_memoryf() instead.
 ;-------------------------------------------------------------------*/
 
-static inline void dump_memory(FILE *,const void *,size_t,size_t) __attribute__((deprecated));
+static inline void dump_memory(FILE *,void const *,size_t,size_t) __attribute__((deprecated));
 static inline void dump_memory(
         FILE       *out,
-        const void *data,
+        void const *data,
         size_t      size,
         size_t      offset
 )

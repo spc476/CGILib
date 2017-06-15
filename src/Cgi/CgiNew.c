@@ -30,7 +30,7 @@
 
 /**************************************************************************/
 
-static void cgicookie_new(const Cgi cgi,const char *data,size_t size)
+static void cgicookie_new(Cgi const cgi,char const *data,size_t size)
 {
   assert(cgi  != NULL);
   assert(data != NULL);
@@ -71,7 +71,7 @@ static int cgi_create(Cgi *pcgi,void *data)
 
 /******************************************************************/
 
-static int cgi_new_get(const Cgi cgi)
+static int cgi_new_get(Cgi const cgi)
 {
   char   *query_string;
   size_t  qs;
@@ -90,7 +90,7 @@ static int cgi_new_get(const Cgi cgi)
 
 /***************************************************************/
 
-static int cgi_new_post(const Cgi cgi)
+static int cgi_new_post(Cgi const cgi)
 {
   size_t  length;
   char   *content_type;
@@ -133,7 +133,7 @@ static int cgi_new_post(const Cgi cgi)
 
 /**********************************************************************/
 
-static int cgi_new_head(const Cgi cgi)
+static int cgi_new_head(Cgi const cgi)
 {
   assert(cgi != NULL);
   
@@ -143,7 +143,7 @@ static int cgi_new_head(const Cgi cgi)
 
 /***************************************************************/
 
-static int cgi_new_put(const Cgi cgi)
+static int cgi_new_put(Cgi const cgi)
 {
   char   *content_length;
   size_t  length;

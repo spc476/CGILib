@@ -27,7 +27,7 @@
 #include "../pair.h"
 #include "../cgi.h"
 
-size_t CgiListGetValues(const Cgi cgi,char ***darray,const char *name)
+size_t CgiListGetValues(Cgi const cgi,char ***darray,char const *name)
 {
   size_t        size  = 0;
   size_t        idx   = 0;

@@ -25,7 +25,7 @@
 
 #include "../cgi.h"
 
-char *UrlEncodeString(const char *src)
+char *UrlEncodeString(char const *src)
 {
   size_t  nsize;
   char   *dest;

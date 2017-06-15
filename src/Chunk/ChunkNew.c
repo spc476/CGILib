@@ -28,7 +28,7 @@
 
 #include "../chunk.h"
 
-Chunk ChunkNew(const char *cname,const struct chunk_callback *pcc,size_t scc)
+Chunk ChunkNew(char const *cname,struct chunk_callback const *pcc,size_t scc)
 {
   Chunk chunk;
   

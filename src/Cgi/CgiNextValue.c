@@ -26,7 +26,7 @@
 #include "../util.h"
 #include "../cgi.h"
 
-struct pair *CgiNextValue(const Cgi cgi)
+struct pair *CgiNextValue(Cgi const cgi)
 {
   struct pair *psp;
   char        *s;

@@ -36,10 +36,10 @@
 
 /*****************************************************************/
 
-static const char m_from[]    = "fred@example.net";
-static const char m_to[]      = "wilma@example.net";
-static const char m_replyto[] = "";
-static const char m_subject[] = "I think Barney's up to no good";
+static char const m_from[]    = "fred@example.net";
+static char const m_to[]      = "wilma@example.net";
+static char const m_replyto[] = "";
+static char const m_subject[] = "I think Barney's up to no good";
 
 /*****************************************************************/
 
@@ -62,7 +62,7 @@ Email EmailNew(void)
 
 /*****************************************************************/
 
-int EmailSend(const Email email)
+int EmailSend(Email const email)
 {
   FILE        *output;
   struct pair *hdr;

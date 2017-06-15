@@ -49,8 +49,8 @@ extern Node *ListRemTail (List *const);
 
 extern void  NodeInsert  (Node *const restrict,Node *const restrict);
 extern void  NodeRemove  (Node *const);
-extern Node *NodeNext    (const Node *const);
-extern Node *NodePrev    (const Node *const);
+extern Node *NodeNext    (Node const *const);
+extern Node *NodePrev    (Node const *const);
 
 /************************************************************************/
 
@@ -74,7 +74,7 @@ static inline void ListAddTail(List *const pl,Node *const pn)
 
 /*-----------------------------------------------------------------------*/
 
-static inline Node *ListGetHead(const List *const pl)
+static inline Node *ListGetHead(List const *const pl)
 {
   assert(pl          != NULL);
   assert(pl->lh_Head != NULL);
@@ -84,7 +84,7 @@ static inline Node *ListGetHead(const List *const pl)
 
 /*------------------------------------------------------------------------*/
 
-static inline Node *ListGetTail(const List *const pl)
+static inline Node *ListGetTail(List const *const pl)
 {
   assert(pl              != NULL);
   assert(pl->lh_TailPred != NULL);
@@ -94,7 +94,7 @@ static inline Node *ListGetTail(const List *const pl)
 
 /*------------------------------------------------------------------------*/
 
-static inline bool ListEmpty(const List *const pl)
+static inline bool ListEmpty(List const *const pl)
 {
   assert(pl != NULL);
   return(pl->lh_Head == (Node *)&pl->lh_Tail);
@@ -102,7 +102,7 @@ static inline bool ListEmpty(const List *const pl)
 
 /*-----------------------------------------------------------------------*/
 
-static inline bool NodeValid(const Node *const pn)
+static inline bool NodeValid(Node const *const pn)
 {
   assert(pn != NULL);
   return ((pn->ln_Succ != NULL) && (pn->ln_Pred != NULL));
