@@ -34,28 +34,20 @@ bisearch__t bisearch(
         int (*compare)(void const *restrict,void const *restrict)
 )
 {
-  size_t    first;
-  size_t    len;
+  size_t first = 0;
+  size_t len   = nelem;
   
   assert(key  != NULL);
   assert(size >  0);
   
-  first = 0;
-  len   = nelem;
-  
   while(len > 0)
   {
-    char const *pivot;
-    size_t      half;
-    size_t      middle;
-    int         q;
-    
     assert(base != NULL);
     
-    half   = len / 2;
-    middle = first + half;
-    pivot  = (char const *)base + (middle * size);
-    q      = (*compare)(key,pivot);
+    size_t      half   = len / 2;
+    size_t      middle = first + half;
+    char const *pivot  = (char const *)base + (middle * size);
+    int         q      = (*compare)(key,pivot);
     
     if (q > 0)
     {
@@ -72,4 +64,3 @@ bisearch__t bisearch(
 }
 
 /**************************************************************************/
-
