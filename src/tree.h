@@ -29,8 +29,8 @@ typedef struct tree
   int          height;
 } tree__s;
 
-extern tree__s *tree_insert (tree__s *restrict,tree__s *restrict,int (*)(void const *,void const *));
-extern tree__s *tree_find   (tree__s *,const void *,int (*)(void const *,void const *));
-extern tree__s *tree_remove (tree__s *,const void *,int (*)(void const *,void const *),tree__s **);
+extern tree__s *tree_insert (tree__s *restrict,tree__s *restrict,int (*)(void const *restrict,void const *restrict));
+extern tree__s *tree_find   (tree__s *,void const *,int (*)(void const *restrict,void const *restrict));
+extern tree__s *tree_remove (tree__s *,void const *,int (*)(void const *restrict,void const *restrict),tree__s **);
 
 #endif

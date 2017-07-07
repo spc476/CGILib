@@ -104,7 +104,7 @@ static tree__s *tree_move_right(tree__s *restrict self,tree__s *restrict rhs)
 tree__s *tree_insert(
         tree__s *restrict self,
         tree__s *restrict item,
-        int (*compare)(void const *,void const *)
+        int (*compare)(void const *restrict,void const *restrict)
 )
 {
   int rc;
@@ -127,7 +127,7 @@ tree__s *tree_insert(
 tree__s *tree_find(
         tree__s    *self,
         void const *item,
-        int (*compare)(void const *,void const *)
+        int (*compare)(void const *restrict,void const *restrict)
 )
 {
   int rc;
@@ -150,7 +150,7 @@ tree__s *tree_find(
 tree__s *tree_remove(
         tree__s     *self,
         void const  *item,
-        int        (*compare)(void const *,void const *),
+        int        (*compare)(void const *restrict,void const *restrict),
         tree__s    **remove
 )
 {
