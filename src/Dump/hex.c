@@ -19,6 +19,10 @@
 *
 *************************************************************************/
 
+#ifndef __GNUC__
+#  define __attribute__(x)
+#endif
+
 #include <assert.h>
 #include "../dump.h"
 #include "../util.h"

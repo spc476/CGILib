@@ -19,7 +19,9 @@
 *
 *************************************************************************/
 
-#define _GNU_SOURCE
+#ifdef __GNUC__
+#  define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
