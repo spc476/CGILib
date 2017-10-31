@@ -28,6 +28,7 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <paths.h>
 
@@ -71,6 +72,8 @@ int EmailSend(Email const email)
   struct tm   *ptm;
   char         cmd   [BUFSIZ];
   char         date  [BUFSIZ];
+  
+  assert(email != NULL);
   
   fflush(email->body);
   sprintf(cmd,_PATH_SENDMAIL " %s",email->to);
@@ -116,6 +119,8 @@ int EmailSend(Email const email)
 
 int EmailFree(Email email)
 {
+  assert(email != NULL);
+  
   PairListFree(&email->headers);
   fclose(email->body);
   free(email->tbody);
