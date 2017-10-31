@@ -20,6 +20,7 @@
 *************************************************************************/
 
 #include <stdlib.h>
+#include <assert.h>
 #include "tree.h"
 
 /*************************************************************************/
@@ -33,6 +34,7 @@ static tree__s  *tree_balance   (tree__s *);
 
 static int tree_delta(tree__s *self)
 {
+  assert(self != NULL);
   return (self->left  ? self->left->height  : 0)
        - (self->right ? self->right->height : 0);
 }
@@ -41,6 +43,7 @@ static int tree_delta(tree__s *self)
 
 static tree__s *tree_rotl(tree__s *self)
 {
+  assert(self != NULL);
   tree__s *r  = self->right;
   self->right = r->left;
   r->left     = tree_balance(self);
@@ -51,6 +54,7 @@ static tree__s *tree_rotl(tree__s *self)
 
 static tree__s *tree_rotr(tree__s *self)
 {
+  assert(self != NULL);
   tree__s *l = self->left;
   self->left = l->right;
   l->right   = tree_balance(self);
@@ -61,6 +65,7 @@ static tree__s *tree_rotr(tree__s *self)
 
 static tree__s *tree_balance(tree__s *self)
 {
+  assert(self != NULL);
   int delta = tree_delta(self);
   
   if (delta < -1)
