@@ -24,6 +24,8 @@
 #endif
 
 #include <signal.h>
+#include <stddef.h>
+#include <assert.h>
 
 /******************************************************************/
 
@@ -58,6 +60,8 @@ static int const m_coresigs[] =
 
 void crashreport_coresigs(sigset_t *set)
 {
+  assert(set != NULL);
+  
   sigemptyset(set);
   for (size_t i = 0 ; i < CORESIGS ; i++)
     sigaddset(set,m_coresigs[i]);
@@ -67,6 +71,8 @@ void crashreport_coresigs(sigset_t *set)
 
 void crashreport_allsigs(sigset_t *set)
 {
+  assert(set != NULL);
+  
   sigfillset(set);
   for (size_t i = 0 ; i < CORESIGS ; i++)
     sigdelset(set,m_coresigs[i]);
