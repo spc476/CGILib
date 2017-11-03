@@ -29,7 +29,7 @@
 struct chunk_callback
 {
   char const *const name;
-  void (*callback)(FILE *,void *);
+  void      (*const callback)(FILE *,void *);
 };
 
 typedef struct chunk
