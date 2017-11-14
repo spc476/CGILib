@@ -21,6 +21,10 @@
 
 CGIVERSION := $(shell git describe --tag)
 
+ifeq ($(CGIVERSION),)
+  CGIVERSION=6.8.2
+endif
+
 CC     = c99 -pedantic -Wall -Wextra
 CFLAGS = -g 
 
