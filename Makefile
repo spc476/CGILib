@@ -22,7 +22,7 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=6.8.3
+  CGIVERSION=6.8.4
 endif
 
 CC     = c99 -pedantic -Wall -Wextra
@@ -56,8 +56,8 @@ clean:
 install: libcgi6.a
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib6
-	$(INSTALL_PROGRAM) libcgi6.a $(DESTDIR)$(libdir)
-	$(INSTALL_DATA)    src/*.h   $(DESTDIR)$(includedir)/cgilib6
+	$(INSTALL_DATA) libcgi6.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) src/*.h   $(DESTDIR)$(includedir)/cgilib6
 
 uninstall:
 	$(RM)    $(DESTDIR)$(libdir)/libcgi6.a
