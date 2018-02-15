@@ -60,6 +60,17 @@ static inline void NodeAsList(Node *const n)
 
 /*----------------------------------------------------------------------*/
 
+static inline bool NodeListEmpty(Node *const n)
+{
+  assert(n          != NULL);
+  assert(n->ln_Succ != NULL);
+  assert(n->ln_Pred != NULL);
+  
+  return n->ln_Succ == n;
+}
+
+/*----------------------------------------------------------------------*/
+
 static inline bool NodeValid(Node const *const pn)
 {
   assert(pn != NULL);
