@@ -52,6 +52,14 @@ extern void  NodeRemove  (Node *const);
 
 /************************************************************************/
 
+static inline void NodeAsList(Node *const n)
+{
+  assert(n != NULL);
+  n->ln_Succ = n->ln_Pred = n;
+}
+
+/*----------------------------------------------------------------------*/
+
 static inline bool NodeValid(Node const *const pn)
 {
   assert(pn != NULL);
