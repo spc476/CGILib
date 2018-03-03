@@ -31,27 +31,21 @@
 
 static int const m_coresigs[] =
 {
-
   /* ANSI C signals */
   
-  SIGILL,
   SIGABRT,
   SIGFPE,
+  SIGILL,
   SIGSEGV,
   
   /* POSIX signals */
   
-  SIGQUIT,
   SIGBUS,
+  SIGQUIT,
   SIGSYS,
   SIGTRAP,
   SIGXCPU,
   SIGXFSZ,
-  
-  /* other signals sometimes defined */
-#ifdef SIGIOT
-  SIGIOT,
-#endif
 };
 
 # define CORESIGS       (sizeof(m_coresigs) / sizeof(int))
