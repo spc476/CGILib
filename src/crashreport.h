@@ -30,7 +30,7 @@ extern int  crashreport      (int);
 extern void crashreport_with (int,char **,char **);
 extern void crashreport_core (void);
 
-#ifdef _POSIX_VERSION
+#ifdef SIGBUS
   extern void crashreport_coresigs (sigset_t *);
   extern void crashreport_allsigs  (sigset_t *);
 #endif

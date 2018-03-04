@@ -36,7 +36,7 @@ int const cgilib_coresigs[] =
   
   /* POSIX signals */
 
-#ifdef _POSIX_VERSION
+#ifdef SIGBUS
   SIGBUS,
   SIGQUIT,
   SIGSYS,
