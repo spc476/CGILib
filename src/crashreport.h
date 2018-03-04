@@ -30,7 +30,7 @@ extern int  crashreport      (int);
 extern void crashreport_with (int,char **,char **);
 extern void crashreport_core (void);
 
-#ifdef SIGBUS
+#if defined(__linux__) || defined(__APPLE__) || defined(__SunOS) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
   extern void crashreport_coresigs (sigset_t *);
   extern void crashreport_allsigs  (sigset_t *);
 #endif

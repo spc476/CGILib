@@ -36,7 +36,7 @@ int const cgilib_coresigs[] =
   
   /* POSIX signals */
 
-#ifdef SIGBUS
+#if defined(__linux__) || defined(__APPLE__) || defined(__SunOS) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
   SIGBUS,
   SIGQUIT,
   SIGSYS,
