@@ -41,14 +41,3 @@ void crashreport_coresigs(sigset_t *set)
 }
 
 /******************************************************************/
-
-void crashreport_allsigs(sigset_t *set)
-{
-  assert(set != NULL);
-  
-  sigfillset(set);
-  for (size_t i = 0 ; i < CGILIB_CORESIGS ; i++)
-    sigdelset(set,cgilib_coresigs[i]);
-}
-
-/******************************************************************/
