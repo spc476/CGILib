@@ -46,8 +46,8 @@
 #  include <execinfo.h>
 #endif
 
-#include "dump.h"
-#include "crashreport.h"
+#include "../dump.h"
+#include "../crashreport.h"
 
 #ifndef SA_ONESHOT
 #  define SA_ONESHOT 0
