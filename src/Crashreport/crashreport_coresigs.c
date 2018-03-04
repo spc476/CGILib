@@ -36,7 +36,7 @@ void crashreport_coresigs(sigset_t *set)
   assert(set != NULL);
   
   sigemptyset(set);
-  for (size_t i = 0 ; i < CGILIB_CORESIGS ; i++)
+  for (size_t i = 0 ; cgilib_coresigs[i] != 0 ; i++)
     sigaddset(set,cgilib_coresigs[i]);
 }
 

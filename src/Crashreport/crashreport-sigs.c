@@ -44,4 +44,6 @@ int const cgilib_coresigs[] =
   SIGXCPU,
   SIGXFSZ,
 #endif
+
+  0
 };

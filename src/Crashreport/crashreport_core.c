@@ -33,7 +33,7 @@
 
 void crashreport_core(void)
 {
-  for (size_t i = 0 ; i < CGILIB_CORESIGS ; i++)
+  for (size_t i = 0 ; cgilib_coresigs[i] != 0 ; i++)
     crashreport(cgilib_coresigs[i]);
 }
 

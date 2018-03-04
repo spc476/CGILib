@@ -24,8 +24,6 @@
 
 #include <signal.h>
 
-#define CGILIB_CORESIGS	10
-
 extern int const cgilib_coresigs[];
 
 extern int  crashreport      (int);
