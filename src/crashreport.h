@@ -24,8 +24,13 @@
 
 #include <signal.h>
 
-extern int  crashreport          (int);
-extern void crashreport_with     (int,char **,char **);
+#define CGILIB_CORESIGS	10
+
+extern int const cgilib_coresigs[];
+
+extern int  crashreport      (int);
+extern void crashreport_with (int,char **,char **);
+extern void crashreport_core (void);
 
 #ifdef _POSIX_VERSION
   extern void crashreport_coresigs (sigset_t *);

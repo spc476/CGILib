@@ -24,31 +24,24 @@
 #endif
 
 #include <signal.h>
-#include <stddef.h>
-#include <assert.h>
 
-#include "../crashreport.h"
-
-/******************************************************************/
-
-void crashreport_coresigs(sigset_t *set)
+int const cgilib_coresigs[] =
 {
-  assert(set != NULL);
+  /* ANSI C signals */
   
-  sigemptyset(set);
-  for (size_t i = 0 ; i < CGILIB_CORESIGS ; i++)
-    sigaddset(set,cgilib_coresigs[i]);
-}
-
-/******************************************************************/
-
-void crashreport_allsigs(sigset_t *set)
-{
-  assert(set != NULL);
+  SIGABRT,
+  SIGFPE,
+  SIGILL,
+  SIGSEGV,
   
-  sigfillset(set);
-  for (size_t i = 0 ; i < CGILIB_CORESIGS ; i++)
-    sigdelset(set,cgilib_coresigs[i]);
-}
+  /* POSIX signals */
 
-/******************************************************************/
+#ifdef _POSIX_VERSION
+  SIGBUS,
+  SIGQUIT,
+  SIGSYS,
+  SIGTRAP,
+  SIGXCPU,
+  SIGXFSZ,
+#endif
+};
