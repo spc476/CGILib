@@ -27,17 +27,10 @@
 
 void PairListFree(List *plist)
 {
-  struct pair *psp;
+  Node *node;
   
   assert(plist != NULL);
   
-  while(1)
-  {
-    psp = (struct pair *)ListRemHead(plist);
-    if (!NodeValid(&psp->node))
-    {
-      return;
-    }
-    PairFree(psp);
-  }
+  while(NodeValid(node = ListRemHead(plist)))
+    PairFree((struct pair *)node);
 }
