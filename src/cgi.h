@@ -119,7 +119,7 @@ typedef enum http__e
   HTTP_NORESPONSE        = 444, /* nginx */
   HTTP_RETRYWITH         = 449, /* IIS */
   HTTP_MSBLOCK           = 450, /* U */
-  HTTP_LEGALCENSOR       = 451,
+  HTTP_LEGALCENSOR       = 451, /* RFC-7725 */
   HTTP_SSLCERTERR        = 495, /* nginx */
   HTTP_SSLCERTREQ        = 496, /* nginx */
   HTTP_HTTP2HTTPS        = 497, /* nginx */
