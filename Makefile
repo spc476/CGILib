@@ -22,7 +22,7 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=6.11.0
+  CGIVERSION=6.11.1
 endif
 
 CC     = c99 -pedantic -Wall -Wextra
@@ -96,7 +96,6 @@ src/Dump/dump_memoryl.o: src/dump.h
 src/Dump/hex.o: src/dump.h src/util.h src/dump.h
 src/Dump/dump_memoryf.o: src/dump.h
 src/conf.o: src/conf.h
-src/crashreport.o: src/dump.h src/crashreport.h
 src/Htmltok/HtmlParseFree.o: src/htmltok.h src/nodelist.h src/pair.h
 src/Htmltok/HtmlParseNew.o: src/nodelist.h src/htmltok.h src/nodelist.h
 src/Htmltok/HtmlParseNew.o: src/pair.h
@@ -124,9 +123,11 @@ src/Nodelist/ListRemHead.o: src/nodelist.h
 src/Nodelist/NodeInsert.o: src/nodelist.h
 src/Nodelist/ListRemTail.o: src/nodelist.h
 src/Nodelist/NodeRemove.o: src/nodelist.h
-src/Nodelist/NodeNext.o: src/nodelist.h
-src/Nodelist/NodePrev.o: src/nodelist.h
 src/Url/http.o: src/url.h
 src/Url/file.o: src/url.h
 src/Url/gopher.o: src/url.h
 src/Url/url.o: src/url.h
+src/Crashreport/crashreport_core.o: src/crashreport.h
+src/Crashreport/crashreport.o: src/dump.h src/crashreport.h
+src/Crashreport/crashreport_coresigs.o: src/crashreport.h
+src/Crashreport/crashreport_allsigs.o: src/crashreport.h
