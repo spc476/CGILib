@@ -22,10 +22,10 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=6.11.1
+  CGIVERSION=6.11.2
 endif
 
-CC     = c99 -pedantic -Wall -Wextra
+CC     = c99 -pedantic -Wall -Wextra -Wwrite-strings
 CFLAGS = -g 
 
 INSTALL         = /usr/bin/install
