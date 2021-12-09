@@ -385,7 +385,7 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
 #  ifdef __x86_64
      syslog(
        LOG_ALERT,
-       "CRASH(%lu/%03d): RIP=%016lX EFL=%016lX RSP=%016lX RBP=%016lX RSI=%016lX RDI=%016lX",
+       "CRASH(%lu/%03d): RIP=%016llX EFL=%016llX RSP=%016llX RBP=%016llX RSI=%016llX RDI=%016llX",
        pid,
        m_cnt++,
        cpu->uc_mcontext.gregs[REG_RIP],
@@ -398,7 +398,7 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu/%03d): RAX=%016lX RBX=%016lX RCX=%016lX RDX=%016lX",
+       "CRASH(%lu/%03d): RAX=%016llX RBX=%016llX RCX=%016llX RDX=%016llX",
        pid,
        m_cnt++,
        cpu->uc_mcontext.gregs[REG_RAX],
@@ -409,7 +409,7 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu/%03d):  R8=%016lX  R9=%016lX R10=%016lX R11=%016lX",
+       "CRASH(%lu/%03d):  R8=%016llX  R9=%016llX R10=%016llX R11=%016llX",
        pid,
        m_cnt++,
        cpu->uc_mcontext.gregs[REG_R8],
@@ -420,7 +420,7 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu/%03d): R12=%016lX R13=%016lX R14=%016lX R15=%016lX",
+       "CRASH(%lu/%03d): R12=%016llX R13=%016llX R14=%016llX R15=%016llX",
        pid,
        m_cnt++,
        cpu->uc_mcontext.gregs[REG_R12],
@@ -431,7 +431,7 @@ static void crashreport_handler(int sig,siginfo_t *info,void *context __attribut
      
      syslog(
        LOG_ALERT,
-       "CRASH(%lu/%03d): TRAPNO=%016lX ERR=%016lX OLDMASK=%016lX CR2=%016lX",
+       "CRASH(%lu/%03d): TRAPNO=%016llX ERR=%016llX OLDMASK=%016llX CR2=%016llX",
        pid,
        m_cnt++,
        cpu->uc_mcontext.gregs[REG_TRAPNO],
