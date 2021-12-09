@@ -111,7 +111,7 @@ int EmailSend(Email const email)
         email->tbody
   );
   
-  fclose(output);
+  pclose(output);
   return(0);
 }
 
