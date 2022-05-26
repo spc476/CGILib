@@ -78,7 +78,7 @@ char *RFC822LineRead(FILE *in)
   
   line[idx] = '\0';
   
-  if ((line != NULL) && (*line == '\n'))
+  if (*line == '\n')
   {
     free(line);
     line = NULL;

@@ -33,7 +33,6 @@
 static void chunk_readcallback(FILE *in,char *obuff,size_t size)
 {
   char *buff;
-  int   c;
   
   assert(in    != NULL);
   assert(obuff != NULL);
@@ -44,7 +43,7 @@ static void chunk_readcallback(FILE *in,char *obuff,size_t size)
   
   while(size)
   {
-    c = fgetc(in);
+    int c = fgetc(in);
     if (c == EOF) return;
     
     if (c == '}')
@@ -111,15 +110,13 @@ static void chunk_handle(
 
 int ChunkProcessStream(Chunk const chunk,FILE *in,FILE *out,void *data)
 {
-  int c;
-  
   assert(chunk != NULL);
   assert(in    != NULL);
   assert(out   != NULL);
   
   while(!feof(in))
   {
-    c = fgetc(in);
+    int c = fgetc(in);
     if (c == EOF) break;
     if (c == '%')
     {

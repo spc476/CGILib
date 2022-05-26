@@ -36,8 +36,6 @@ int dump_memorys(
 )
 {
   char const *mem = data;
-  size_t      len;
-  int         rc;
   
   assert(amount >  0);
   assert(size   >  0);
@@ -47,6 +45,9 @@ int dump_memorys(
   
   while(dsize > 0)
   {
+    size_t len;
+    int    rc;
+    
     rc = dump_mems(dest,dsize,mem,size,amount,offset);
     if (rc < 0) return rc;
     

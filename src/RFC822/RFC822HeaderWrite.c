@@ -26,16 +26,16 @@
 
 size_t RFC822HeaderWrite(FILE *out,char const *restrict name,char const *restrict value)
 {
+  assert(out   != NULL);
+  assert(name  != NULL);
+  assert(value != NULL);
+
   int        (*conv)(int);
   int          size;
   char         n[strlen(name) + 1];
   char const  *s;
   char        *d;
-  
-  assert(out   != NULL);
-  assert(name  != NULL);
-  assert(value != NULL);
-  
+    
   for (conv = (toupper) , s = name , d = n ; ; s++ , d++)
   {
     *d   = (*conv)(*s);

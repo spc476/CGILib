@@ -27,18 +27,16 @@
 
 char *UrlEncodeChar(char *dest,char c)
 {
-  div_t sdiv;
-  
   assert(dest != NULL);
   
   if (ispunct(c) || iscntrl(c))
   {
     if ((c != '-') && (c != '@') && (c != '*') && (c != '_'))
     {
-      *dest++ = '%';
-      sdiv    = div(c,16);
-      *dest++ = hextoc(sdiv.quot);
-      *dest++ = hextoc(sdiv.rem);
+      div_t sdiv = div(c,16);
+      *dest++    = '%';
+      *dest++    = hextoc(sdiv.quot);
+      *dest++    = hextoc(sdiv.rem);
       return(dest);
     }
   }

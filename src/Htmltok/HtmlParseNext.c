@@ -103,7 +103,6 @@ static char *ht_accdup(HtmlToken token)
 
 static HToken ht_nextstr(HtmlToken token)
 {
-  int c;
   int st = S_EOF;
   
   assert(token        != NULL);
@@ -111,7 +110,7 @@ static HToken ht_nextstr(HtmlToken token)
   
   while(!feof(token->input))
   {
-    c = fgetc(token->input);
+    int c = fgetc(token->input);
     if (c == EOF) break;
     if (c == '<')
     {
