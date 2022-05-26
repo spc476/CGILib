@@ -50,7 +50,10 @@ size_t CgiListGetValues(Cgi const cgi,char ***darray,char const *name)
     {
       if (idx == size)
       {
-        store = realloc(store,size+256);
+        char **newstore = realloc(store,size+256);
+        if (newstore == NULL)
+          break;
+        store = newstore;
         size  += 256;
       }
       store[idx++] = pair->value;
