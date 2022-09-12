@@ -55,7 +55,7 @@ static inline HToken ht_nextcom(HtmlToken token)
 
 /*********************************************************************/
 
-static inline void ht_makepair(HtmlToken token,char *restrict name,char *restrict value)
+static inline void ht_makepair(HtmlToken token,char const *restrict name,char const *restrict value)
 {
   struct pair *psp;
   
