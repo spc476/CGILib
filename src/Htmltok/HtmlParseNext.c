@@ -197,7 +197,7 @@ htnt_gotopt:    ht_acc(token,c);
                 goto htnt_gotopt;
                 
 htnt_gotoptd:   t = up_string(ht_accdup(token));
-                ht_makepair(token,t,strdup(""));
+                ht_makepair(token,t,"");
                 free(t);
                 goto htnt_done;
                 
@@ -213,8 +213,8 @@ htnt_boptval:   c = fgetc(token->input);
                 if (c == '=')   goto htnt_voptval;
                 
                 t = up_string(ht_accdup(token));
-                ht_makepair(token,t,strdup(""));
-                free(t); /* XXX - clang found possible memory leak here */
+                ht_makepair(token,t,"");
+                free(t);
                 goto htnt_gotopt;
                 
         /*-------------------------------------------------
@@ -248,8 +248,10 @@ htnt_nqval:     ht_acc(token,c);
                 free(t);
                 goto htnt_bopts;
                 
-htnt_nqvald:    ht_makepair(token,t,ht_accdup(token));
-                free(t); /* XXX clang found possible memory leak here */
+htnt_nqvald:    tt = ht_accdup(token);
+                ht_makepair(token,t,tt);
+                free(tt);
+                free(t);
                 goto htnt_done;
                 
         /*------------------------------------------------
