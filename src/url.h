@@ -40,6 +40,7 @@ typedef enum url_type
   URL_FILE,
   URL_HTTP,
   URL_GOPHER,
+  URL_HTTPS,
   URL_max
 } url_type__t;
 
@@ -167,4 +168,3 @@ static inline void UrlFree(url__t *url)
 /********************************************************************/
 
 #endif
-

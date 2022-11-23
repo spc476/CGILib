@@ -39,6 +39,7 @@ struct urlrelation const g_protos[] =
   { "file"      , URL_FILE      , &g_filevec      , sizeof(urlfile__t)   },
   { "http"      , URL_HTTP      , &g_httpvec      , sizeof(urlhttp__t)   },
   { "gopher"    , URL_GOPHER    , &g_gophervec    , sizeof(urlgopher__t) },
+  { "https"     , URL_HTTPS     , &g_httpvec      , sizeof(urlhttp__t)   },
 };
 
 #define PROTOCOLS       (sizeof(g_protos) / sizeof(struct urlrelation))

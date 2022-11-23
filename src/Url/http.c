@@ -99,7 +99,12 @@ static int http_new(url__t *restrict url,char const *surl)
     hurl->port = lport;
   }
   else
-    hurl->port = 80;
+  {
+    if (hurl->scheme == URL_HTTP)
+      hurl->port = 80;
+    else
+      hurl->port = 443;
+  }
     
   /*------------------------------------------------------------------
   ; parse the file part
@@ -148,10 +153,10 @@ static int http_compare(
 {
   int rc;
   
-  assert(durl         != NULL);
-  assert(durl->scheme == URL_HTTP);
-  assert(surl         != NULL);
-  assert(surl->scheme <  URL_max);
+  assert(durl          != NULL);
+  assert((durl->scheme == URL_HTTP) || (durl->scheme == URL_HTTPS));
+  assert(surl          != NULL);
+  assert(surl->scheme  <  URL_max);
   
   rc = durl->scheme - surl->scheme;
   if (rc != 0) return rc;
@@ -176,16 +181,16 @@ static size_t http_makestring(
 {
   char port[7];
   
-  assert(url                != NULL);
-  assert(url->scheme        == URL_HTTP);
-  assert(url->http.host     != NULL);
-  assert(url->http.port     >= 0);
-  assert(url->http.port     <= PORTMAX);
-  assert(url->http.path     != NULL);
-  assert(url->http.query    != NULL);
-  assert(url->http.fragment != NULL);
-  assert(d                  != NULL);
-  assert(sd                 >  0);
+  assert(url                 != NULL);
+  assert((url->scheme        == URL_HTTP) || (url->scheme == URL_HTTPS));;
+  assert(url->http.host      != NULL);
+  assert(url->http.port      >= 0);
+  assert(url->http.port      <= PORTMAX);
+  assert(url->http.path      != NULL);
+  assert(url->http.query     != NULL);
+  assert(url->http.fragment  != NULL);
+  assert(d                   != NULL);
+  assert(sd                  >  0);
   
   if (url->http.port == 80)
     port[0] = '\0';
@@ -211,7 +216,7 @@ static size_t http_makestring(
 static void http_free(url__t *url)
 {
   assert(url != NULL);
-  assert(url->scheme == URL_HTTP);
+  assert((url->scheme == URL_HTTP) || (url->scheme == URL_HTTPS));
   
   free(url->http.host);
   free(url->http.path);
