@@ -35,6 +35,7 @@
 
 enum
 {
+  OTHER,
   GET,
   POST,
   HEAD,
@@ -156,14 +157,15 @@ typedef enum http__e
 
 typedef struct cgi
 {
-  char   *buffer;
-  size_t  bufsize;
-  char   *pbufend;
-  char   *pbuff;
-  char   *datatype;
-  List    vars;
-  void   *data;
-  int     method;
+  char    *buffer;
+  size_t   bufsize;
+  char    *pbufend;
+  char    *pbuff;
+  char    *datatype;
+  List     vars;
+  void    *data;
+  int      method;
+  http__e  status;
 } *Cgi;
 
 struct dstring

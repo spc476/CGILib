@@ -71,26 +71,31 @@ static int cgi_create(Cgi *pcgi,void *data)
 
 /******************************************************************/
 
-static int cgi_new_get(Cgi const cgi)
+static http__e cgi_new_get(Cgi const cgi)
 {
-  char   *query_string;
-  size_t  qs;
-  
   assert(cgi != NULL);
+
+  cgi->method        = GET;
+  char *query_string = getenv("QUERY_STRING");
   
-  query_string = getenv("QUERY_STRING");
-  if (query_string == NULL)
-    return (ENOMSG);
-    
-  qs = strlen(query_string);
-  cgicookie_new(cgi,query_string,qs);
-  cgi->method = GET;
-  return(0);
+  /*-----------------------------------------------------------------------
+  ; CGI-3875 mandates this environment variable must be sent.  If it's not,
+  ; it's a server error.
+  ;------------------------------------------------------------------------*/
+  
+  if (query_string != NULL)
+  {
+    size_t qs = strlen(query_string);
+    cgicookie_new(cgi,query_string,qs);
+    return HTTP_OKAY;
+  }
+  else
+    return HTTP_ISERVERERR;
 }
 
 /***************************************************************/
 
-static int cgi_new_post(Cgi const cgi)
+static http__e cgi_new_post(Cgi const cgi)
 {
   size_t  length;
   char   *content_type;
@@ -102,15 +107,15 @@ static int cgi_new_post(Cgi const cgi)
   content_length = getenv("CONTENT_LENGTH");
   
   if ((content_type == NULL) || (content_length == NULL))
-    return ENOMSG;
-    
+    return HTTP_ISERVERERR;
+
   if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
-    return(ENOMSG);
+    return HTTP_ISERVERERR;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return(ERANGE);
+    return HTTP_ISERVERERR;
     
   cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
@@ -118,17 +123,12 @@ static int cgi_new_post(Cgi const cgi)
   cgi->buffer[length+1] = '&';
   
   if (fread(cgi->buffer,1,length,stdin) < length)
-  {
-    if (feof(stdin))
-      return errno;
-    else
-      return ENODATA;
-  }
-  
+    return HTTP_METHODFAILURE;
+    
   cgi->pbuff   = cgi->buffer;
   cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
   cgi->method  = POST;
-  return(0);
+  return HTTP_OKAY;
 }
 
 /**********************************************************************/
@@ -138,7 +138,7 @@ static int cgi_new_head(Cgi const cgi)
   assert(cgi != NULL);
   
   cgi->method = HEAD;
-  return(0);
+  return HTTP_OKAY;
 }
 
 /***************************************************************/
@@ -151,19 +151,18 @@ static int cgi_new_put(Cgi const cgi)
   content_length = getenv("CONTENT_LENGTH");
   
   if (content_length == NULL)
-    return ENOMSG;
+    return HTTP_LENGTHREQ;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return ERANGE;
+    return HTTP_ISERVERERR;
     
   cgi->bufsize  = length;
   cgi->datatype = getenv("CONTENT_TYPE");
   cgi->method   = PUT;
-  
-  return 0;
+  return HTTP_OKAY;
 }
 
 /*************************************************************/
@@ -172,7 +171,6 @@ Cgi CgiNew(void *data)
 {
   char *request_method;
   Cgi   cgi;
-  int   rc;
   
   request_method = getenv("REQUEST_METHOD");
   
@@ -183,25 +181,16 @@ Cgi CgiNew(void *data)
     return NULL;
     
   if (strcmp(request_method,"GET") == 0)
-    rc = cgi_new_get(cgi);
+    cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
-    rc = cgi_new_post(cgi);
+    cgi->status = cgi_new_post(cgi);
   else if (strcmp(request_method,"HEAD") == 0)
-    rc = cgi_new_head(cgi);
+    cgi->status = cgi_new_head(cgi);
   else if (strcmp(request_method,"PUT") == 0)
-    rc = cgi_new_put(cgi);
+    cgi->status = cgi_new_put(cgi);
   else
-  {
-    free(cgi);
-    return NULL;
-  }
-  
-  if (rc != 0)
-  {
-    free(cgi);
-    return NULL;
-  }
-  
+    cgi->status = HTTP_METHODNOTALLOWED;
+    
   return cgi;
 }
 
