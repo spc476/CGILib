@@ -107,15 +107,15 @@ static http__e cgi_new_post(Cgi const cgi)
   content_length = getenv("CONTENT_LENGTH");
   
   if ((content_type == NULL) || (content_length == NULL))
-    return HTTP_ISERVERERR;
+    return HTTP_LENGTHREQ;
 
   if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
-    return HTTP_ISERVERERR;
+    return HTTP_MEDIATYPE;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return HTTP_ISERVERERR;
+    return HTTP_UNPROCESSENTITY;
     
   cgi->buffer = malloc(length+2);
   memset(cgi->buffer,'\0',length+2);
