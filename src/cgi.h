@@ -27,7 +27,10 @@
 #endif
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
+
 #include "nodelist.h"
 #include "pair.h"
 
@@ -187,6 +190,9 @@ extern char        *UrlEncodeString  (char const *);
 extern char        *UrlEncodeChar    (char *,char);
 extern char        *UrlDecodeString  (char *);
 extern char         UrlDecodeChar    (char **);
+
+extern bool         HttpNotModified  (time_t);
+extern char        *HttpTimeStamp    (char *,size_t,time_t);
 
 /********************************************************************/
 
