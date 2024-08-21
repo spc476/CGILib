@@ -157,7 +157,7 @@ static int cgi_new_put(Cgi const cgi)
   length = strtoul(content_length,NULL,10);
   
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return HTTP_ISERVERERR;
+    return HTTP_TOOLARGE;
     
   cgi->bufsize  = length;
   cgi->datatype = getenv("CONTENT_TYPE");
