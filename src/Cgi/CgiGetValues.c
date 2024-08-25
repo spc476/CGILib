@@ -37,7 +37,7 @@ size_t CgiGetValues(Cgi const cgi,char ***darray,char const *name)
   assert(darray != NULL);
   assert(name   != NULL);
   
-  pair = CgiListGetPair(cgi,name);
+  pair = CgiGetPair(cgi,name);
   if (pair == NULL)
   {
     *darray = NULL;

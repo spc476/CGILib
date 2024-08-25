@@ -160,13 +160,11 @@ typedef enum http__e
 
 typedef struct cgi
 {
-  char    *buffer;
-  size_t   bufsize;
-  char    *pbufend;
-  char    *pbuff;
-  char    *datatype;
-  List     vars;
-  void    *data;
+  char    *query;    /* if NULL, no simple text query */
+  char    *datatype; /* valid for PUT */
+  size_t   bufsize;  /* valid for PUT */
+  List     qvars;    /* if not empty, name/value query */
+  List     pvars;    /* valid on POST */
   int      method;
   http__e  status;
 } *Cgi;
@@ -179,11 +177,9 @@ struct dstring
 
 /************************************************************************/
 
-extern Cgi          CgiNew           (void *);
-extern void         CgiListMake      (Cgi const);
-extern struct pair *CgiNextValue     (Cgi const);
-extern size_t       CgiListGetValues (Cgi const,char ***,char const *);      /* added */
-extern int          CgiListRequired  (Cgi const,struct dstring *,size_t);
+extern Cgi          CgiNew           (void);
+extern size_t       CgiGetValues     (Cgi,char ***,char const *);      /* added */
+extern size_t       CgiRequired      (Cgi,struct dstring *,size_t);
 extern int          CgiFree          (Cgi);
 
 extern char        *UrlEncodeString  (char const *);
@@ -196,88 +192,79 @@ extern char        *HttpTimeStamp    (char *,size_t,time_t);
 
 /********************************************************************/
 
-static inline void CgiGetRawData(Cgi const cgi,char **pdest,size_t *psize)
-{
-  assert(cgi   != NULL);
-  assert(pdest != NULL);
-  assert(psize != NULL);
-  
-  *pdest = cgi->buffer;
-  *psize = cgi->bufsize;
-}
-
-/*--------------------------------------------------------------------*/
-
-static inline void CgiOutHtml(Cgi const cgi __attribute__((unused)))
-{
-  static char const msg[] = "Content-type: text/html\n\n";
-  
-  assert(cgi != NULL);
-  fputs(msg,stdout);
-}
-
-/*----------------------------------------------------------------------*/
-
-static inline void CgiOutText(Cgi const cgi __attribute__((unused)))
-{
-  static char const msg[] = "Content-type: text/plain\n\n";
-  
-  assert(cgi != NULL);
-  fputs(msg,stdout);
-}
-
-/*--------------------------------------------------------------------*/
-
-static inline void CgiOutShtml(Cgi const cgi __attribute__((unused)))
-{
-  static char const msg[] = "Content-type: text/x-server-parsed-html\n\n";
-  
-  assert(cgi != NULL);
-  fputs(msg,stdout);
-}
-
-/*--------------------------------------------------------------------*/
-
-static inline void CgiOutLocation(Cgi const cgi __attribute__((unused)),char const *location)
-{
-  assert(cgi      != NULL);
-  assert(location != NULL);
-  
-  fprintf(stdout,"Location: %s\n\n",location);
-}
-
-/*--------------------------------------------------------------------*/
-
-static inline int CgiMethod(Cgi const cgi)
+static inline int CgiMethod(Cgi cgi)
 {
   assert(cgi != NULL);
-  return(cgi->method);
+  return cgi->method;
 }
 
 /*------------------------------------------------------------------*/
 
-static inline struct pair *CgiListFirst(Cgi const cgi)
+static inline http__e CgiStatus(Cgi cgi)
 {
   assert(cgi != NULL);
-  return(PairListFirst(&cgi->vars));
+  return cgi->status;
+}
+
+/*------------------------------------------------------------------*/
+
+static inline char const *CgiMimeType(Cgi cgi)
+{
+  assert(cgi           != NULL);
+  assert(cgi->datatype != NULL);
+  return cgi->datatype;
 }
 
 /*-------------------------------------------------------------------*/
 
-static inline struct pair *CgiListGetPair(Cgi const cgi,char const *name)
+static inline struct pair *CgiFirstPair(Cgi cgi)
 {
-  assert(cgi  != NULL);
-  assert(name != NULL);
-  return(PairListGetPair(&cgi->vars,name));
+  assert(cgi != NULL);
+  return PairListFirst(&cgi->pvars);
 }
 
 /*-------------------------------------------------------------------*/
 
-static inline char *CgiListGetValue(Cgi const cgi,char const *name)
+static inline struct pair *CgiGetPair(Cgi cgi,char const *name)
 {
   assert(cgi  != NULL);
   assert(name != NULL);
-  return(PairListGetValue(&cgi->vars,name));
+  return PairListGetPair(&cgi->pvars,name);
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline char *CgiGetValue(Cgi cgi,char const *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return PairListGetValue(&cgi->pvars,name);
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline struct pair *CgiFirstQPair(Cgi cgi)
+{
+  assert(cgi != NULL);
+  return PairListFirst(&cgi->qvars);
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline struct pair *CgiGetQPair(Cgi cgi,char const *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return PairListGetPair(&cgi->qvars,name);
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline char *CgiGetQValue(Cgi cgi,char const *name)
+{
+  assert(cgi  != NULL);
+  assert(name != NULL);
+  return PairListGetValue(&cgi->qvars,name);
 }
 
 /***********************************************************************/

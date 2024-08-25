@@ -41,7 +41,7 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY    : clean install depend dist
 
-libcgi6.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
+libcgi7.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
 	$(AR) $(ARFLAGS) $@ $?
 
 #---------------------------------------------------------------------
@@ -51,17 +51,17 @@ libcgi6.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
 clean:
 	$(RM) $(shell find . -name '*~')
 	$(RM) $(shell find . -name '*.o')
-	$(RM) libcgi6.a Makefile.bak
+	$(RM) libcgi7.a Makefile.bak
 
-install: libcgi6.a
+install: libcgi7.a
 	$(INSTALL) -d $(DESTDIR)$(libdir)
-	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib6
-	$(INSTALL_DATA) libcgi6.a $(DESTDIR)$(libdir)
-	$(INSTALL_DATA) src/*.h   $(DESTDIR)$(includedir)/cgilib6
+	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib7
+	$(INSTALL_DATA) libcgi7.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) src/*.h   $(DESTDIR)$(includedir)/cgilib7
 
 uninstall:
-	$(RM)    $(DESTDIR)$(libdir)/libcgi6.a
-	$(RM) -r $(DESTDIR)$(includedir)/cgilib6
+	$(RM)    $(DESTDIR)$(libdir)/libcgi7.a
+	$(RM) -r $(DESTDIR)$(includedir)/cgilib7
 
 depend:
 	makedepend -Y -- $(CFLAGS) -- $(shell find src -name '*.c') 2>/dev/null

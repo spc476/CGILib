@@ -29,8 +29,9 @@ int CgiFree(Cgi cgi)
 {
   assert(cgi  != NULL);
   
-  free(cgi->buffer);
-  PairListFree(&cgi->vars);
+  free(cgi->query);
+  PairListFree(&cgi->pvars);
+  PairListFree(&cgi->qvars);
   free(cgi);
   return 0;
 }

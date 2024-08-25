@@ -31,55 +31,84 @@
 
 #include "../pair.h"
 
-struct pair *PairNew(char **psrc,char delim,char eos)
+/*************************************************************************/
+
+static char const *todelim(char const *str,size_t *plen,char delim,char eos)
+{
+  char const *p = str;
+  
+  assert(str  != NULL);
+  assert(plen != NULL);
+  
+  for ( ; (*p != delim) && (*p != eos) && (*p != '\0') ; p++)
+    ;
+  *plen = (size_t)(p - str);
+  return p;
+}
+
+/*************************************************************************/
+
+struct pair *PairNew(char const **psrc,char delim,char eos)
 {
   struct pair *psp;
-  char        *src;
-  char        *peos;
-  char        *pdelim;
+  char const  *src;
+  char const  *p;
+  char        *name;
+  char        *value;
   size_t       sname;
   size_t       svalue;
   
   assert(psrc  != NULL);
   assert(*psrc != NULL);
-  assert(delim != eos);
   
-  src    = *psrc;
-  peos   = memchr(src,eos,SIZE_MAX);   /* doesn't work on DEC Alpha */
-  assert(peos   != NULL);
-  pdelim = memchr(src,delim,(size_t)(peos-src));
+  src  = *psrc;
+  p    = todelim(src,&sname,delim,eos);
+  name = malloc(sname + 1);
   
-  /*-------------------------------------------------------------------------
-  ; Sigh.  Dealing with garbage input.  We *know* that the end of the string
-  ; given will end with a '&' (since we added one, just to make sure).  But
-  ; what if we're given:
-  ;
-  ;     "name&"
-  ; or
-  ;     "&"
-  ;
-  ; We need to handle these bizare corner cases.
-  ;-------------------------------------------------------------------------*/
+  if (name == NULL)
+    return NULL;
   
-  if (pdelim == NULL)
+  memcpy(name,src,sname);
+  name[sname] = '\0';
+  
+  if (*p == delim)
   {
-    pdelim = peos;
-    sname  = (size_t)(pdelim - src);
+    src = p + 1;
+    p   = todelim(src,&svalue,delim,eos);
+  }
+  else
     svalue = 0;
+  
+  value = malloc(svalue + 1);
+  
+  if (value == NULL)
+  {
+    free(name);
+    return NULL;
+  }
+  
+  memcpy(value,src,svalue);
+  value[svalue] = '\0';
+  
+  /*---------------------------------------------------------------------
+  ; Don't call PairCreate() as that will just copy the copy we just made.
+  ; Redundant madness there.
+  ;----------------------------------------------------------------------*/
+  
+  psp = malloc(sizeof(struct pair));
+  if (psp != NULL)
+  {
+    psp->node.ln_Succ = NULL;
+    psp->node.ln_Pred = NULL;
+    psp->name         = name;
+    psp->value        = value;
+    *psrc             = p;
   }
   else
   {
-    sname  = (size_t)(pdelim - src);
-    svalue = (size_t)(peos   - pdelim) - 1;
+    free(value);
+    free(name);
   }
   
-  psp        = malloc(sizeof(struct pair));
-  psp->name  = malloc(sname + 1);
-  psp->value = malloc(svalue + 1);
-  memcpy(psp->name,src,sname);
-  memcpy(psp->value,pdelim+1,svalue);
-  psp->name[sname]   = '\0';
-  psp->value[svalue] = '\0';
-  *psrc              = peos   + 1;
-  return(psp);
+  return psp;
 }

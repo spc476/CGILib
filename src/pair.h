@@ -33,7 +33,7 @@ struct pair
 
 /**********************************************************************/
 
-extern struct pair *PairNew          (char **,char,char);
+extern struct pair *PairNew          (char const **,char,char);
 extern struct pair *PairCreate       (char const *restrict,char const *restrict);
 extern void         PairFree         (struct pair *);
 
@@ -52,7 +52,7 @@ static inline struct pair *PairClone(struct pair *pair)
 
 /*-------------------------------------------------------------------*/
 
-static inline void PairListAdd(List *plist,char **psrc,char delim,char eos)
+static inline void PairListAdd(List *plist,char const **psrc,char delim,char eos)
 {
   struct pair *psp;
   

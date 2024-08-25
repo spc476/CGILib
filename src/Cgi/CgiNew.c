@@ -19,6 +19,9 @@
 *
 *************************************************************************/
 
+#define _GNU_SOURCE
+
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -30,118 +33,106 @@
 
 /**************************************************************************/
 
-static void cgicookie_new(Cgi const cgi,char const *data,size_t size)
+static bool makelist(List *vars,char const *data)
 {
-  assert(cgi  != NULL);
-  assert(data != NULL);
-  
-  if (size)
+  while (*data != '\0')
   {
-    cgi->buffer = malloc(size + 2);
-    memcpy(cgi->buffer,data,size);
-    cgi->buffer[size]     = '&';
-    cgi->buffer[size + 1] = '\0';
-    cgi->bufsize          = size + 1;
+    struct pair *psp = PairNew(&data,'=','&');
+    
+    if (psp == NULL)
+      return false;
+      
+    UrlDecodeString(psp->name);
+    UrlDecodeString(psp->value);
+    ListAddTail(vars,&psp->node);
   }
+  
+  return true;
+}
+
+/**************************************************************************/
+
+static bool parsequery(Cgi cgi)
+{
+  assert(cgi != NULL);
+  
+  /*-----------------------------------------------------------------------
+  ; CGI-3875 mandates the QUERY environment variable must be sent.  If it's
+  ; not, it's a server error.
+  ;------------------------------------------------------------------------*/
+  
+  char *query = getenv("QUERY");
+  
+  /*----------------------------------------------------------------------
+  ; If there's no '=', then the query is NOT a series of name/value pairs,
+  ; but a, or lack of a better term, plain query string.
+  ;-----------------------------------------------------------------------*/
+  
+  if (strchr(query,'=') == NULL)
+  {
+    cgi->query = strdup(query);
+    if (cgi->query == NULL)
+      return false;
+    UrlDecodeString(cgi->query);
+    return true;
+  }
+  
+  /*--------------------------------------
+  ; We have name/value pairs to deal with
+  ;---------------------------------------*/
+  
   else
-  {
-    cgi->buffer    = malloc(1);
-    cgi->buffer[0] = '\0';
-    cgi->bufsize   = 0;
-  }
-  cgi->pbuff   = cgi->buffer;
-  cgi->pbufend = &cgi->buffer[size + 1];
+    return makelist(&cgi->qvars,query);
 }
 
-/*********************************************************************/
-
-static int cgi_create(Cgi *pcgi,void *data)
-{
-  struct cgi *cgi;
-  
-  assert(pcgi != NULL);
-  
-  cgi = calloc(1,sizeof(struct cgi));
-  cgi->data = data;
-  *pcgi     = cgi;
-  
-  ListInit(&cgi->vars);
-  return(0);
-}
-
-/******************************************************************/
+/***************************************************************/
 
 static http__e cgi_new_get(Cgi const cgi)
 {
   assert(cgi != NULL);
-
-  cgi->method        = GET;
-  char *query_string = getenv("QUERY_STRING");
-  
-  /*-----------------------------------------------------------------------
-  ; CGI-3875 mandates this environment variable must be sent.  If it's not,
-  ; it's a server error.
-  ;------------------------------------------------------------------------*/
-  
-  if (query_string != NULL)
-  {
-    size_t qs = strlen(query_string);
-    cgicookie_new(cgi,query_string,qs);
-    return HTTP_OKAY;
-  }
-  else
-    return HTTP_ISERVERERR;
+  cgi->method = GET;
+  return HTTP_OKAY;
 }
 
 /***************************************************************/
 
 static http__e cgi_new_post(Cgi const cgi)
 {
-  size_t  length;
   char   *content_type;
   char   *content_length;
+  char   *buffer;
+  size_t  length;
+  bool    okay;
   
   assert(cgi != NULL);
   
+  cgi->method    = POST;
   content_type   = getenv("CONTENT_TYPE");
   content_length = getenv("CONTENT_LENGTH");
   
   if ((content_type == NULL) || (content_length == NULL))
     return HTTP_LENGTHREQ;
-
+    
   if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
     return HTTP_MEDIATYPE;
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
   if ((length == LONG_MAX) && (errno == ERANGE))
-    return HTTP_UNPROCESSENTITY;
+    return HTTP_TOOLARGE;
     
-  cgi->buffer = malloc(length+2);
-  memset(cgi->buffer,'\0',length+2);
-  cgi->bufsize          = length+1;
-  cgi->buffer[length+1] = '&';
+  buffer = malloc(length + 1);
   
-  if (fread(cgi->buffer,1,length,stdin) < length)
+  if (fread(buffer,1,length,stdin) < length)
     return HTTP_METHODFAILURE;
     
-  cgi->pbuff   = cgi->buffer;
-  cgi->pbufend = &cgi->buffer[cgi->bufsize+1];
-  cgi->method  = POST;
-  return HTTP_OKAY;
+  buffer[length] = '\0';
+  okay           = makelist(&cgi->pvars,buffer);
+  free(buffer);
+  return okay ? HTTP_OKAY : HTTP_ISERVERERR;
 }
 
 /**********************************************************************/
-
-static int cgi_new_head(Cgi const cgi)
-{
-  assert(cgi != NULL);
-  
-  cgi->method = HEAD;
-  return HTTP_OKAY;
-}
-
-/***************************************************************/
 
 static int cgi_new_put(Cgi const cgi)
 {
@@ -155,7 +146,6 @@ static int cgi_new_put(Cgi const cgi)
     
   errno  = 0;
   length = strtoul(content_length,NULL,10);
-  
   if ((length == LONG_MAX) && (errno == ERANGE))
     return HTTP_TOOLARGE;
     
@@ -167,29 +157,43 @@ static int cgi_new_put(Cgi const cgi)
 
 /*************************************************************/
 
-Cgi CgiNew(void *data)
+Cgi CgiNew(void)
 {
+  char *gateway_interface;
   char *request_method;
   Cgi   cgi;
   
+  gateway_interface = getenv("GATEWAY_INTERFACE");
+  if ((gateway_interface == NULL) || (strcmp(gateway_interface,"CGI/1.1") != 0))
+    return NULL;
+    
   request_method = getenv("REQUEST_METHOD");
   
   if (request_method == NULL)
     return NULL;
     
-  if (cgi_create(&cgi,data) != 0)
+  cgi = malloc(sizeof(struct cgi));
+  if (cgi == NULL)
     return NULL;
     
+  cgi->query    = NULL;
+  cgi->datatype = NULL;
+  cgi->status   = HTTP_OKAY;
+  cgi->method   = OTHER;
+  ListInit(&cgi->qvars);
+  ListInit(&cgi->pvars);
+  
   if (strcmp(request_method,"GET") == 0)
     cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
     cgi->status = cgi_new_post(cgi);
   else if (strcmp(request_method,"HEAD") == 0)
-    cgi->status = cgi_new_head(cgi);
+    cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"PUT") == 0)
     cgi->status = cgi_new_put(cgi);
-  else
-    cgi->status = HTTP_METHODNOTALLOWED;
+    
+  if ((cgi->status == HTTP_OKAY) && !parsequery(cgi))
+    cgi->status = HTTP_ISERVERERR;
     
   return cgi;
 }

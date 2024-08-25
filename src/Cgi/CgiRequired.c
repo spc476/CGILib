@@ -34,7 +34,7 @@ size_t CgiRequired(Cgi const cgi,struct dstring *table,size_t size)
   
   while(size--)
   {
-    if ((table->s2 = CgiListGetValue(cgi,table->s1)) == NULL)
+    if ((table->s2 = CgiGetValue(cgi,table->s1)) == NULL)
       return cnt;
     cnt++;
     table++;

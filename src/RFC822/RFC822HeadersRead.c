@@ -30,7 +30,7 @@
 void RFC822HeadersRead(FILE *in,List const *list)
 {
   char        *line;
-  char        *t;
+  char const  *t;
   struct pair *ppair;
   
   assert(in   != NULL);
