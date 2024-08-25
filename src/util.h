@@ -41,6 +41,7 @@ extern char *trim_lspace  (char *);
 extern char *trim_tspace  (char *);
 extern int   ctohex       (char);
 extern char  hextoc       (int);
+extern void  env          (void);
 
 /****************************************************************/
 
