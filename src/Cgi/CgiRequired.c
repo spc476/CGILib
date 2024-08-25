@@ -19,25 +19,25 @@
 *
 *************************************************************************/
 
+#include <stdbool.h>
 #include <assert.h>
 
 #include "../cgi.h"
 
-int CgiRequired(Cgi const cgi,struct dstring *table,size_t size)
+size_t CgiRequired(Cgi const cgi,struct dstring *table,size_t size)
 {
-  int cnt = 0;
+  size_t cnt = 0;
   
   assert(cgi   != NULL);
   assert(table != NULL);
   assert(size  >  0);
   
-  while(size)
+  while(size--)
   {
     if ((table->s2 = CgiListGetValue(cgi,table->s1)) == NULL)
-      return(cnt);
+      return cnt;
     cnt++;
     table++;
-    size--;
   }
-  return(0);
+  return 0;
 }
