@@ -71,17 +71,16 @@ dist:
 
 # DO NOT DELETE
 
-src/Cgi/CgiListGetValues.o: src/nodelist.h src/pair.h src/nodelist.h
-src/Cgi/CgiListGetValues.o: src/cgi.h src/pair.h
-src/Cgi/CgiListMake.o: src/nodelist.h src/cgi.h src/nodelist.h src/pair.h
+src/Cgi/HttpNotModified.o: src/cgi.h src/nodelist.h src/pair.h
 src/Cgi/UrlDecodeString.o: src/cgi.h src/nodelist.h src/pair.h
+src/Cgi/CgiGetValues.o: src/nodelist.h src/pair.h src/nodelist.h src/cgi.h
+src/Cgi/CgiGetValues.o: src/pair.h
+src/Cgi/CgiRequired.o: src/cgi.h src/nodelist.h src/pair.h
 src/Cgi/UrlEncodeChar.o: src/util.h src/dump.h src/cgi.h src/nodelist.h
 src/Cgi/UrlEncodeChar.o: src/pair.h
 src/Cgi/UrlEncodeString.o: src/cgi.h src/nodelist.h src/pair.h
-src/Cgi/CgiListRequired.o: src/cgi.h src/nodelist.h src/pair.h
-src/Cgi/CgiNextValue.o: src/pair.h src/nodelist.h src/util.h src/dump.h
-src/Cgi/CgiNextValue.o: src/cgi.h src/pair.h
 src/Cgi/CgiFree.o: src/cgi.h src/nodelist.h src/pair.h src/pair.h
+src/Cgi/HttpTimeStamp.o: src/cgi.h src/nodelist.h src/pair.h
 src/Cgi/UrlDecodeChar.o: src/util.h src/dump.h
 src/Cgi/CgiNew.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
 src/RFC822/RFC822HeadersRead.o: src/nodelist.h src/pair.h src/nodelist.h
