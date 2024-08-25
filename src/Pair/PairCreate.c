@@ -37,8 +37,16 @@ struct pair *PairCreate(char const *restrict name,char const *restrict value)
   assert(name  != NULL);
   assert(value != NULL);
   
-  psp         = malloc(sizeof(struct pair));
-  psp->name   = strdup(name);
-  psp->value  = strdup(value);
+  psp = malloc(sizeof(struct pair));
+  if (psp != NULL)
+  {
+    psp->node->ln_Succ = NULL;
+    psp->node->ln_Pred = NULL;
+    psp->tree->left    = NULL;
+    psp->tree->right   = NULL;
+    psp->tree->height  = 0;
+    psp->name          = strdup(name);
+    psp->value         = strdup(value);
+  }
   return(psp);
 }
