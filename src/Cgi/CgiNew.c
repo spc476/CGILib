@@ -61,7 +61,7 @@ static bool parsequery(Cgi cgi)
   ; not, it's a server error.
   ;------------------------------------------------------------------------*/
   
-  char *query = getenv("QUERY");
+  char *query = getenv("QUERY_STRING");
   
   /*----------------------------------------------------------------------
   ; If there's no '=', then the query is NOT a series of name/value pairs,
