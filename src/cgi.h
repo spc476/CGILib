@@ -178,18 +178,18 @@ struct dstring
 
 /************************************************************************/
 
-extern Cgi          CgiNew           (void);
-extern size_t       CgiGetValues     (Cgi,char ***,char const *);      /* added */
-extern size_t       CgiRequired      (Cgi,struct dstring *,size_t);
-extern int          CgiFree          (Cgi);
+extern Cgi     CgiNew          (void);
+extern size_t  CgiGetValues    (Cgi,char ***,char const *);      /* added */
+extern size_t  CgiRequired     (Cgi,struct dstring *,size_t);
+extern int     CgiFree         (Cgi);
 
-extern char        *UrlEncodeString  (char const *);
-extern char        *UrlEncodeChar    (char *,char);
-extern char        *UrlDecodeString  (char *);
-extern char         UrlDecodeChar    (char **);
+extern char   *UrlEncodeString (char const *);
+extern char   *UrlEncodeChar   (char *,char);
+extern char   *UrlDecodeString (char *);
+extern char    UrlDecodeChar   (char **);
 
-extern bool         HttpNotModified  (time_t);
-extern char        *HttpTimeStamp    (char *,size_t,time_t);
+extern bool    HttpNotModified (time_t);
+extern char   *HttpTimeStamp   (char *,size_t,time_t);
 
 /********************************************************************/
 
@@ -226,14 +226,6 @@ static inline size_t CgiContentLength(Cgi cgi)
 
 /*-------------------------------------------------------------------*/
 
-static inline struct pair *CgiFirstPair(Cgi cgi)
-{
-  assert(cgi != NULL);
-  return PairListFirst(&cgi->pvars);
-}
-
-/*-------------------------------------------------------------------*/
-
 static inline struct pair *CgiGetPair(Cgi cgi,char const *name)
 {
   assert(cgi  != NULL);
@@ -248,14 +240,6 @@ static inline char *CgiGetValue(Cgi cgi,char const *name)
   assert(cgi  != NULL);
   assert(name != NULL);
   return PairListGetValue(&cgi->pvars,name);
-}
-
-/*-------------------------------------------------------------------*/
-
-static inline struct pair *CgiFirstQPair(Cgi cgi)
-{
-  assert(cgi != NULL);
-  return PairListFirst(&cgi->qvars);
 }
 
 /*-------------------------------------------------------------------*/
