@@ -73,6 +73,7 @@ static bool parsequery(Cgi cgi)
   if (strchr(query,'=') == NULL)
   {
     cgi->query = strdup(query);
+    
     if (cgi->query == NULL)
       return false;
     UrlDecodeString(cgi->query);
@@ -89,7 +90,16 @@ static bool parsequery(Cgi cgi)
 
 /***************************************************************/
 
-static http__e cgi_new_get(Cgi const cgi)
+static http__e cgi_new_head(Cgi cgi)
+{
+  assert(cgi != NULL);
+  cgi->method = HEAD;
+  return HTTP_OKAY;
+}
+
+/***************************************************************/
+
+static http__e cgi_new_get(Cgi cgi)
 {
   assert(cgi != NULL);
   cgi->method = GET;
@@ -98,66 +108,77 @@ static http__e cgi_new_get(Cgi const cgi)
 
 /***************************************************************/
 
-static http__e cgi_new_post(Cgi const cgi)
+static http__e cgi_new_post(Cgi cgi)
 {
-  char   *content_type;
-  char   *content_length;
-  char   *buffer;
-  size_t  length;
-  bool    okay;
+  char *content_length;
+  char *buffer;
+  bool  okay;
   
   assert(cgi != NULL);
   
-  cgi->method    = POST;
-  content_type   = getenv("CONTENT_TYPE");
-  content_length = getenv("CONTENT_LENGTH");
+  cgi->method       = POST;
+  cgi->content_type = getenv("CONTENT_TYPE");
+  content_length    = getenv("CONTENT_LENGTH");
   
-  if ((content_type == NULL) || (content_length == NULL))
-    return HTTP_LENGTHREQ;
-    
-  if (strncmp(content_type,"application/x-www-form-urlencoded",33) != 0)
+  if (cgi->content_type == NULL)
     return HTTP_MEDIATYPE;
     
+  if (content_length == NULL)
+    return HTTP_LENGTHREQ;
+    
   errno  = 0;
-  length = strtoul(content_length,NULL,10);
-  if ((length == LONG_MAX) && (errno == ERANGE))
+  cgi->content_length = strtoul(content_length,NULL,10);
+  if ((cgi->content_length == LONG_MAX) && (errno == ERANGE))
     return HTTP_TOOLARGE;
     
-  buffer = malloc(length + 1);
+  if (strncmp(cgi->content_type,"application/x-www-form-urlencoded",33) != 0)
+    return HTTP_MEDIATYPE;
+    
+  buffer = malloc(cgi->content_length + 1);
   
-  if (fread(buffer,1,length,stdin) < length)
+  if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
     return HTTP_METHODFAILURE;
     
-  buffer[length] = '\0';
-  okay           = makelist(&cgi->pvars,buffer);
+  buffer[cgi->content_length] = '\0';
+  okay                        = makelist(&cgi->pvars,buffer);
   free(buffer);
   return okay ? HTTP_OKAY : HTTP_ISERVERERR;
 }
 
 /**********************************************************************/
 
-static int cgi_new_put(Cgi const cgi)
+static int cgi_new_put(Cgi cgi)
 {
-  char   *content_length;
-  size_t  length;
+  char *content_length;
   
-  content_length = getenv("CONTENT_LENGTH");
+  cgi->method       = PUT;
+  cgi->content_type = getenv("CONTENT_TYPE");
+  content_length    = getenv("CONTENT_LENGTH");
   
+  if (cgi->content_type == NULL)
+    return HTTP_MEDIATYPE;
+    
   if (content_length == NULL)
     return HTTP_LENGTHREQ;
     
   errno  = 0;
-  length = strtoul(content_length,NULL,10);
-  if ((length == LONG_MAX) && (errno == ERANGE))
+  cgi->content_length = strtoul(content_length,NULL,10);
+  if ((cgi->content_length == LONG_MAX) && (errno == ERANGE))
     return HTTP_TOOLARGE;
     
-  cgi->bufsize  = length;
-  cgi->datatype = getenv("CONTENT_TYPE");
-  cgi->method   = PUT;
   return HTTP_OKAY;
 }
 
 /*************************************************************/
+
+static int cgi_new_delete(Cgi cgi)
+{
+  assert(cgi != NULL);
+  cgi->method = DELETE;
+  return HTTP_OKAY;
+}
+
+/***************************************************************/
 
 Cgi CgiNew(void)
 {
@@ -178,21 +199,24 @@ Cgi CgiNew(void)
   if (cgi == NULL)
     return NULL;
     
-  cgi->query    = NULL;
-  cgi->datatype = NULL;
-  cgi->status   = HTTP_OKAY;
-  cgi->method   = OTHER;
+  cgi->query          = NULL;
+  cgi->content_type   = NULL;
+  cgi->content_length = 0;
+  cgi->status         = HTTP_OKAY;
+  cgi->method         = OTHER;
   ListInit(&cgi->qvars);
   ListInit(&cgi->pvars);
   
+  if (strcmp(request_method,"HEAD") == 0)
+    cgi->status = cgi_new_head(cgi);
   if (strcmp(request_method,"GET") == 0)
     cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
     cgi->status = cgi_new_post(cgi);
-  else if (strcmp(request_method,"HEAD") == 0)
-    cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"PUT") == 0)
     cgi->status = cgi_new_put(cgi);
+  else if (strcmp(request_method,"DELETE") == 0)
+    cgi->status = cgi_new_delete(cgi);
     
   if ((cgi->status == HTTP_OKAY) && !parsequery(cgi))
     cgi->status = HTTP_ISERVERERR;

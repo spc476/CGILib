@@ -39,10 +39,11 @@
 enum
 {
   OTHER,
+  HEAD,
   GET,
   POST,
-  HEAD,
-  PUT
+  PUT,
+  DELETE,
 };
 
 typedef enum http__e
@@ -160,11 +161,11 @@ typedef enum http__e
 
 typedef struct cgi
 {
-  char    *query;    /* if NULL, no simple text query */
-  char    *datatype; /* valid for PUT */
-  size_t   bufsize;  /* valid for PUT */
-  List     qvars;    /* if not empty, name/value query */
-  List     pvars;    /* valid on POST */
+  char    *query;          /* if NULL, no simple text query */
+  char    *content_type;   /* valid for PUT, POST */
+  size_t   content_length; /* valid for PUT, POST */
+  List     qvars;          /* if not empty, name/value query */
+  List     pvars;          /* valid on POST */
   int      method;
   http__e  status;
 } *Cgi;
@@ -208,11 +209,19 @@ static inline http__e CgiStatus(Cgi cgi)
 
 /*------------------------------------------------------------------*/
 
-static inline char const *CgiMimeType(Cgi cgi)
+static inline char const *CgiContentType(Cgi cgi)
 {
-  assert(cgi           != NULL);
-  assert(cgi->datatype != NULL);
-  return cgi->datatype;
+  assert(cgi               != NULL);
+  assert(cgi->content_type != NULL);
+  return cgi->content_type;
+}
+
+/*-------------------------------------------------------------------*/
+
+static inline size_t CgiContentLength(Cgi cgi)
+{
+  assert(cgi != NULL);
+  return cgi->content_length;
 }
 
 /*-------------------------------------------------------------------*/
