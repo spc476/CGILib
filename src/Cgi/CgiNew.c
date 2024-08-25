@@ -45,6 +45,8 @@ static bool makelist(List *vars,char const *data)
     UrlDecodeString(psp->name);
     UrlDecodeString(psp->value);
     ListAddTail(vars,&psp->node);
+    if (*data == '&')
+      data++;
   }
   
   return true;
