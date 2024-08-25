@@ -111,8 +111,6 @@ static http__e cgi_new_get(Cgi cgi)
 static http__e cgi_new_post(Cgi cgi)
 {
   char *content_length;
-  char *buffer;
-  bool  okay;
   
   assert(cgi != NULL);
   
@@ -131,18 +129,20 @@ static http__e cgi_new_post(Cgi cgi)
   if ((cgi->content_length == LONG_MAX) && (errno == ERANGE))
     return HTTP_TOOLARGE;
     
-  if (strncmp(cgi->content_type,"application/x-www-form-urlencoded",33) != 0)
-    return HTTP_MEDIATYPE;
-    
-  buffer = malloc(cgi->content_length + 1);
+  if (strncmp(cgi->content_type,"application/x-www-form-urlencoded",33) == 0)
+  {
+    char *buffer = malloc(cgi->content_length + 1);
   
-  if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
-    return HTTP_METHODFAILURE;
-    
-  buffer[cgi->content_length] = '\0';
-  okay                        = makelist(&cgi->pvars,buffer);
-  free(buffer);
-  return okay ? HTTP_OKAY : HTTP_ISERVERERR;
+    if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
+      return HTTP_METHODFAILURE;
+      
+    buffer[cgi->content_length] = '\0';
+    bool okay                   = makelist(&cgi->pvars,buffer);
+    free(buffer);
+    return okay ? HTTP_OKAY : HTTP_ISERVERERR;
+  }
+  
+  return HTTP_OKAY;
 }
 
 /**********************************************************************/
