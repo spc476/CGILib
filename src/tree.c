@@ -25,10 +25,10 @@
 
 /*************************************************************************/
 
-static int      tree_delta      (tree__s *);
-static tree__s  *tree_rotl      (tree__s *);
-static tree__s  *tree_rotr      (tree__s *);
-static tree__s  *tree_balance   (tree__s *);
+static int      tree_delta   (tree__s *);
+static tree__s *tree_rotl    (tree__s *);
+static tree__s *tree_rotr    (tree__s *);
+static tree__s *tree_balance (tree__s *);
 
 /*************************************************************************/
 
@@ -183,4 +183,3 @@ tree__s *tree_remove(
 }
 
 /*************************************************************************/
-

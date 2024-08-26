@@ -191,7 +191,6 @@ Cgi CgiNew(void)
     return NULL;
     
   request_method = getenv("REQUEST_METHOD");
-  
   if (request_method == NULL)
     return NULL;
     
