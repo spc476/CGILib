@@ -53,10 +53,10 @@
 #  define SA_ONESHOT 0
 #endif
 
-static int    m_argc = 0;
-static char **m_argv = NULL;
-static char **m_envp = NULL;
-static int    m_cnt  = 0;
+static int    m_argc;
+static char **m_argv;
+static char **m_envp;
+static int    m_cnt;
 
 /***************************************************************************/
 
@@ -498,11 +498,11 @@ int crashreport(int sig)
 
 /********************************************************************/
 
-void crashreport_with(int argc,char **argv,char **envp)
+void crashreport_args(int argc,char **argv)
 {
   m_argc = argc;
   m_argv = argv;
-  m_envp = envp;
+  m_envp = environ;
 }
 
 /********************************************************************/

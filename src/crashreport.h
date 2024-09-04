@@ -27,7 +27,7 @@
 extern int const cgilib_coresigs[];
 
 extern int  crashreport      (int);
-extern void crashreport_with (int,char **,char **);
+extern void crashreport_args (int,char **);
 extern void crashreport_core (void);
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__SunOS) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
