@@ -498,11 +498,12 @@ int crashreport(int sig)
 
 /********************************************************************/
 
-void crashreport_args(int argc,char **argv)
+void crashreport_args(int argc,char **argv,bool env)
 {
   m_argc = argc;
   m_argv = argv;
-  m_envp = environ;
+  if (env)
+    m_envp = environ;
 }
 
 /********************************************************************/

@@ -22,12 +22,13 @@
 #ifndef I_4007C572_D16E_538C_88BA_7948289D7F06
 #define I_4007C572_D16E_538C_88BA_7948289D7F06
 
+#include <stdbool.h>
 #include <signal.h>
 
 extern int const cgilib_coresigs[];
 
 extern int  crashreport      (int);
-extern void crashreport_args (int,char **);
+extern void crashreport_args (int,char **,bool);
 extern void crashreport_core (void);
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__SunOS) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
