@@ -8,15 +8,19 @@ bisearch        - binary search that returns both found/not-found indicator,
                   plus the index where it item was found/would have been
                   found.
                   
-cgi             - routines to handle CGI variables; both GET and POST
-                  variables are supported, but not both at the same time.
-                  This limitation was one that has never bothered me.
+cgi             - routines to handle CGI variables; both the query string
+		  and POST variables are supported, but are kept separate.
                   
 chunk           - a simple template system.  Real simple.  It's up to you to
                   provide loops, sub-templates, etc.  All this does is allow
                   you to register callbacks keyed off the text between '%{'
                   and '}%'.  The rest is up to you.
                   
+crashreport	- An interface to dump a stacktrace (plus optionally the
+		  command line and environment variables) to syslog.
+
+dump		- Routines to generate hex dumps from data.
+
 htmltok         - a simple tag-soup HTML parser.
 
 mail            - a simple interface to sending email
@@ -29,8 +33,9 @@ pair            - creates name/value pairs and puts them into a list.  It
                   
 rfc822          - parses RFC-822 formatted headers.
 
+tree		- an AVL tree implementation.
+
 url             - right now it only parses and creates HTTP based urls,
                   but the infrastructure is there to support more types.
                   
 util            - some miscellaneous routines that don't fit elsewhere.
-
