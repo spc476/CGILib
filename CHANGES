@@ -1,0 +1,32 @@
+
+v7.0.0
+	Changed
+
+		CgiNew()        - no longer accepts data value
+		PairNew()	- returns pointer to end delimeter (or end
+				  of string)
+
+	Add
+		CgiStatus()
+		CgiGetQPair()
+		CgiGetQValue()
+		CgiContentType()
+		CgiContentLength()
+		crashreport_args()
+
+	Renamed
+		CgiListGetValues() to CgiGetValues()
+		CgiListRequired()  to CgiRequired()
+		CgiListGetPair()   to CgiGetPair()
+		CgiListGetValue()  to CgiGetValue()
+
+	Removed
+		CgiListFirst()
+		CgiListMake()
+		CgiNextValue()
+		CgiGetRawData()
+		CgiOutHtml()
+		CgiOutText()
+		CgiOutShtml()
+		CgiOutLocation()
+		crashreport_with()	- replaced with crashreport_args()
