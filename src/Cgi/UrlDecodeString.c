@@ -31,8 +31,9 @@ char *UrlDecodeString(char *src)
   assert(src != NULL);
   
   for ( r = src , t = src ; *src ; t++)
-    *t = UrlDecodeChar(&src);
-    
+    if ((*t = UrlDecodeChar(&src)) == '\0')
+      return NULL;
+      
   *t = '\0';
   return(r);
 }

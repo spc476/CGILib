@@ -1,3 +1,10 @@
+v8.0.0
+	API Change:
+
+		UrlDecodeChar()	  - returns '\0' on bad input
+		UrlDecodeString() - returns NULL on bad input
+		CgiNew()	  - returns HTTP_BADREQ instead of HTTP_ISERVERERR
+				    if it can't parse input
 
 v7.0.0
 	Changed

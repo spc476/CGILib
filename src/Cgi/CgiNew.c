@@ -42,8 +42,11 @@ static bool makelist(List *vars,char const *data)
     if (psp == NULL)
       return false;
       
-    UrlDecodeString(psp->name);
-    UrlDecodeString(psp->value);
+    if ((UrlDecodeString(psp->name) == NULL) || (UrlDecodeString(psp->value) == NULL))
+    {
+      PairFree(psp);
+      return false;
+    }
     ListAddTail(vars,&psp->node);
     if (*data == '&')
       data++;
@@ -139,7 +142,7 @@ static http__e cgi_new_post(Cgi cgi)
     buffer[cgi->content_length] = '\0';
     bool okay                   = makelist(&cgi->pvars,buffer);
     free(buffer);
-    return okay ? HTTP_OKAY : HTTP_ISERVERERR;
+    return okay ? HTTP_OKAY : HTTP_BADREQ;
   }
   
   return HTTP_OKAY;
@@ -218,7 +221,7 @@ Cgi CgiNew(void)
     cgi->status = cgi_new_delete(cgi);
     
   if ((cgi->status == HTTP_OKAY) && !parsequery(cgi))
-    cgi->status = HTTP_ISERVERERR;
+    cgi->status = HTTP_BADREQ;
     
   return cgi;
 }

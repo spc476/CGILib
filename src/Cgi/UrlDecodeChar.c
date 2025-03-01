@@ -38,8 +38,8 @@ char UrlDecodeChar(char **psrc)
     c = ' ';
   else if (c == '%')
   {
-    assert(isxdigit(*src));
-    assert(isxdigit(*(src+1)));
+    if (!isxdigit(*src))   return '\0';
+    if (!isxdigit(*src+1)) return '\0';
     c    = ctohex(*src) * 16 + ctohex(*(src+1));
     src += 2;
   }

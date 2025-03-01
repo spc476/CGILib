@@ -22,7 +22,7 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=7.0.0
+  CGIVERSION=8.0.0
 endif
 
 CC     = c99 -pedantic -Wall -Wextra -Wwrite-strings
@@ -41,7 +41,7 @@ override CFLAGS += -DCGIVERSION='"CGILIB $(CGIVERSION)"'
 
 .PHONY    : clean install depend dist
 
-libcgi7.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
+libcgi8.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
 	$(AR) $(ARFLAGS) $@ $?
 
 #---------------------------------------------------------------------
@@ -51,17 +51,17 @@ libcgi7.a : $(patsubst %.c,%.o,$(shell find src -name '*.c'))
 clean:
 	$(RM) $(shell find . -name '*~')
 	$(RM) $(shell find . -name '*.o')
-	$(RM) libcgi7.a Makefile.bak
+	$(RM) libcgi8.a Makefile.bak
 
-install: libcgi7.a
+install: libcgi8.a
 	$(INSTALL) -d $(DESTDIR)$(libdir)
-	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib7
-	$(INSTALL_DATA) libcgi7.a $(DESTDIR)$(libdir)
-	$(INSTALL_DATA) src/*.h   $(DESTDIR)$(includedir)/cgilib7
+	$(INSTALL) -d $(DESTDIR)$(includedir)/cgilib8
+	$(INSTALL_DATA) libcgi8.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) src/*.h   $(DESTDIR)$(includedir)/cgilib8
 
 uninstall:
-	$(RM)    $(DESTDIR)$(libdir)/libcgi7.a
-	$(RM) -r $(DESTDIR)$(includedir)/cgilib7
+	$(RM)    $(DESTDIR)$(libdir)/libcgi8.a
+	$(RM) -r $(DESTDIR)$(includedir)/cgilib8
 
 depend:
 	makedepend -Y -- $(CFLAGS) -- $(shell find src -name '*.c') 2>/dev/null
