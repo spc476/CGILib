@@ -32,7 +32,6 @@
 void PairFree(struct pair *psp)
 {
   assert(psp != NULL);
-  assert(NodeValid(&psp->node));
   
   free(psp->name);
   free(psp->value);
