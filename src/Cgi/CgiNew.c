@@ -45,6 +45,7 @@ static bool makelist(List *vars,char const *data)
     if ((UrlDecodeString(psp->name) == NULL) || (UrlDecodeString(psp->value) == NULL))
     {
       PairFree(psp);
+      PairListFree(vars);
       return false;
     }
     ListAddTail(vars,&psp->node);

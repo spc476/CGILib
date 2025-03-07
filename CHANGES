@@ -1,3 +1,6 @@
+v8.0.2
+	* Bug fix---on an invalid parse of CGI variables, clear list
+
 v8.0.1
 	* Bug fix---remove assert() as assertion made is invalid
 
