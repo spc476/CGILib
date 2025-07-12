@@ -145,8 +145,8 @@ static http__e cgi_new_post(Cgi cgi)
     free(buffer);
     return okay ? HTTP_OKAY : HTTP_BADREQ;
   }
-  
-  return HTTP_OKAY;
+  else
+    return HTTP_MEDIATYPE;
 }
 
 /**********************************************************************/
