@@ -58,6 +58,34 @@ static bool makelist(List *vars,char const *data)
 
 /**************************************************************************/
 
+static int crq(int c)
+{
+  return c == '\r';
+}
+
+/**************************************************************************/
+
+static bool makeplainlist(List *vars,char const *data)
+{
+  while(*data != '\0')
+  {
+    struct pair *psp = PairNew(&data,'=','\n');
+    
+    if (psp == NULL)
+      return false;
+      
+    remove_char(psp->name,crq);
+    remove_char(psp->value,crq);
+    ListAddTail(vars,&psp->node);
+    if (*data == '\n')
+      data++;
+  }
+  
+  return true;
+}
+
+/**************************************************************************/
+
 static bool parsequery(Cgi cgi)
 {
   assert(cgi != NULL);
@@ -142,6 +170,18 @@ static http__e cgi_new_post(Cgi cgi)
       
     buffer[cgi->content_length] = '\0';
     bool okay                   = makelist(&cgi->pvars,buffer);
+    free(buffer);
+    return okay ? HTTP_OKAY : HTTP_BADREQ;
+  }
+  else if (strncmp(cgi->content_type,"multipart/form-data",19) == 0)
+    return HTTP_MEDIATYPE;
+  else if (strncmp(cgi->content_type,"text/plain",10) == 0)
+  {
+    char *buffer = malloc(cgi->content_length + 1);
+    if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
+      return HTTP_METHODFAILURE;
+    buffer[cgi->content_length] = '\0';
+    bool okay = makeplainlist(&cgi->pvars,buffer);
     free(buffer);
     return okay ? HTTP_OKAY : HTTP_BADREQ;
   }
