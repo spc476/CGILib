@@ -33,27 +33,27 @@
 
 /**************************************************************************/
 
-static bool makelist(List *vars,char const *data)
+static http__e makelist(List *vars,char const *data)
 {
   while (*data != '\0')
   {
     struct pair *psp = PairNew(&data,'=','&');
     
     if (psp == NULL)
-      return false;
+      return HTTP_ISERVERERR;
       
     if ((UrlDecodeString(psp->name) == NULL) || (UrlDecodeString(psp->value) == NULL))
     {
       PairFree(psp);
       PairListFree(vars);
-      return false;
+      return HTTP_BADREQ;
     }
     ListAddTail(vars,&psp->node);
     if (*data == '&')
       data++;
   }
   
-  return true;
+  return HTTP_OKAY;
 }
 
 /**************************************************************************/
@@ -65,14 +65,14 @@ static int crq(int c)
 
 /**************************************************************************/
 
-static bool makeplainlist(List *vars,char const *data)
+static http__e makeplainlist(List *vars,char const *data)
 {
   while(*data != '\0')
   {
     struct pair *psp = PairNew(&data,'=','\n');
     
     if (psp == NULL)
-      return false;
+      return HTTP_ISERVERERR;
       
     remove_char(psp->name,crq);
     remove_char(psp->value,crq);
@@ -81,7 +81,7 @@ static bool makeplainlist(List *vars,char const *data)
       data++;
   }
   
-  return true;
+  return HTTP_OKAY;
 }
 
 /**************************************************************************/
@@ -142,7 +142,9 @@ static http__e cgi_new_get(Cgi cgi)
 
 static http__e cgi_new_post(Cgi cgi)
 {
-  char *content_length;
+  char    *content_length;
+  char    *buffer;
+  http__e  result;
   
   assert(cgi != NULL);
   
@@ -156,37 +158,33 @@ static http__e cgi_new_post(Cgi cgi)
   if (content_length == NULL)
     return HTTP_LENGTHREQ;
     
-  errno  = 0;
+  errno = 0;
   cgi->content_length = strtoul(content_length,NULL,10);
   if ((cgi->content_length == LONG_MAX) && (errno == ERANGE))
     return HTTP_TOOLARGE;
     
-  if (strncmp(cgi->content_type,"application/x-www-form-urlencoded",33) == 0)
+  buffer = malloc(cgi->content_length + 1);
+  if (buffer == NULL)
+    return HTTP_ISERVERERR;
+    
+  if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
   {
-    char *buffer = malloc(cgi->content_length + 1);
+    free(buffer);
+    return HTTP_METHODFAILURE;
+  }
+  buffer[cgi->content_length] = '\0';
   
-    if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
-      return HTTP_METHODFAILURE;
-      
-    buffer[cgi->content_length] = '\0';
-    bool okay                   = makelist(&cgi->pvars,buffer);
-    free(buffer);
-    return okay ? HTTP_OKAY : HTTP_BADREQ;
-  }
+  if (strncmp(cgi->content_type,"application/x-www-form-urlencoded",33) == 0)
+    result = makelist(&cgi->pvars,buffer);
   else if (strncmp(cgi->content_type,"multipart/form-data",19) == 0)
-    return HTTP_MEDIATYPE;
+    result = HTTP_MEDIATYPE;
   else if (strncmp(cgi->content_type,"text/plain",10) == 0)
-  {
-    char *buffer = malloc(cgi->content_length + 1);
-    if (fread(buffer,1,cgi->content_length,stdin) < cgi->content_length)
-      return HTTP_METHODFAILURE;
-    buffer[cgi->content_length] = '\0';
-    bool okay = makeplainlist(&cgi->pvars,buffer);
-    free(buffer);
-    return okay ? HTTP_OKAY : HTTP_BADREQ;
-  }
+    result = makeplainlist(&cgi->pvars,buffer);
   else
-    return HTTP_MEDIATYPE;
+    result = HTTP_MEDIATYPE;
+    
+  free(buffer);
+  return result;
 }
 
 /**********************************************************************/

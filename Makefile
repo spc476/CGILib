@@ -22,7 +22,7 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=8.0.3
+  CGIVERSION=8.0.4
 endif
 
 CC     = c99 -pedantic -Wall -Wextra -Wwrite-strings
