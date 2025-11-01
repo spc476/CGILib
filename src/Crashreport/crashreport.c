@@ -500,6 +500,8 @@ int crashreport(int sig)
 
 void crashreport_args(int argc,char **argv,bool env)
 {
+  extern char **environ;
+
   m_argc = argc;
   m_argv = argv;
   if (env)
