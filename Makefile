@@ -25,7 +25,7 @@ ifeq ($(CGIVERSION),)
   CGIVERSION=8.0.5
 endif
 
-CC     = c99 -pedantic -Wall -Wextra -Wwrite-strings
+CC     = gcc -std=c99 -pedantic -Wall -Wextra -Wwrite-strings
 CFLAGS = -g 
 
 INSTALL         = /usr/bin/install
