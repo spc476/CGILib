@@ -38,10 +38,12 @@ Chunk ChunkNew(char const *cname,struct chunk_callback const *pcc,size_t scc)
   assert(pcc   != NULL);
   assert(scc   >  0);
   
-  chunk         = malloc(sizeof(struct chunk));
-  chunk->name   = strdup(cname);
-  chunk->cb     = pcc;
-  chunk->cbsize = scc;
-  
+  chunk = malloc(sizeof(struct chunk));
+  if (chunk != NULL)
+  {
+    chunk->name   = strdup(cname);
+    chunk->cb     = pcc;
+    chunk->cbsize = scc;
+  }
   return chunk;
 }

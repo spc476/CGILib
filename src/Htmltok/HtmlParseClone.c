@@ -43,26 +43,28 @@ HtmlToken HtmlParseClone(HtmlToken token)
   ; do I really need this call?
   ;-----------------------------------*/
   
-  pht         = malloc(sizeof(struct htmltoken));
-  pht->token  = token->token;
-  pht->state  = token->state;
-  pht->value  = strdup(token->value);
-  pht->input  = token->input;
-  pht->data   = NULL;
-  pht->max    = 0;
-  pht->idx    = 0;
-  
-  ListInit(&pht->pairs);
-  
-  for (
-        pair = PairListFirst(&token->pairs) ;
-        NodeValid(&pair->node) ;
-        pair = (struct pair *)NodeNext(&pair->node)
-      )
+  pht = malloc(sizeof(struct htmltoken));
+  if (pht != NULL)
   {
-    pairp = PairClone(pair);
-    ListAddTail(&pht->pairs,&pairp->node);
+    pht->token  = token->token;
+    pht->state  = token->state;
+    pht->value  = strdup(token->value);
+    pht->input  = token->input;
+    pht->data   = NULL;
+    pht->max    = 0;
+    pht->idx    = 0;
+    
+    ListInit(&pht->pairs);
+    
+    for (
+          pair = PairListFirst(&token->pairs) ;
+          NodeValid(&pair->node) ;
+          pair = (struct pair *)NodeNext(&pair->node)
+        )
+    {
+      pairp = PairClone(pair);
+      ListAddTail(&pht->pairs,&pairp->node);
+    }
   }
-  
   return(pht);
 }

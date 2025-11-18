@@ -32,15 +32,18 @@ HtmlToken HtmlParseNew(FILE *input)
   
   assert(input != NULL);
   
-  pht         = malloc(sizeof(struct htmltoken));
-  pht->token  = T_STRING;
-  pht->value  = NULL;   /* dup_string(""); */ /* am i perpetuating a hack? */
-  pht->state  = S_STRING;
-  pht->input  = input;
-  pht->data   = NULL;
-  pht->max    = 0;
-  pht->idx    = 0;
-  
-  ListInit(&pht->pairs);
+  pht = malloc(sizeof(struct htmltoken));
+  if (pht != NULL)
+  {
+    pht->token  = T_STRING;
+    pht->value  = NULL;   /* dup_string(""); */ /* am i perpetuating a hack? */
+    pht->state  = S_STRING;
+    pht->input  = input;
+    pht->data   = NULL;
+    pht->max    = 0;
+    pht->idx    = 0;
+    
+    ListInit(&pht->pairs);
+  }
   return pht;
 }

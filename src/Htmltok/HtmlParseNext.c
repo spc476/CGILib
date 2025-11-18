@@ -92,10 +92,12 @@ static char *ht_accdup(HtmlToken token)
   assert(token != NULL);
   
   text = malloc(token->idx + 1);
-  memcpy(text,token->data,token->idx);
-  text[token->idx] = '\0';
-  token->idx = 0;
-  
+  if (text != NULL)
+  {
+    memcpy(text,token->data,token->idx);
+    text[token->idx] = '\0';
+    token->idx = 0;
+  }
   return text;
 }
 

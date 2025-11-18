@@ -36,10 +36,12 @@ char *UrlEncodeString(char const *src)
   nsize = strlen(src) * 3 + 1;
   dest  = malloc(nsize);
   
-  for ( p = dest ; *src ; src++)
-    p = UrlEncodeChar(p,*src);
-    
-  *p = 0;
-  
+  if (dest != NULL)
+  {
+    for ( p = dest ; *src ; src++)
+      p = UrlEncodeChar(p,*src);
+      
+    *p = 0;
+  }
   return dest;
 }

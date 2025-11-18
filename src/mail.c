@@ -50,16 +50,19 @@ Email EmailNew(void)
 {
   Email email;
   
-  email            = malloc(sizeof(struct email));
-  email->from      = m_from;
-  email->to        = m_to;
-  email->replyto   = m_replyto;
-  email->subject   = m_subject;
-  email->tbody     = NULL;
-  email->bsize     = 0;
-  email->timestamp = time(NULL);
-  email->body      = open_memstream(&email->tbody,&email->bsize);
-  ListInit(&email->headers);
+  email = malloc(sizeof(struct email));
+  if (email != NULL)
+  {
+    email->from      = m_from;
+    email->to        = m_to;
+    email->replyto   = m_replyto;
+    email->subject   = m_subject;
+    email->tbody     = NULL;
+    email->bsize     = 0;
+    email->timestamp = time(NULL);
+    email->body      = open_memstream(&email->tbody,&email->bsize);
+    ListInit(&email->headers);
+  }
   return (email);
 }
 

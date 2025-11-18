@@ -176,17 +176,19 @@ url__t *UrlNew(char const *url)
   {
     if (strcmp(tmpbuf,g_protos[i].proto) == 0)
     {
-      purl         = calloc(1,g_protos[i].size);
-      purl->scheme = g_protos[i].scheme;
-      
-      if ((*g_protos[i].puv->new)(purl,turl) == 0)
-        return purl;
+      purl = calloc(1,g_protos[i].size);
+      if (purl != NULL)
+      {
+        purl->scheme = g_protos[i].scheme;
         
-      free(purl);
-      return NULL;
+        if ((*g_protos[i].puv->new)(purl,turl) == 0)
+          return purl;
+          
+        free(purl);
+        return NULL;
+      }
     }
   }
-  
   return NULL;
 }
 
