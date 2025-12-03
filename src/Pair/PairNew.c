@@ -74,7 +74,7 @@ struct pair *PairNew(char const **psrc,char delim,char eos)
   if (*p == delim)
   {
     src = p + 1;
-    p   = todelim(src,&svalue,delim,eos);
+    p   = todelim(src,&svalue,eos,eos);
   }
   else
     svalue = 0;
