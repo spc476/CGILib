@@ -250,7 +250,7 @@ Cgi CgiNew(void)
   
   if (strcmp(request_method,"HEAD") == 0)
     cgi->status = cgi_new_head(cgi);
-  if (strcmp(request_method,"GET") == 0)
+  else if (strcmp(request_method,"GET") == 0)
     cgi->status = cgi_new_get(cgi);
   else if (strcmp(request_method,"POST") == 0)
     cgi->status = cgi_new_post(cgi);
