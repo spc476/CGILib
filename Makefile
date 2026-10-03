@@ -22,10 +22,10 @@
 CGIVERSION := $(shell git describe --tag)
 
 ifeq ($(CGIVERSION),)
-  CGIVERSION=8.0.9
+  CGIVERSION=8.0.10
 endif
 
-CC     = gcc -std=c99 -pedantic -Wall -Wextra -Wwrite-strings
+CC     = gcc -std=c99 -pedantic -Wall -Wextra -Wwrite-strings -fmerge-all-constants
 CFLAGS = -g 
 
 INSTALL         = /usr/bin/install
@@ -86,6 +86,11 @@ src/Cgi/CgiNew.o: src/util.h src/dump.h src/cgi.h src/nodelist.h src/pair.h
 src/RFC822/RFC822HeadersRead.o: src/nodelist.h src/pair.h src/nodelist.h
 src/RFC822/RFC822HeadersRead.o: src/rfc822.h src/util.h src/dump.h
 src/RFC822/RFC822HeadersWrite.o: src/pair.h src/nodelist.h src/rfc822.h
+src/RFC5322/Ifgetc.o: src/rfc5322.h
+src/RFC5322/RFC5322ValueRead.o: src/rfc5322.h
+src/RFC5322/RFC5322NameRead.o: src/rfc5322.h
+src/RFC5322/RFC5322HeadersRead.o: src/pair.h src/nodelist.h src/rfc5322.h
+src/RFC5322/RFC5322HeaderRead.o: src/rfc5322.h
 src/mail.o: src/util.h src/dump.h src/rfc822.h src/nodelist.h src/pair.h
 src/mail.o: src/mail.h
 src/Dump/hexdump_mems.o: src/dump.h
@@ -95,6 +100,7 @@ src/Dump/dump_memoryl.o: src/dump.h
 src/Dump/hex.o: src/dump.h src/util.h src/dump.h
 src/Dump/dump_memoryf.o: src/dump.h
 src/conf.o: src/conf.h
+src/Util/ASCIIcasecmp.o: src/util.h src/dump.h
 src/Htmltok/HtmlParseFree.o: src/htmltok.h src/nodelist.h src/pair.h
 src/Htmltok/HtmlParseNew.o: src/nodelist.h src/htmltok.h src/nodelist.h
 src/Htmltok/HtmlParseNew.o: src/pair.h
@@ -114,9 +120,15 @@ src/Pair/PairFree.o: src/pair.h src/nodelist.h
 src/Pair/PairCreate.o: src/pair.h src/nodelist.h
 src/Pair/PairListFree.o: src/nodelist.h src/pair.h src/nodelist.h
 src/Pair/PairListGetValue.o: src/pair.h src/nodelist.h
+src/Pair/PairListGetIValue.o: src/pair.h src/nodelist.h
 src/Pair/PairListGetPair.o: src/nodelist.h src/pair.h src/nodelist.h
+src/Pair/PairListGetIPair.o: src/nodelist.h src/pair.h src/nodelist.h
+src/Pair/PairListGetIPair.o: src/util.h src/dump.h
 src/tree.o: src/tree.h
 src/bisearch.o: src/bisearch.h
+src/XDG/xdg_runtime.o: src/xdg.h
+src/XDG/xdg_fopen_sys.o: src/xdg.h
+src/XDG/xdg.o: src/xdg.h
 src/Nodelist/ListInit.o: src/nodelist.h
 src/Nodelist/ListRemHead.o: src/nodelist.h
 src/Nodelist/NodeInsert.o: src/nodelist.h
