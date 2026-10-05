@@ -35,7 +35,7 @@
 
 static int    gopher_new        (url__t *restrict,char const *restrict);
 static int    gopher_compare    (url__t const *const restrict,url__t const *const restrict);
-static size_t gopher_makestring (url__t const *const restrict,char *restrict,size_t);
+static size_t gopher_makestring (url__t const *const restrict,char [],size_t);
 static void   gopher_free       (url__t *);
 
 /***********************************************************************/
@@ -220,7 +220,7 @@ static int gopher_compare(
 
 static size_t gopher_makestring(
         url__t const *const restrict url,
-        char         *restrict       d,
+        char                         d[],
         size_t                       sd
 )
 {

@@ -180,7 +180,7 @@ struct dstring
 
 extern Cgi     CgiNew          (void);
 extern size_t  CgiGetValues    (Cgi,char ***,char const *);      /* added */
-extern size_t  CgiRequired     (Cgi,struct dstring *,size_t);
+extern size_t  CgiRequired     (Cgi,struct dstring [],size_t);
 extern int     CgiFree         (Cgi);
 
 extern char   *UrlEncodeString (char const *);
@@ -189,7 +189,7 @@ extern char   *UrlDecodeString (char *);
 extern char    UrlDecodeChar   (char **);
 
 extern bool    HttpNotModified (time_t);
-extern char   *HttpTimeStamp   (char *,size_t,time_t);
+extern char   *HttpTimeStamp   (char [],size_t,time_t);
 
 /********************************************************************/
 

@@ -102,7 +102,7 @@ struct urlvector
 {
   int    (*new)         (url__t *restrict,char const *);
   int    (*compare)     (url__t const *const restrict,url__t const *const restrict);
-  size_t (*makestring)  (url__t const *const restrict,char *restrict,size_t);
+  size_t (*makestring)  (url__t const *const restrict,char [],size_t);
   void   (*free)        (url__t *);
 };
 
@@ -118,10 +118,10 @@ struct urlrelation
 
 extern struct urlrelation const g_protos[];
 
-extern size_t  UrlGetProto (char *,size_t,char const **);
-extern size_t  UrlGetHost  (char *,size_t,char const **);
-extern size_t  UrlGetPort  (char *,size_t,char const **);
-extern size_t  UrlGetFile  (char *,size_t,char const **);
+extern size_t  UrlGetProto (char [],size_t,char const **);
+extern size_t  UrlGetHost  (char [],size_t,char const **);
+extern size_t  UrlGetPort  (char [],size_t,char const **);
+extern size_t  UrlGetFile  (char [],size_t,char const **);
 extern url__t *UrlNew      (char const *);
 
 /*------------------------------------------------------------------*/
@@ -143,7 +143,7 @@ static inline int UrlCompare(
 
 static inline size_t UrlMakeString(
         url__t const *const restrict url,
-        char         *restrict       d,
+        char                         d[],
         size_t                       sd
 )
 {

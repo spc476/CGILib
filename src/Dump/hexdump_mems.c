@@ -25,7 +25,7 @@
 #include "../dump.h"
 
 int hexdump_mems(
-        char       *dest,
+        char        dest[],
         size_t      dsize,
         void const *data,
         size_t      size,

@@ -24,7 +24,7 @@
 
 #include "../cgi.h"
 
-size_t CgiRequired(Cgi const cgi,struct dstring *table,size_t size)
+size_t CgiRequired(Cgi const cgi,struct dstring table[],size_t size)
 {
   size_t cnt = 0;
   
@@ -34,10 +34,9 @@ size_t CgiRequired(Cgi const cgi,struct dstring *table,size_t size)
   
   while(size--)
   {
-    if ((table->s2 = CgiGetValue(cgi,table->s1)) == NULL)
+    if ((table[cnt].s2 = CgiGetValue(cgi,table[cnt].s1)) == NULL)
       return cnt;
     cnt++;
-    table++;
   }
   return 0;
 }

@@ -35,7 +35,7 @@
 
 static int    file_new        (url__t *,char const *);
 static int    file_compare    (url__t const *const restrict,url__t const *const restrict);
-static size_t file_makestring (url__t const *const restrict,char *restrict,size_t);
+static size_t file_makestring (url__t const *const restrict,char [],size_t);
 static void   file_free       (url__t *);
 
 /***********************************************************************/
@@ -107,7 +107,7 @@ static int file_compare(
 
 static size_t file_makestring(
         url__t const *const restrict url,
-        char         *restrict       d,
+        char                         d[],
         size_t                       sd
 )
 {

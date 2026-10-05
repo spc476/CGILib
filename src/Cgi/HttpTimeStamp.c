@@ -24,9 +24,10 @@
 
 #include "../cgi.h"
 
-char *HttpTimeStamp(char *dest,size_t len,time_t when)
+char *HttpTimeStamp(char dest[],size_t len,time_t when)
 {
-  assert(len >= 30);
+  assert(dest != NULL);
+  assert(len  >= 30);
   strftime(dest,len,"%a, %d %b %Y %H:%M:%S %Z",gmtime(&when));
   return dest;
 }

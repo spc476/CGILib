@@ -46,7 +46,7 @@ struct urlrelation const g_protos[] =
 
 /********************************************************************/
 
-size_t UrlGetProto(char *d,size_t sd,char const **ppurl)
+size_t UrlGetProto(char d[],size_t sd,char const **ppurl)
 {
   char const *s;
   char       *rd;
@@ -72,7 +72,7 @@ size_t UrlGetProto(char *d,size_t sd,char const **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetHost(char *d,size_t sd,char const **ppurl)
+size_t UrlGetHost(char d[],size_t sd,char const **ppurl)
 {
   char const *s;
   char       *rd;
@@ -105,7 +105,7 @@ size_t UrlGetHost(char *d,size_t sd,char const **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetPort(char *d,size_t sd,char const **ppurl)
+size_t UrlGetPort(char d[],size_t sd,char const **ppurl)
 {
   char const *s;
   char       *rd;
@@ -134,7 +134,7 @@ size_t UrlGetPort(char *d,size_t sd,char const **ppurl)
 
 /***********************************************************************/
 
-size_t UrlGetFile(char *d,size_t sd,char const **ppurl)
+size_t UrlGetFile(char d[],size_t sd,char const **ppurl)
 {
   char const *s;
   char       *rd;
@@ -193,4 +193,3 @@ url__t *UrlNew(char const *url)
 }
 
 /**********************************************************************/
-

@@ -35,7 +35,7 @@
 
 static int    http_new        (url__t *restrict,char const *restrict);
 static int    http_compare    (url__t const *const restrict,url__t const *const restrict);
-static size_t http_makestring (url__t const *const restrict,char *restrict,size_t);
+static size_t http_makestring (url__t const *const restrict,char [],size_t);
 static void   http_free       (url__t *);
 
 /***********************************************************************/
@@ -175,7 +175,7 @@ static int http_compare(
 
 static size_t http_makestring(
         url__t const *const restrict url,
-        char         *restrict       d,
+        char                         d[],
         size_t                       sd
 )
 {

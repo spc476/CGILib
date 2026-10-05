@@ -27,7 +27,7 @@
 #include "../dump.h"
 #include "../util.h"
 
-void hex(char *dest,size_t dsize __attribute__((unused)),uintptr_t val,size_t digits)
+void hex(char dest[],size_t dsize __attribute__((unused)),uintptr_t val,size_t digits)
 {
   assert(dest   != NULL);
   assert(digits <= sizeof(uintptr_t) * 2);

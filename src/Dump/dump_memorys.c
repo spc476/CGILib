@@ -27,7 +27,7 @@
 #include "../dump.h"
 
 int dump_memorys(
-        char       *dest,
+        char        dest[],
         size_t      dsize,
         void const *data,
         size_t      size,

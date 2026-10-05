@@ -25,7 +25,7 @@
 #include <assert.h>
 
 int chardump_mems(
-        char       *dest,
+        char        dest[],
         size_t      dsize,
         void const *data,
         size_t      size,
